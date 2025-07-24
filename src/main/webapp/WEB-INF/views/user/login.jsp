@@ -9,33 +9,36 @@
     <link href="/css/user/login.css" rel="stylesheet">
 </head>
 <body>
-<div class="login-container row g-0">
-    <!-- 왼쪽 (로그인) -->
-    <div class="login-left col-lg-6 col-12 d-flex flex-column justify-content-center">
-        <!-- 로고 -->
-        <div class="text-center mb-4">
-            <%--            <img src="/images/logo-daepihasan.png" alt="대피하산 로고" style="height: 60px;">--%>
-            <h1 class="fw-bold mb-4">대피하산</h1>
+<div class="full-container">
+    <!-- 왼쪽 (로그인 폼) -->
+    <div class="login-left">
+        <!-- 로고 (왼쪽 상단 고정) -->
+        <div class="logo">
+            <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
         </div>
-        <h2 class="mb-4 fw-bold">로그인</h2>
-        <form>
-            <div class="mb-3">
-                <label for="username" class="form-label">아이디</label>
-                <input type="text" class="form-control" id="username" placeholder="user123">
-            </div>
-            <div class="mb-4">
-                <label for="password" class="form-label">비밀번호</label>
-                <input type="password" class="form-control" id="password" placeholder="••••••">
-            </div>
-            <button type="submit" class="btn btn-primary w-100 mb-3">로그인</button>
-            <div class="text-center">
-                <a href="#">아이디/비밀번호 찾기</a> | <a href="#">회원가입</a>
-            </div>
-        </form>
+
+        <!-- 로그인 폼 -->
+        <div class="w-100" style="max-width:400px;">
+            <h2 class="fw-bold mb-4 text-center">로그인</h2>
+            <form>
+                <div class="mb-3">
+                    <label for="username" class="form-label">아이디</label>
+                    <input type="text" class="form-control" id="username" placeholder="user123">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">비밀번호</label>
+                    <input type="password" class="form-control" id="password" placeholder="••••••">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">로그인</button>
+                <div class="text-center">
+                    <a href="#">아이디/비밀번호 찾기</a> | <a href="#">회원가입</a>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- 오른쪽 (이미지/배너) -->
-    <div class="login-right col-lg-6 d-none d-lg-block">
+    <!-- 오른쪽 (배너 이미지) -->
+    <div class="login-right">
         <img src="/images/daepi-inform.jpg" alt="산불발생 긴급대피 요령 배너">
     </div>
 </div>
