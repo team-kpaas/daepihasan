@@ -6,6 +6,7 @@ import com.daepihasan.mapper.IUserInfoMapper;
 import com.daepihasan.service.IMailService;
 import com.daepihasan.service.IUserInfoService;
 import com.daepihasan.util.CmmUtil;
+import com.daepihasan.util.DateUtil;
 import com.daepihasan.util.EncryptUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,5 +104,41 @@ public class UserInfoService implements IUserInfoService {
 
         log.info("{}.insertUserInfo End!", this.getClass().getName());
         return res;
+    }
+
+    /**
+     * 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기
+     *
+     * @param pDTO 로그인을 위한 회원아이디, 비밀번호
+     * @return 로그인된 회원아이디 정보
+     */
+    @Override
+    public UserInfoDTO getLogin(UserInfoDTO pDTO) throws Exception {
+
+        log.info("{}.getLogin Start!", this.getClass().getName());
+
+        // 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기 위한 mapper 호출하기
+        // userInfoMapper.getUserLoginCheck(pDTO) 함수 실행 결과가 NULL 발생하면, UserInfoDTO 메모리에 올리기
+        UserInfoDTO rDTO = Optional.ofNullable(userInfoMapper.getLogin(pDTO)).orElseGet(UserInfoDTO::new);
+
+        if(!CmmUtil.nvl(rDTO.getUserId()).isEmpty()) {
+            MailDTO mDTO = new MailDTO();
+
+            // 아이디, 패스워드 일치하는지 체크하는 쿼리에서 이메일 값 받아오기(아직 암호화되어 넘어오기 때문에 복호화 수행함)
+            mDTO.setToMail(EncryptUtil.decAES128CBC(CmmUtil.nvl(rDTO.getEmail())));
+
+            mDTO.setTitle("로그인 알림!"); // 제목
+
+            // 메일 내용에 가입자 이름 넣어서 내용을 발송
+            mDTO.setContents(DateUtil.getDateTime("yyyy.MM.dd hh:mm:ss") + "에 "
+                    + CmmUtil.nvl(rDTO.getUserName() + "님이 로그인했습니다."));
+
+            // 회원 가입이 성공했으므로 메일을 발송
+            mailService.doSendMail(mDTO);
+        }
+
+        log.info("{}.getLogin End!", this.getClass().getName());
+
+        return rDTO;
     }
 }
