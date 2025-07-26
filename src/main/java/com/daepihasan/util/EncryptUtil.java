@@ -15,6 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.AlgorithmParameterSpec;
 
+// SHA-256 해사(비밀번호), AES-128 CBC (이메일 암호화/복호화)
 public class EncryptUtil {
     /*
     * 암호화 알고리즘에 추가시킬 암호화 문구

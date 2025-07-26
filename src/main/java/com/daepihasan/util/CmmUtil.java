@@ -1,5 +1,6 @@
 package com.daepihasan.util;
 
+// null-safe 처리, HTML input 값 체크(checked, selected)
 public class CmmUtil {
 	public static String nvl(String str, String chg_str) {
 		String res;

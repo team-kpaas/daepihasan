@@ -6,6 +6,7 @@ import com.daepihasan.service.IUserInfoService;
 import com.daepihasan.util.CmmUtil;
 import com.daepihasan.util.EncryptUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -165,5 +166,66 @@ public class UserInfoController {
 
         log.info("{}.user/login End!", this.getClass().getName());
         return "/user/login";
+    }
+
+    @ResponseBody
+    @PostMapping(value = "loginProc")
+    public MsgDTO loginProc(HttpServletRequest request, HttpSession session) {
+        log.info("{}.loginProc Start!", this.getClass().getName());
+
+        int res = 0; // 로그인 처리 결과 저장(로그인 성공 : 1, 아이디/비밀번호 불일치 : 0, 시스템 에러 : 2)
+        String msg = ""; // 로그인 결과에 대한 메시지를 전달할 변수
+        MsgDTO dto; // 결과 메시지 구조
+
+        // 웹(회원 정보 입력화면)에서 받는 정보를 저장할 변수
+        UserInfoDTO pDTO;
+
+        try {
+            String userId = CmmUtil.nvl(request.getParameter("userId"));
+            String password = CmmUtil.nvl(request.getParameter("password"));
+
+            log.info("userId : {} / password : {}",  userId, password);
+
+            //웹(회원정보 입력화면)에서 받는 정보를 저장할 변수를 메모리에 올리기
+            pDTO = new UserInfoDTO();
+
+            pDTO.setUserId(userId);
+
+            // 비밀번호는 절대로 복호화되지 않도록 해시 알고리즘으로 암호화
+            pDTO.setPassword(EncryptUtil.encHashSHA256(password));
+
+            // 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기 위한 userInfoService 호출하기
+            UserInfoDTO rDTO = userInfoService.getLogin(pDTO);
+
+            if(!CmmUtil.nvl(rDTO.getUserId()).isEmpty()) {
+                // 로그인 성공
+                res = 1;
+
+                msg = "로그인이 성공했습니다.";
+
+                session.setAttribute("SS_USER_ID", userId);
+                session.setAttribute("SS_USER_NAME", CmmUtil.nvl(rDTO.getUserName()));
+            } else {
+                msg = "아이디와 비밀번호가 올바르지 않습니다.";
+            }
+        } catch (Exception e) {
+            msg = "시스템 문제로 로그인이 실패했습니다.";
+            res = 2;
+            log.info(e.toString());
+        } finally {
+            dto = new MsgDTO();
+            dto.setResult(res);
+            dto.setMsg(msg);
+
+            log.info("{}.loginProc End!", this.getClass().getName());
+        }
+        return dto;
+    }
+
+    @GetMapping(value = "loginResult")
+    public String loginSuccess() {
+        log.info("{}.loginResult Start!", this.getClass().getName());
+        log.info("{}.loginResult End!", this.getClass().getName());
+        return "/user/loginResult";
     }
 }

@@ -7,6 +7,7 @@
     <title>대피하산 로그인</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/user/login.css" rel="stylesheet">
+    <script src="/js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
 <div class="full-container">
@@ -20,16 +21,16 @@
         <!-- 로그인 폼 -->
         <div class="w-100" style="max-width:400px;">
             <h2 class="fw-bold mb-4 text-center">로그인</h2>
-            <form>
+            <form id="f">
                 <div class="mb-3">
-                    <label for="username" class="form-label">아이디</label>
-                    <input type="text" class="form-control" id="username" placeholder="user123">
+                    <label for="userId" class="form-label">아이디</label>
+                    <input type="text" class="form-control" id="userId" name="userId" placeholder="user123">
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">비밀번호</label>
-                    <input type="password" class="form-control" id="password" placeholder="••••••">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호를 입력하세요.">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 mb-3">로그인</button>
+                <button id="btnLogin" type="button" class="btn btn-primary w-100 mb-3">로그인</button>
                 <div class="text-center">
                     <a href="#">아이디/비밀번호 찾기</a> | <a href="#">회원가입</a>
                 </div>
@@ -44,5 +45,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/user/login.js"></script>
 </body>
 </html>
