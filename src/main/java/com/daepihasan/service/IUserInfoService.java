@@ -1,5 +1,6 @@
 package com.daepihasan.service;
 
+import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
 
 public interface IUserInfoService {
@@ -17,6 +18,9 @@ public interface IUserInfoService {
 
     // 아이디, 비밀번호 찾기
     UserInfoDTO searchUserIdOrPasswordProc(UserInfoDTO pDTO) throws Exception;
+
+    // 비밀번호 검증
+    MsgDTO checkPasswordMatch(String password, String password2) throws Exception;
 
     // 비밀번호 재설정
     int newPasswordProc(UserInfoDTO pDTO) throws Exception;

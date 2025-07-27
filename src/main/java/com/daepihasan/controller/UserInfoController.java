@@ -278,7 +278,11 @@ public class UserInfoController {
         return "user/searchUserResult";
     }
 
-
+    /**
+     * 비밀번호 찾기 로직 수행
+     * <p>
+     * 아이디, 이름, 이메일 일치하는 경우, 비밀번호 재발급 화면으로 이동
+     */
     @PostMapping(value = "searchPasswordProc")
     public String searchPasswordProc(HttpServletRequest request, ModelMap model, HttpSession session) throws Exception {
         log.info("{}.user/searchPasswordProc Start!", this.getClass().getName());
@@ -305,5 +309,56 @@ public class UserInfoController {
         log.info("{}.user/searchPasswordProc End!", this.getClass().getName());
 
         return "user/newPassword";
+    }
+
+    @ResponseBody
+    @PostMapping(value = "newPasswordProc")
+    public MsgDTO  newPasswordProc(HttpServletRequest request, ModelMap model, HttpSession session) throws Exception {
+        log.info("{}.user/newPasswordProc Start!", this.getClass().getName());
+
+        int res = 0; // 비밀번호 확인 성공여부(일치 : 1 / 다름 : 0 / 비정상 접근 : 2)
+        String msg; // 메시지
+        MsgDTO dto = new MsgDTO(); // 결과 메시지 구조
+
+        // 정상 접근여부 확인
+        String newPassword = CmmUtil.nvl((String) session.getAttribute("NEW_PASSWORD"));
+        String password = CmmUtil.nvl(request.getParameter("password")); // 새 비밀번호
+        String password2 = CmmUtil.nvl(request.getParameter("password2")); // 확인 비밀번호
+        log.info("password : {} / password2 : {}", password, password2);
+
+        if(!newPassword.isEmpty()) {
+            // 정상 접근인 경우
+
+            // 비밀번호 일치 여부 확인
+            dto = userInfoService.checkPasswordMatch(password, password2);
+
+            if (dto.getResult() == 0) {  // 불일치
+                return dto;
+            }
+
+            UserInfoDTO pDTO = new UserInfoDTO();
+            pDTO.setUserId(newPassword);
+            pDTO.setPassword(EncryptUtil.encHashSHA256(password)); // 복호화 못하도록 암호화
+
+            userInfoService.newPasswordProc(pDTO);
+
+            // 비밀번호 재생성하는 화면 보안위해 세션삭제
+            session.setAttribute("NEW_PASSWORD", "");
+            session.removeAttribute("NEW_PASSWORD");
+
+            res = 1;
+            msg = "비밀번호가 재설정되었습니다. \n로그인 페이지로 이동합니다.";
+        } else {
+            // 비정상 접근
+            res = 2;
+            msg = "비정상적인 접근입니다. \n로그인 페이지로 이동합니다.";
+        }
+
+        dto.setResult(res);
+        dto.setMsg(msg);
+
+        log.info("{}.user/newPasswordProc End!", this.getClass().getName());
+
+        return dto;
     }
 }
