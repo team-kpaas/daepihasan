@@ -71,7 +71,7 @@
                     <input type="text" name="addr2" class="form-control" placeholder="상세주소">
                 </div>
 
-                <button id="btnSend" type="button" class="btn btn-primary w-100">회원가입</button>
+                <button id="btnSend" type="button" class="btn btn-primary w-100  mt-3">회원가입</button>
             </form>
         </div>
     </div>

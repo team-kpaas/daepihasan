@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +32,7 @@ public class UserInfoController {
     public String userRegForm() {
         log.info("{}.user/userRegForm Start!", this.getClass().getName());
 
-        return "/user/userRegForm";
+        return "user/userRegForm";
     }
 
     /**
@@ -165,13 +166,13 @@ public class UserInfoController {
         log.info("{}.user/login Start!", this.getClass().getName());
 
         log.info("{}.user/login End!", this.getClass().getName());
-        return "/user/login";
+        return "user/login";
     }
 
     @ResponseBody
     @PostMapping(value = "loginProc")
     public MsgDTO loginProc(HttpServletRequest request, HttpSession session) {
-        log.info("{}.loginProc Start!", this.getClass().getName());
+        log.info("{}.user/loginProc Start!", this.getClass().getName());
 
         int res = 0; // 로그인 처리 결과 저장(로그인 성공 : 1, 아이디/비밀번호 불일치 : 0, 시스템 에러 : 2)
         String msg = ""; // 로그인 결과에 대한 메시지를 전달할 변수
@@ -217,15 +218,92 @@ public class UserInfoController {
             dto.setResult(res);
             dto.setMsg(msg);
 
-            log.info("{}.loginProc End!", this.getClass().getName());
+            log.info("{}.user/loginProc End!", this.getClass().getName());
         }
         return dto;
     }
 
     @GetMapping(value = "loginResult")
     public String loginSuccess() {
-        log.info("{}.loginResult Start!", this.getClass().getName());
-        log.info("{}.loginResult End!", this.getClass().getName());
-        return "/user/loginResult";
+        log.info("{}.user/loginResult Start!", this.getClass().getName());
+        log.info("{}.user/loginResult End!", this.getClass().getName());
+        return "user/loginResult";
+    }
+
+    /**
+     * 아이디/비밀번호 찾기 화면
+     */
+    @GetMapping(value = "searchUser")
+    public String searchUser(HttpServletRequest request, HttpSession session, ModelMap model) {
+        log.info("{}.user/searchUser Start!", this.getClass().getName());
+
+        // URL에서 tab 파라미터 읽기 (기본값: id)
+        String tab = CmmUtil.nvl(request.getParameter("tab"), "id");
+        model.addAttribute("activeTab", tab);
+        log.info("searchUser parameter : tab-{}", tab);
+
+        // 비밀번호 찾기 탭으로 접근할 경우: 강제 URL 접근 방지 세션 초기화
+        if ("pw".equals(tab)) {
+            session.setAttribute("NEW_PASSWORD", "");
+            session.removeAttribute("NEW_PASSWORD");
+        }
+
+        log.info("Active Tab: {}", tab);
+        log.info("{}.user/searchUser End!", this.getClass().getName());
+
+        return "user/searchUser";
+    }
+
+
+    @PostMapping(value = "searchUserIdProc")
+    public String searchUserIdProc(HttpServletRequest request, ModelMap model) throws Exception {
+        log.info("{}.user/searchUserIdProc Start!", this.getClass().getName());
+
+        String userName = CmmUtil.nvl(request.getParameter("userName"));
+        String email = CmmUtil.nvl(request.getParameter("email"));
+
+        log.info("userNme : {} / email : {}",  userName, email);
+
+        UserInfoDTO pDTO = new UserInfoDTO();
+        pDTO.setUserName(userName);
+        pDTO.setEmail(EncryptUtil.encAES128CBC(email)); // 암호화되어 DB에 저장된 이메일을 찾기 위해서 암호화 진행
+
+        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO))
+                .orElse(new UserInfoDTO());
+
+        model.addAttribute("rDTO", rDTO); // model 객체에 rDTO를 담음
+
+        log.info("{}.user/searchUserIdProc End!", this.getClass().getName());
+
+        return "user/searchUserResult";
+    }
+
+
+    @PostMapping(value = "searchPasswordProc")
+    public String searchPasswordProc(HttpServletRequest request, ModelMap model, HttpSession session) throws Exception {
+        log.info("{}.user/searchPasswordProc Start!", this.getClass().getName());
+
+        String userId =  CmmUtil.nvl(request.getParameter("userId"));
+        String userName = CmmUtil.nvl(request.getParameter("userName"));
+        String email = CmmUtil.nvl(request.getParameter("email"));
+
+        log.info("userId : {} / userName : {} /  email : {}",  userId, userName, email);
+
+        UserInfoDTO pDTO = new UserInfoDTO();
+        pDTO.setUserId(userId);
+        pDTO.setUserName(userName);
+        pDTO.setEmail(EncryptUtil.encAES128CBC(email));
+
+        // 비밀번호 찾기 가능 여부 확인
+        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO)).orElseGet(UserInfoDTO::new);
+
+        model.addAttribute("rDTO", rDTO);
+
+        // 비밀번호 재생성시 NEW_PASSWORD 세션 존재해야 접속 가능하도록 설정
+        session.setAttribute("NEW_PASSWORD", userId);
+
+        log.info("{}.user/searchPasswordProc End!", this.getClass().getName());
+
+        return "user/newPassword";
     }
 }

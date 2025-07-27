@@ -14,4 +14,10 @@ public interface IUserInfoService {
 
     // 로그인을 위해 아이디와 비밀번호가 일치하는지 확인하기
     UserInfoDTO getLogin(UserInfoDTO pDTO) throws Exception;
+
+    // 아이디, 비밀번호 찾기
+    UserInfoDTO searchUserIdOrPasswordProc(UserInfoDTO pDTO) throws Exception;
+
+    // 비밀번호 재설정
+    int newPasswordProc(UserInfoDTO pDTO) throws Exception;
 }
