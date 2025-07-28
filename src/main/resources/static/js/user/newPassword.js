@@ -39,6 +39,7 @@ $(document).ready(function () {
             return;
         }
 
+
         $.ajax({
             type: "POST",
             url: "/user/newPasswordProc",
