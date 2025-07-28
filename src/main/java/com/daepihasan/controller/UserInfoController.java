@@ -5,6 +5,7 @@ import com.daepihasan.dto.UserInfoDTO;
 import com.daepihasan.service.IUserInfoService;
 import com.daepihasan.util.CmmUtil;
 import com.daepihasan.util.EncryptUtil;
+import com.daepihasan.util.ValidatorUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -293,6 +294,14 @@ public class UserInfoController {
 
         log.info("userId : {} / userName : {} /  email : {}",  userId, userName, email);
 
+        // 유효성 검사 (ValidatorUtil 사용)
+        if (!ValidatorUtil.isValidId(userId) ||
+                !ValidatorUtil.isValidName(userName) ||
+                !ValidatorUtil.isValidEmail(email)) {
+            model.addAttribute("errorMsg", "입력값 형식이 올바르지 않습니다.");
+            return "user/searchUser";  // 에러 시 다시 입력 화면으로
+        }
+
         UserInfoDTO pDTO = new UserInfoDTO();
         pDTO.setUserId(userId);
         pDTO.setUserName(userName);
@@ -326,13 +335,20 @@ public class UserInfoController {
         String password2 = CmmUtil.nvl(request.getParameter("password2")); // 확인 비밀번호
         log.info("password : {} / password2 : {}", password, password2);
 
+        // 비밀번호 형식 유효성 검사
+        if (!ValidatorUtil.isValidPassword(password)) {
+            dto.setResult(0);
+            dto.setMsg("비밀번호는 8~20자, 영문 소문자, 숫자, 특수문자(!@#$%^&*())를 사용해야 합니다.");
+            return dto;
+        }
+
         if(!newPassword.isEmpty()) {
             // 정상 접근인 경우
 
             // 비밀번호 일치 여부 확인
-            dto = userInfoService.checkPasswordMatch(password, password2);
-
-            if (dto.getResult() == 0) {  // 불일치
+            if (!password.equals(password2)) {
+                dto.setResult(0);
+                dto.setMsg("입력한 두 비밀번호가 일치하지 않습니다.");
                 return dto;
             }
 

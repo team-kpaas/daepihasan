@@ -29,10 +29,12 @@
             <div class="mb-3">
                 <label class="form-label">이름</label>
                 <input type="text" name="userName" class="form-control" placeholder="가입 시 등록하신 이름을 입력해주세요.">
+                <div class="invalid-feedback" id="errorNameId"></div>
             </div>
             <div class="mb-4">
                 <label class="form-label">이메일</label>
                 <input type="email" name="email" class="form-control" placeholder="가입 시 등록하신 이메일을 입력해주세요.">
+                <div class="invalid-feedback" id="errorEmailId"></div>
             </div>
             <div class="d-flex gap-3 mt-3">
                 <button id="btnSearchUserId" type="button" class="btn btn-primary flex-fill">아이디 찾기</button>
@@ -45,20 +47,24 @@
             <div class="mb-3">
                 <label class="form-label">아이디</label>
                 <input type="text" name="userId" class="form-control" placeholder="가입 시 등록하신 아이디를 입력해주세요.">
+                <div class="invalid-feedback" id="errorUserIdPw"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">이름</label>
                 <input type="text" name="userName" class="form-control" placeholder="가입 시 등록하신 이름을 입력해주세요.">
+                <div class="invalid-feedback" id="errorNamePw"></div>
             </div>
             <div class="mb-4">
                 <label class="form-label">이메일</label>
                 <input type="email" name="email" class="form-control" placeholder="가입 시 등록하신 이메일을 입력해주세요.">
+                <div class="invalid-feedback" id="errorEmailPw"></div>
             </div>
-            <div class="d-flex gap-3  mt-3">
+            <div class="d-flex gap-3 mt-3">
                 <button id="btnSearchPassword" type="button" class="btn btn-primary flex-fill">비밀번호 찾기</button>
                 <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
             </div>
         </form>
+
     </div>
 
     <!-- 오른쪽 (배너) -->
@@ -66,7 +72,7 @@
         <img src="/images/daepi-inform.jpg" alt="산불발생 긴급대피 요령">
     </div>
 </div>
-
+<script src="/js/common/formValidator.js"></script>
 <script src="/js/user/searchUser.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

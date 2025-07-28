@@ -27,7 +27,7 @@ html, body {
 }
 .tab-container {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
 }
 .tab-btn {
     flex: 1;
@@ -45,7 +45,7 @@ html, body {
 }
 .search-form {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
 }
 .form-control {
     height: 45px;
