@@ -1,6 +1,7 @@
 package com.daepihasan.service.impl;
 
 import com.daepihasan.dto.MailDTO;
+import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
 import com.daepihasan.mapper.IUserInfoMapper;
 import com.daepihasan.service.IMailService;
@@ -140,5 +141,45 @@ public class UserInfoService implements IUserInfoService {
         log.info("{}.getLogin End!", this.getClass().getName());
 
         return rDTO;
+    }
+
+    // 아이디, 비밀번호 찾기
+    @Override
+    public UserInfoDTO searchUserIdOrPasswordProc(UserInfoDTO pDTO) throws Exception {
+        log.info("{}.searchUserIdOrPasswordProc Start!", this.getClass().getName());
+
+        UserInfoDTO rDTO = userInfoMapper.getUserId(pDTO);
+
+        log.info("{}.searchUserIdOrPasswordProc End!", this.getClass().getName());
+
+        return rDTO;
+    }
+
+    // 새 비밀번호, 확인 비밀번호 일치여부 검증
+    @Override
+    public MsgDTO checkPasswordMatch(String password, String password2) {
+        MsgDTO dto = new MsgDTO();
+
+        if (!password.equals(password2)) {
+            dto.setResult(0);
+            dto.setMsg("입력한 두 비밀번호가 일치하지 않습니다.");
+        } else {
+            dto.setResult(1);
+        }
+
+        return dto;
+    }
+
+    // 비밀번호 재설정
+    @Override
+    public int newPasswordProc(UserInfoDTO pDTO) throws Exception {
+        log.info("{}.newPasswordProc Start!", this.getClass().getName());
+
+        // 비밀번호 재설정
+        int success = userInfoMapper.updatePassword(pDTO);
+
+        log.info("{}.newPasswordProc End!", this.getClass().getName());
+
+        return success;
     }
 }

@@ -8,12 +8,12 @@ $(document).ready(function () {
 
     // 아이디 찾기
     $("#btnSearchUserId").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일)
-        location.href = "/user/searchUserId";
+        location.href = "/user/searchUser?tab=id";
     })
 
     // 비밀번호 찾기
     $("#btnSearchPassword").on("click", function () { // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일)
-        location.href = "/user/searchPassword";
+        location.href = "/user/searchUser?tab=pw";
     })
 
     // 로그인

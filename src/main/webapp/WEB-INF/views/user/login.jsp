@@ -19,20 +19,24 @@
         </div>
 
         <!-- 로그인 폼 -->
-        <div class="w-100" style="max-width:400px;">
+        <div class="form-container w-100">
             <h2 class="fw-bold mb-4 text-center">로그인</h2>
             <form id="f">
                 <div class="mb-3">
                     <label for="userId" class="form-label">아이디</label>
-                    <input type="text" class="form-control" id="userId" name="userId" placeholder="user123">
+                    <input type="text" class="form-control" id="userId" name="아이디를 입력하세요." placeholder="user123">
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">비밀번호</label>
                     <input type="password" class="form-control" id="password" name="password" placeholder="비밀번호를 입력하세요.">
                 </div>
-                <button id="btnLogin" type="button" class="btn btn-primary w-100 mb-3">로그인</button>
-                <div class="text-center">
-                    <a href="#">아이디/비밀번호 찾기</a> | <a href="#">회원가입</a>
+                <button id="btnLogin" type="button" class="btn btn-primary w-100 mt-3 mb-3">로그인</button>
+                <div class="text-center d-flex justify-content-center gap-2">
+                    <button id="btnSearchUserId" type="button" class="btn btn-link p-0">아이디 찾기</button>
+                    <span>|</span>
+                    <button id="btnSearchPassword" type="button" class="btn btn-link p-0">비밀번호 찾기</button>
+                    <span>|</span>
+                    <button id="btnUserReg" type="button" class="btn btn-link p-0">회원가입</button>
                 </div>
             </form>
         </div>
