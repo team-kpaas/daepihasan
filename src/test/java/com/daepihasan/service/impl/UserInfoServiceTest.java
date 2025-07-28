@@ -102,4 +102,38 @@ class UserInfoServiceTest {
         assertEquals("testUser", result.getUserId());
         verify(mailService, times(1)).doSendMail(any());
     }
+
+    @Test
+    @DisplayName("아이디/비밀번호 찾기 - 회원이 존재하는 경우")
+    void testSearchUserIdOrPasswordProc() throws Exception {
+        UserInfoDTO pDTO = new UserInfoDTO();
+        pDTO.setUserName("홍길동");
+
+        UserInfoDTO mockResult = new UserInfoDTO();
+        mockResult.setUserId("testUser");
+        mockResult.setUserName("홍길동");
+        mockResult.setEmail("암호화된이메일");
+
+        when(userInfoMapper.getUserId(pDTO)).thenReturn(mockResult);
+
+        UserInfoDTO result = userInfoService.searchUserIdOrPasswordProc(pDTO);
+
+        assertEquals("testUser", result.getUserId());
+        assertEquals("홍길동", result.getUserName());
+        verify(userInfoMapper, times(1)).getUserId(pDTO);
+    }
+
+    @Test
+    @DisplayName("아이디/비밀번호 찾기 - 회원이 존재하지 않는 경우")
+    void testSearchUserIdOrPasswordProcFail() throws Exception {
+        UserInfoDTO pDTO = new UserInfoDTO();
+        pDTO.setUserName("홍길동");
+
+        when(userInfoMapper.getUserId(pDTO)).thenReturn(null);
+
+        UserInfoDTO result = userInfoService.searchUserIdOrPasswordProc(pDTO);
+
+        assertNull(result);
+        verify(userInfoMapper, times(1)).getUserId(pDTO);
+    }
 }
