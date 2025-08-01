@@ -24,7 +24,7 @@
             <form id="f">
                 <div class="mb-3">
                     <label for="userId" class="form-label">아이디</label>
-                    <input type="text" class="form-control" id="userId" name="아이디를 입력하세요." placeholder="user123">
+                    <input type="text" class="form-control" id="userId" name="userId" placeholder="아이디를 입력하세요.">
                 </div>
                 <div class="mb-4">
                     <label for="password" class="form-label">비밀번호</label>
