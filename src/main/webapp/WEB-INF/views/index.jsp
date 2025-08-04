@@ -87,70 +87,91 @@
             border-radius: 10px;
         }
 
-        .weather-card {
+        /* ✅ 날씨 위젯 전체 영역 */
+        .weather-widget {
             background: linear-gradient(145deg, #2c3e50, #34495e);
             color: #ecf0f1;
             border-radius: 18px;
-            padding: 20px 15px;
+            padding: 15px 8px;
             margin: 20px 12px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            font-family: 'Segoe UI', sans-serif;
+            width: 100%;
+            max-width: 380px;
+            box-sizing: border-box;
         }
 
-        .weather-title {
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 14px;
-            padding-left: 5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 5px;
-        }
-
-        .weather-days {
+        /* ✅ 버튼 + 날짜 정렬 */
+        .weather-header-row {
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            margin-bottom: 10px;
+            padding: 0 4px;
+            gap: 4px;
         }
 
-        .weather-day {
-            flex: 1;
+        .weather-header {
+            flex-grow: 1;
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 10px 5px;
-            transition: transform 0.2s ease;
+            font-weight: bold;
+            font-size: 14px;
         }
 
-        .weather-day:hover {
-            transform: scale(1.05);
+        /* ✅ 슬라이드 버튼 */
+        .slider-btn {
+            background: none;
+            border: none;
+            font-size: 14px;
+            width: 28px;
+            height: 28px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .slider-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        /* ✅ 카드 컨테이너 */
+        .weather-cards-container {
+            display: flex;
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            padding: 0 4px;
+            box-sizing: border-box;
+        }
+
+        /* ✅ 카드 리스트 */
+        .weather-card-list {
+            display: flex;
+            gap: 12px;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        /* ✅ 카드 아이템 */
+        .weather-card-item {
+            width: 110px;
+            flex-shrink: 0;
             background-color: rgba(255, 255, 255, 0.08);
-        }
-
-        .weather-date {
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .weather-day img {
-            width: 38px;
-            height: 38px;
-            margin: 5px 0;
-            filter: drop-shadow(1px 1px 1px #00000050);
-        }
-
-        .weather-temp {
+            border-radius: 10px;
+            padding: 10px 6px;
+            text-align: center;
             font-size: 12px;
-            color: #dfe6e9;
-            margin-bottom: 2px;
+            box-sizing: border-box;
         }
 
-        .weather-aqi {
-            font-size: 11px;
-            color: #a4b0be;
+        .weather-card-item img {
+            width: 32px;
+            height: 32px;
+            margin: 4px 0;
         }
 
-
+        /* ✅ 반응형 */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
@@ -170,81 +191,24 @@
             .sidebar.show {
                 transform: translateX(0);
             }
-        }
+
+            /* 반응형에서 위젯도 줄어들게 */
+            .weather-widget {
+                max-width: 100%;
+                margin: 20px 8px;
+            }
+
+            .weather-card-item {
+                width: 100px;
+                font-size: 11px;
+            }
+        }s
     </style>
 </head>
 <body>
-<header>
-    <div class="d-flex align-items-center">
-        <button class="menu-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="logo">
-            <img src="/images/logo-daepihasan.png" alt="로고">
-            <h6 class="mb-0">대피하산</h6>
-        </div>
-    </div>
-    <button class="btn btn-light btn-sm">로그인</button>
-</header>
-
+<%@ include file="/WEB-INF/views/common/header.jsp" %>
 <div class="d-flex">
-    <nav class="sidebar" id="sidebar">
-        <div>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#">
-                        <i class="fa-solid fa-house" style="color: #2338a0;"></i> 홈
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fa-solid fa-map" style="color: #2338a0;"></i> 지도
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fa-solid fa-bullhorn" style="color: #2338a0;"></i> 제보 게시판
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fa-solid fa-chart-line" style="color: #2338a0;"></i> 산불 통계
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="fa-solid fa-fire-flame-simple" style="color: #2338a0;"></i> 산불 위험 예보
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- 날씨 위젯 영역 -->
-        <div class="weather-card">
-            <div class="weather-title">서울 날씨</div>
-            <div class="weather-days">
-                <div class="weather-day">
-                    <div class="weather-date">오늘</div>
-                    <img src="/images/weather/sunny.png" alt="sunny" />
-                    <div class="weather-temp">15~20°C</div>
-                    <div class="weather-aqi">AQI 67</div>
-                </div>
-                <div class="weather-day">
-                    <div class="weather-date">월</div>
-                    <img src="/images/weather/cloudy.png" alt="cloudy" />
-                    <div class="weather-temp">16~22°C</div>
-                    <div class="weather-aqi">AQI 71</div>
-                </div>
-                <div class="weather-day">
-                    <div class="weather-date">화</div>
-                    <img src="/images/weather/lightning.png" alt="lightning" />
-                    <div class="weather-temp">17~20°C</div>
-                    <div class="weather-aqi">AQI 65</div>
-                </div>
-            </div>
-        </div>
-
-    </nav>
+    <%@ include file="/WEB-INF/views/common/sidebar.jsp" %>
 
     <main class="main-content flex-fill">
         <h4 class="fw-bold mb-4">대시보드</h4>
@@ -264,33 +228,8 @@
         </div>
     </main>
 </div>
-
-<script>
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('show');
-    }
-
-    // 사이드바 외부 클릭 시 닫기
-    document.addEventListener('click', function (event) {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.querySelector('.menu-toggle');
-
-        const isClickInsideSidebar = sidebar.contains(event.target);
-        const isClickToggleBtn = toggleBtn.contains(event.target);
-
-        if (!isClickInsideSidebar && !isClickToggleBtn && sidebar.classList.contains('show')) {
-            sidebar.classList.remove('show');
-        }
-    });
-
-    // 화면 크기 조절 시 사이드바 닫기
-    window.addEventListener('resize', function () {
-        const sidebar = document.getElementById('sidebar');
-        if (window.innerWidth > 768 && sidebar.classList.contains('show')) {
-            sidebar.classList.remove('show');
-        }
-    });
-</script>
+<script src="/js/common/sidebar.js"></script>
+<script src="/js/common/location.js"></script>
+<script src="/js/common/weather.js"></script>
 </body>
 </html>
