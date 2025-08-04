@@ -51,11 +51,17 @@
 
                 <div class="mb-3">
                     <label class="form-label">비밀번호</label>
-                    <input type="password" name="password" class="form-control" placeholder="비밀번호">
+                    <input type="password" name="password" id="password" class="form-control" placeholder="비밀번호">
+                    <div id="pwRule" class="password-rule">
+                        ※ 8~20자 / 소문자 + 숫자 + 특수문자 필수
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">비밀번호 확인</label>
-                    <input type="password" name="password2" class="form-control" placeholder="비밀번호 확인">
+                    <input type="password" name="password2" id="password2" class="form-control" placeholder="비밀번호 확인">
+                    <div id="pwMatch" class="password-rule">
+                        <!-- 비밀번호 일치 여부 메시지 -->
+                    </div>
                 </div>
 
                 <div class="mb-3">
