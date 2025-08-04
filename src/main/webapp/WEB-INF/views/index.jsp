@@ -46,7 +46,7 @@
 
         .sidebar {
             background-color: #f8f9fa;
-            min-width: 303px;
+            min-width: 404px;
             padding-top: 20px;
             min-height: calc(100vh - 51px);
             transition: transform 0.3s ease-in-out;
@@ -87,7 +87,7 @@
             border-radius: 10px;
         }
 
-        /* ✅ 날씨 위젯 전체 영역 */
+        /* 날씨 위젯 전체 영역 */
         .weather-widget {
             background: linear-gradient(145deg, #2c3e50, #34495e);
             color: #ecf0f1;
@@ -99,7 +99,7 @@
             box-sizing: border-box;
         }
 
-        /* ✅ 버튼 + 날짜 정렬 */
+        /* 버튼 + 날짜 정렬 */
         .weather-header-row {
             display: flex;
             align-items: center;
@@ -109,34 +109,36 @@
             gap: 4px;
         }
 
-        .weather-header {
+        .current-time-display {
             flex-grow: 1;
-            text-align: center;
-            font-weight: bold;
+            color: white;
             font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
         }
 
-        /* ✅ 슬라이드 버튼 */
-        .slider-btn {
+
+        /* 슬라이드 버튼 */
+        .weather-prev-btn,
+        .weather-next-btn {
             background: none;
             border: none;
-            font-size: 14px;
-            width: 28px;
-            height: 28px;
+            font-size: 20px;
             color: white;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transition: all 0.2s ease-in-out;
+            padding: 6px;
             border-radius: 50%;
-            transition: background-color 0.2s ease;
         }
 
-        .slider-btn:hover {
-            background-color: rgba(255,255,255,0.2);
+        /* hover 시 색상 및 배경 효과 */
+        .weather-prev-btn:hover,
+        .weather-next-btn:hover {
+            transform: scale(1.3); /* 약간 확대 */
         }
 
-        /* ✅ 카드 컨테이너 */
+        /* 카드 컨테이너 */
         .weather-cards-container {
             display: flex;
             overflow: hidden;
@@ -146,14 +148,14 @@
             box-sizing: border-box;
         }
 
-        /* ✅ 카드 리스트 */
+        /* 카드 리스트 */
         .weather-card-list {
             display: flex;
             gap: 12px;
             transition: transform 0.5s ease-in-out;
         }
 
-        /* ✅ 카드 아이템 */
+        /* 카드 아이템 */
         .weather-card-item {
             width: 110px;
             flex-shrink: 0;
@@ -171,7 +173,7 @@
             margin: 4px 0;
         }
 
-        /* ✅ 반응형 */
+        /* 반응형 */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
@@ -191,18 +193,7 @@
             .sidebar.show {
                 transform: translateX(0);
             }
-
-            /* 반응형에서 위젯도 줄어들게 */
-            .weather-widget {
-                max-width: 100%;
-                margin: 20px 8px;
-            }
-
-            .weather-card-item {
-                width: 100px;
-                font-size: 11px;
-            }
-        }s
+        }
     </style>
 </head>
 <body>

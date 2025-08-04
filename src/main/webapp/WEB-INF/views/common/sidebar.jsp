@@ -32,11 +32,21 @@
 
     <!-- 날씨 위젯 영역 -->
     <div class="weather-widget">
-        <!-- ✅ 버튼과 날짜를 가로 정렬 -->
+        <!-- 버튼과 날짜를 가로 정렬 -->
         <div class="weather-header-row">
-            <button class="slider-btn" id="prevBtn">◁</button>
+            <!-- 이전 버튼 -->
+            <button class="weather-prev-btn" id="prevBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
             <div class="weather-header" id="weather-date-label"></div>
-            <button class="slider-btn" id="nextBtn">▷</button>
+            <div id="current-time" class="current-time-display"></div>
+
+
+            <!-- 다음 버튼 -->
+            <button class="weather-next-btn" id="nextBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
         </div>
 
         <div class="weather-cards-container">

@@ -8,6 +8,43 @@ function loadWeather(x, y) {
         .catch(err => console.error("❌ 날씨 불러오기 실패", err));
 }
 
+function updateCurrentTime() {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const date = String(now.getDate()).padStart(2, "0");
+
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const isAm = hours < 12;
+
+    const period = isAm ? "오전" : "오후";
+    hours = hours % 12;
+    hours = hours === 0 ? 12 : hours; // 0시는 12시로 표시
+
+    const formatted = `${year}. ${month}. ${date}. ${period} ${String(hours).padStart(2, "0")}:${minutes}`;
+    document.getElementById("current-time").innerText = formatted;
+}
+
+// 페이지 로딩 시 최초 실행
+updateCurrentTime();
+
+// 현재 초를 기준으로 다음 정각(분)까지 남은 시간 계산
+const now = new Date();
+const secondsUntilNextMinute = 60 - now.getSeconds();
+
+// 1회성 타이머: 정각까지 기다린 뒤 실행
+setTimeout(() => {
+    updateCurrentTime(); // 정각에 한 번 실행
+
+    // setInterval: 1분마다 반복 실행
+    // 매 정각(분)이 바뀔 때마다 updateCurrentTime()을 실행
+    setInterval(updateCurrentTime, 60 * 1000);
+
+}, secondsUntilNextMinute * 1000); // 정각까지 남은 초를 밀리초로 변환
+
+
 // 슬라이드 관련
 let cardWidth = 0;
 const visibleCards = 3;
@@ -29,15 +66,8 @@ function getCardWidth() {
 
 function renderWeather(data) {
     const container = document.getElementById("weatherSlider");
-    const dateLabel = document.getElementById("weather-date-label");
 
-    if (!container || !dateLabel) return;
-
-    const now = new Date();
-    dateLabel.textContent = now.toLocaleString("ko-KR", {
-        year: "numeric", month: "2-digit", day: "2-digit",
-        hour: "2-digit", minute: "2-digit", hour12: true
-    });
+    if (!container) return;
 
     container.innerHTML = "";
     totalCards = data.length;
@@ -47,10 +77,9 @@ function renderWeather(data) {
         const card = document.createElement("div");
         card.className = "weather-card-item";
         card.innerHTML = `
-            <div>${item.time}시</div>
-            <img src="${item.icon}" alt="날씨 아이콘" />
+            <div>${item.time} 시</div>
+            <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}"/>
             <div>${item.temp}°</div>
-            <div>${item.desc}</div>
             <div>습도: ${item.reh}%</div>
             <div>${item.windInfo}</div>
             <div>강수: ${item.rn1 || "강수없음"}</div>

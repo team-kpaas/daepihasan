@@ -63,8 +63,15 @@ public class WeatherService implements IWeatherService {
 
     private String getBaseDate() {
         log.info("{}.getBaseDate Start!", this.getClass().getName());
-
         LocalDate today = LocalDate.now();
+        LocalTime now = LocalTime.now();
+
+        if (now.getMinute() < 45) {
+            now = now.minusHours(1);
+            if (now.getHour() == 23) {
+                today = today.minusDays(1);
+            }
+        }
 
         log.info("{}.getBaseDate End!", this.getClass().getName());
 
@@ -147,7 +154,7 @@ public class WeatherService implements IWeatherService {
             String pty = data.getOrDefault("PTY", "0");
 
             WeatherDTO dto = WeatherDTO.builder()
-                    .time(time)
+                    .time(String.valueOf(Integer.parseInt(time.substring(0, 2))))
                     .temp(data.get("T1H"))
                     .sky(sky)
                     .pty(pty)
