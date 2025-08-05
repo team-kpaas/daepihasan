@@ -64,12 +64,12 @@ html, body {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+    box-shadow: 2px 2px 2px 2px gray;
 }
 
-/* 비밀번호 유효성 안내 문구 스타일 */
-.password-rule {
-    font-size: 12px;
-    color: red;
-    margin-top: 5px;
-    margin-left: 2px;
+
+/* 아이디, 이메일, 비밀번호 유효성*/
+.id-rule, .email-rule, .password-rule {
+    font-size: 0.875rem;
+    margin-top: 4px;
 }
