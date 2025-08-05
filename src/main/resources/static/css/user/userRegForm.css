@@ -64,4 +64,12 @@ html, body {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+    box-shadow: 2px 2px 2px 2px gray;
+}
+
+
+/* 아이디, 이메일, 비밀번호 유효성*/
+.id-rule, .email-rule, .password-rule {
+    font-size: 0.875rem;
+    margin-top: 4px;
 }
