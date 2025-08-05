@@ -61,9 +61,12 @@ html, body {
     border-radius: 8px;
 }
 .btn-primary {
-    height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+}
+
+.boxShadow{
+    height: 50px;
     box-shadow: 2px 2px 2px 2px gray;
 }
 
@@ -73,3 +76,4 @@ html, body {
     font-size: 0.875rem;
     margin-top: 4px;
 }
+

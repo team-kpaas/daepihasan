@@ -108,6 +108,7 @@ function kakaoPost(f) {
 
 function doSubmit(f) {
     if (f.userId.value === "") { alert("아이디를 입력하세요."); f.userId.focus(); return; }
+    if (f.userName.value === "") { alert("이름을 입력하세요."); f.userName.focus(); return; }
     if (userIdCheck !== "N") { alert("아이디 중복체크를 해주세요."); return; }
     if (f.password.value === "" || f.password2.value === "") { alert("비밀번호를 입력하세요."); return; }
     if (f.password.value !== f.password2.value) { alert("비밀번호가 일치하지 않습니다."); return; }
@@ -115,7 +116,7 @@ function doSubmit(f) {
     if (f.authNumber.value === "" || f.authNumber.value != emailAuthNumber) {
         alert("이메일 인증번호가 올바르지 않습니다."); return;
     }
-    if (f.addr1.value === "" || f.addr2.value === "") {
+    if (f.addr1.value === "") {
         alert("주소를 입력하세요."); return;
     }
 
@@ -199,4 +200,24 @@ userIdInput.addEventListener("input", function () {
         idRuleDiv.style.color = "red";
         idRuleDiv.textContent = "※ 4~20자 / 소문자로 시작 + 숫자 가능";
     }
+
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll("input");
+
+    inputs.forEach((input, index) => {
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // form 제출 방지
+
+                const next = inputs[index + 1];
+                if (next) {
+                    next.focus(); // 다음 input으로 포커스 이동
+                } else {
+                    // 마지막 input일 경우: 예를 들어 버튼 클릭하거나 submit 실행
+                    document.getElementById("btnSend")?.click();
+                }
+            }
+        });
+    });
 });
