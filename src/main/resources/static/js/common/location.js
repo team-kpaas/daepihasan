@@ -8,8 +8,11 @@ function getCurrentXY(callback) {
     if (cached) {
         const data = JSON.parse(cached);
         if (now - data.timestamp < cacheTTL) {
+            const lat = data.lat;
+            const lng = data.lng;
             console.log("📌 캐시된 위치 사용");
-            callback(data.xy);
+            const xy = dfs_xy_conv("toXY", lat, lng);
+            callback(xy);
             return;
         } else {
             sessionStorage.removeItem(cacheKey); // 만료되었으면 삭제
@@ -20,13 +23,7 @@ function getCurrentXY(callback) {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const xy = dfs_xy_conv("toXY", lat, lng);
-        console.log("📡 새 위치 측정 lat:", lat, ", lng:", lng);
-
-        // 캐시 저장
-        sessionStorage.setItem(cacheKey, JSON.stringify({
-            xy,
-            timestamp: now
-        }));
+        console.log("📡 새 위치 측정 lat:", lat, ", lng:", lng)
 
         callback(xy);
     }, function (error) {

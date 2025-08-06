@@ -78,8 +78,10 @@ function renderWeather(data) {
         card.className = "weather-card-item";
         card.innerHTML = `
             <div>${item.time} 시</div>
-            <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}"/>
-            <div>${item.temp}°</div>
+            <div class="weather-icon-temp">
+                <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}" />
+                <span class="temp-text">${item.temp}°</span>
+            </div>
             <div>습도: ${item.reh}%</div>
             <div>${item.windInfo}</div>
             <div>강수: ${item.rn1 || "강수없음"}</div>

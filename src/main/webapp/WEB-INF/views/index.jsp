@@ -173,6 +173,25 @@
             margin: 4px 0;
         }
 
+        .weather-icon-temp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin: 6px 0;
+        }
+
+        .weather-icon-temp img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .temp-text {
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4); /* 살짝 그림자 */
+        }
+
         /* 반응형 */
         @media (max-width: 768px) {
             .menu-toggle {
