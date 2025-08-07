@@ -9,9 +9,9 @@ public interface IWeatherCacheMapper {
     // 캐시 데이터 조회
     WeatherCacheDTO getWeatherCache(WeatherCacheDTO pDTO) throws Exception;
 
+    // 기존 캐시 데이터 삭제
+    int deleteWeatherCache(WeatherCacheDTO pDTO) throws Exception;
+
     // 캐시 데이터 등록
     int insertWeatherCache(WeatherCacheDTO pDTO) throws Exception;
-
-    // 캐시 데이터 갱신
-    int updateWeatherCache(WeatherCacheDTO pDTO) throws Exception;
 }

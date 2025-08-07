@@ -4,6 +4,7 @@ import com.daepihasan.dto.WeatherCacheDTO;
 import com.daepihasan.dto.WeatherDTO;
 import com.daepihasan.mapper.IWeatherCacheMapper;
 import com.daepihasan.service.IWeatherService;
+import com.daepihasan.util.WeatherUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,30 +25,50 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static com.daepihasan.util.WeatherUtil.*;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class WeatherService implements IWeatherService {
 
-    @Value("${data.api.key}")
+    @Value("${data.api.decodeKey}")
     private String apiKey;
 
     private final IWeatherCacheMapper weatherCacheMapper; // 날씨 캐시 Mapper 가져오기
+    WeatherUtil weatherUtil;
 
     @Override
     public List<WeatherDTO> getWeather(String x, String y) {
         log.info("{}.getWeather Start!", this.getClass().getName());
+        log.info("x: {}, y: {}", x, y);
 
         try {
             String baseDate = getBaseDate();
             String baseTime = getBaseTime();
 
-            // 캐시 조회 로직 분리
-            List<WeatherDTO> cached = checkAndUseCache(x, y, baseDate, baseTime);
-            if (cached != null) return cached;
+            log.info("badeDate: {}, baseTime: {}", baseDate, baseTime);
 
-            // 캐시 없으면 API 호출 및 저장
-            return callApiAndCache(x, y, baseDate, baseTime);
+            WeatherCacheDTO rDTO = WeatherCacheDTO.builder()
+                    .x(x)
+                    .y(y)
+                    .baseDate(baseDate)
+                    .baseTime(baseTime)
+                    .build();
+
+            // 1. 캐시 조회
+            WeatherCacheDTO pDTO = getCachedWeather(rDTO);
+
+            if (pDTO != null && pDTO.getData() != null) {
+                log.info("캐시 데이터 사용");
+                return parseWeather(pDTO.getData(), pDTO.getBaseTime());
+            }
+
+            // 2. API 호출 & 캐시 저장
+            String json = callApiAndCache(rDTO);
+
+            // 3. JSON → DTO 변환
+            return parseWeather(json, baseTime);
 
         } catch (Exception e) {
             log.error("getWeather Error: ", e);
@@ -57,6 +78,7 @@ public class WeatherService implements IWeatherService {
         }
     }
 
+    /** 오늘 날짜 또는 어제 날짜 계산 */
     private String getBaseDate() {
         log.info("{}.getBaseDate Start!", this.getClass().getName());
         LocalDate today = LocalDate.now();
@@ -74,6 +96,7 @@ public class WeatherService implements IWeatherService {
         return today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
     }
 
+    /** 오늘 날짜 또는 어제 날짜 계산 */
     private String getBaseTime() {
         log.info("{}.getBaseTime Start!", this.getClass().getName());
 
@@ -88,6 +111,7 @@ public class WeatherService implements IWeatherService {
         return now.format(DateTimeFormatter.ofPattern("HH")) + "30";
     }
 
+    /** API 호출 */
     private String getJsonFromUrl(String urlStr) throws IOException {
         log.info("{}.getJsonFromUrl Start!", this.getClass().getName());
         log.debug("요청 URL: {}", urlStr); // 요청 URL 확인
@@ -116,6 +140,7 @@ public class WeatherService implements IWeatherService {
         return result;
     }
 
+    /** JSON → WeatherDTO 변환 */
     private List<WeatherDTO> parseWeather(String json, String baseTime) throws JsonProcessingException {
         log.info("{}.parseWeather Start!", this.getClass().getName());
 
@@ -172,104 +197,25 @@ public class WeatherService implements IWeatherService {
         return result;
     }
 
-    private String getIcon(String sky, String pty) {
-        if (!"0".equals(pty)) {
-            return switch (pty) {
-                case "1" -> "rain.svg";
-                case "2" -> "rain_snow.svg";
-                case "3" -> "snow.svg";
-                case "4" -> "shower.svg";
-                case "5" -> "light_rain.svg";
-                case "6" -> "mixed_showers.svg";
-                case "7" -> "snow_flurry.svg";
-                default -> "unknown.svg";
-            };
-        }
-        return switch (sky) {
-            case "1" -> "sunny.svg";
-            case "3" -> "cloudy.svg";
-            case "4" -> "very_cloudy.svg";
-            default -> "unknown.svg";
-        };
-    }
-
-    private String getWeatherDesc(String sky, String pty) {
-        if (!"0".equals(pty)) {
-            return switch (pty) {
-                case "1" -> "비";
-                case "2" -> "비/눈";
-                case "3" -> "눈";
-                case "4" -> "소나기";
-                case "5" -> "빗방울";
-                case "6" -> "빗방울눈날림";
-                case "7" -> "눈날림";
-                default -> "강수";
-            };
-        }
-        return switch (sky) {
-            case "1" -> "맑음";
-            case "3" -> "구름많음";
-            case "4" -> "흐림";
-            default -> "정보없음";
-        };
-    }
-
-    private String getWindInfo(String vecStr, String wsdStr) {
-        try {
-            int vec = (int) Double.parseDouble(vecStr); // 예: "135.0" → 135
-            double wsd = Double.parseDouble(wsdStr);     // 예: "4.1"   → 4.1
-
-            String direction;
-            if (vec >= 337.5 || vec < 22.5) {
-                direction = "북풍";
-            } else if (vec < 67.5) {
-                direction = "북동풍";
-            } else if (vec < 112.5) {
-                direction = "동풍";
-            } else if (vec < 157.5) {
-                direction = "남동풍";
-            } else if (vec < 202.5) {
-                direction = "남풍";
-            } else if (vec < 247.5) {
-                direction = "남서풍";
-            } else if (vec < 292.5) {
-                direction = "서풍";
-            } else {
-                direction = "북서풍";
-            }
-
-            return String.format("%s (%.1f m/s)", direction, wsd);
-
-        } catch (NumberFormatException e) {
-            return "정보없음";
-        }
-    }
-
-    private List<WeatherDTO> checkAndUseCache(String x, String y, String baseDate, String baseTime) throws Exception {
-        log.info("{}.checkAndUseCache Start!", this.getClass().getName());
-
-        WeatherCacheDTO pDTO = WeatherCacheDTO.builder()
-                .x(x)
-                .y(y)
-                .baseDate(baseDate)
-                .baseTime(baseTime)
-                .build();
+    /** 캐시 조회 */
+    private WeatherCacheDTO getCachedWeather(WeatherCacheDTO pDTO) throws Exception {
+        log.info("{}.getCachedWeather Start!", this.getClass().getName());
 
         WeatherCacheDTO rDTO = weatherCacheMapper.getWeatherCache(pDTO);
-        log.info("rDTO : {}", rDTO);
 
-        if (rDTO != null && rDTO.getData() != null) {
-            log.info("{}.checkAndUseCache End!", this.getClass().getName());
+        log.info("{}.getCachedWeather End!", this.getClass().getName());
 
-            return parseWeather(rDTO.getData(), baseTime);
-        }
-
-        log.info("{}.checkAndUseCache End!", this.getClass().getName());
-        return null;
+        return rDTO;
     }
 
-    private List<WeatherDTO> callApiAndCache(String x, String y, String baseDate, String baseTime) throws Exception {
+    /** API 호출 후 캐시 저장 (DELETE → INSERT) */
+    private String callApiAndCache(WeatherCacheDTO pDTO) throws Exception {
         log.info("{}.callApiAndCache Start!", this.getClass().getName());
+
+        String x =  pDTO.getX();
+        String y = pDTO.getY();
+        String baseDate =  pDTO.getBaseDate();
+        String baseTime = pDTO.getBaseTime();
 
         String urlStr = String.format(
                 "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst" +
@@ -280,11 +226,18 @@ public class WeatherService implements IWeatherService {
                         "&base_date=%s" +
                         "&base_time=%s" +
                         "&nx=%s&ny=%s",
-                URLEncoder.encode(apiKey, "UTF-8"), baseDate, baseTime, x, y
-        );
+                URLEncoder.encode(apiKey, "UTF-8"), baseDate, baseTime, x, y);
 
         String json = getJsonFromUrl(urlStr);
 
+        // 기존 캐시 삭제
+        WeatherCacheDTO deleteDTO = WeatherCacheDTO.builder()
+                .x(x)
+                .y(y)
+                .build();
+        weatherCacheMapper.deleteWeatherCache(deleteDTO);
+
+        // 새로운 캐시 저장
         WeatherCacheDTO saveDTO = WeatherCacheDTO.builder()
                 .x(x)
                 .y(y)
@@ -296,14 +249,16 @@ public class WeatherService implements IWeatherService {
                 .build();
 
         int res = weatherCacheMapper.insertWeatherCache(saveDTO);
-        if (res > 0) {
+        if (res == 1) {
             log.info("캐시 DB 저장 성공");
+        } else if (res == 0){
+            log.warn("캐시 DB 저장 실패");
         } else {
-            log.warn("캐시 DB 저장 실패 또는 이미 존재");
+            log.error("캐시 DB {} 건 저장 에러", res);
         }
 
         log.info("{}.callApiAndCache End!", this.getClass().getName());
 
-        return parseWeather(json, baseTime);
+        return json;
     }
 }
