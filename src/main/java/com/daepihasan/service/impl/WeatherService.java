@@ -4,7 +4,6 @@ import com.daepihasan.dto.WeatherCacheDTO;
 import com.daepihasan.dto.WeatherDTO;
 import com.daepihasan.mapper.IWeatherCacheMapper;
 import com.daepihasan.service.IWeatherService;
-import com.daepihasan.util.WeatherUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,13 +18,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.daepihasan.util.WeatherUtil.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,10 +35,19 @@ public class WeatherService implements IWeatherService {
     private String apiKey;
 
     private final IWeatherCacheMapper weatherCacheMapper; // 날씨 캐시 Mapper 가져오기
-    WeatherUtil weatherUtil;
 
+    /**
+     * 격자 좌표(x, y)를 기반으로 기상청 초단기예보 API를 호출하여 날씨 정보를 조회한다.
+     * 1. 주어진 좌표의 캐시 내역을 확인
+     * 2. 캐시가 없거나 유효하지 않은 경우 기상청 API 호출
+     * 3. 받아온 데이터를 DB에 캐시로 저장 후 가공하여 반환
+     *
+     * @param x 격자 x 좌표
+     * @param y 격자 y 좌표
+     * @return 시간대별 날씨 정보 리스트(6시간)
+     */
     @Override
-    public List<WeatherDTO> getWeather(String x, String y) {
+    public List<WeatherDTO> getWeather(Integer x, Integer y, String ssUserId) {
         log.info("{}.getWeather Start!", this.getClass().getName());
         log.info("x: {}, y: {}", x, y);
 
@@ -65,7 +73,7 @@ public class WeatherService implements IWeatherService {
             }
 
             // 2. API 호출 & 캐시 저장
-            String json = callApiAndCache(rDTO);
+            String json = callApiAndCache(rDTO, ssUserId);
 
             // 3. JSON → DTO 변환
             return parseWeather(json, baseTime);
@@ -121,7 +129,7 @@ public class WeatherService implements IWeatherService {
         conn.setRequestMethod("GET");
 
         BufferedReader br = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8)
+                new InputStreamReader(conn.getInputStream(), UTF_8)
         );
         StringBuilder sb = new StringBuilder();
         String line;
@@ -209,11 +217,11 @@ public class WeatherService implements IWeatherService {
     }
 
     /** API 호출 후 캐시 저장 (DELETE → INSERT) */
-    private String callApiAndCache(WeatherCacheDTO pDTO) throws Exception {
+    private String callApiAndCache(WeatherCacheDTO pDTO, String ssUserId) throws Exception {
         log.info("{}.callApiAndCache Start!", this.getClass().getName());
 
-        String x =  pDTO.getX();
-        String y = pDTO.getY();
+        Integer x =  pDTO.getX();
+        Integer y = pDTO.getY();
         String baseDate =  pDTO.getBaseDate();
         String baseTime = pDTO.getBaseTime();
 
@@ -226,26 +234,26 @@ public class WeatherService implements IWeatherService {
                         "&base_date=%s" +
                         "&base_time=%s" +
                         "&nx=%s&ny=%s",
-                URLEncoder.encode(apiKey, "UTF-8"), baseDate, baseTime, x, y);
+                URLEncoder.encode(apiKey, UTF_8), baseDate, baseTime, x, y);
 
         String json = getJsonFromUrl(urlStr);
 
-        // 기존 캐시 삭제
+        // 1. 기존 캐시 삭제
         WeatherCacheDTO deleteDTO = WeatherCacheDTO.builder()
                 .x(x)
                 .y(y)
                 .build();
         weatherCacheMapper.deleteWeatherCache(deleteDTO);
 
-        // 새로운 캐시 저장
+        // 2. 새로운 캐시 저장
         WeatherCacheDTO saveDTO = WeatherCacheDTO.builder()
                 .x(x)
                 .y(y)
                 .baseDate(baseDate)
                 .baseTime(baseTime)
                 .data(json)
-                .regId("SYSTEM")
-                .chgId("SYSTEM")
+                .regId((ssUserId != null) ? ssUserId : "GUEST")
+                .chgId((ssUserId != null) ? ssUserId : "GUEST")
                 .build();
 
         int res = weatherCacheMapper.insertWeatherCache(saveDTO);

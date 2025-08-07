@@ -1,11 +1,11 @@
 // 날씨 위젯 초기화
-function loadWeather(x, y) {
-    fetch(`/api/weather?x=${x}&y=${y}`)
+function loadWeather(lat, lng) {
+    fetch(`/api/weather?lat=${lat}&lng=${lng}`)
         .then(res => res.json())
         .then(data => {
             renderWeather(data);
         })
-        .catch(err => console.error("❌ 날씨 불러오기 실패", err));
+        .catch(err => console.error("날씨 불러오기 실패", err));
 }
 
 function updateCurrentTime() {
@@ -124,9 +124,9 @@ document.getElementById("nextBtn").addEventListener("click", () => {
 
 // 위치 기반 날씨 진입
 window.addEventListener("DOMContentLoaded", () => {
-    if (typeof getCurrentXY === "function") {
-        getCurrentXY((xy) => {
-            loadWeather(xy.x, xy.y);
+    if (typeof getCurrentLatLng === "function") {
+        getCurrentLatLng((pos) => {
+            loadWeather(pos.lat, pos.lng);
         });
     }
 });
