@@ -5,15 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>대피하산</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/js/jquery-3.7.1.min.js"></script>
     <style>
+
         body {
             background-color: #e1f0ff;
             margin: 0;
+            font-family: 'NanumSquare', sans-serif;
         }
 
         header {
+            /*background-color: #4aaf82;*/
             background-color: #4da3f9;
             color: white;
             height: 51px;
@@ -29,9 +34,40 @@
             align-items: center;
         }
 
+        .logo-text {
+            font-size: 30px;
+            color: white;
+            font-weight: bold;
+        }
+
         .logo img {
-            height: 28px;
-            margin-right: 10px;
+            height: 45px;
+            margin-right: 5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            /*font-weight: 500;*/
+            min-width: 80px; /* 일관된 크기 */
+        }
+
+        .btn-primary {
+            background-color: #2338A0;
+            border: 1px solid #3b50c2;
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: black;
+            border: 1px solid #ccc;
         }
 
         .menu-toggle {
@@ -61,6 +97,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            padding: 10px 20px;
         }
 
         .sidebar .nav-link i {
@@ -89,6 +126,7 @@
 
         /* 날씨 위젯 전체 영역 */
         .weather-widget {
+            /*background: linear-gradient(145deg, rgb(35, 56, 160), #4da3f9);*/
             background: linear-gradient(145deg, #2c3e50, #34495e);
             color: #ecf0f1;
             border-radius: 18px;
@@ -159,6 +197,8 @@
         .weather-card-item {
             width: 110px;
             flex-shrink: 0;
+            /*color: black;*/
+            /*background-color: rgba(77, 163, 249, 0.3);*/
             background-color: rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             padding: 10px 6px;
@@ -167,23 +207,18 @@
             box-sizing: border-box;
         }
 
-        .weather-card-item img {
-            width: 32px;
-            height: 32px;
-            margin: 4px 0;
-        }
-
         .weather-icon-temp {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            /*gap: 6px;*/
             margin: 6px 0;
+            /*background-color: rgba(255, 255, 255, 0.35);*/
         }
 
         .weather-icon-temp img {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
         }
 
         .temp-text {
@@ -238,6 +273,7 @@
         </div>
     </main>
 </div>
+<script src="/js/common/header.js"></script>
 <script src="/js/common/sidebar.js"></script>
 <script src="/js/common/location.js"></script>
 <script src="/js/common/weather.js"></script>

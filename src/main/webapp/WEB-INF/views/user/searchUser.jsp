@@ -16,6 +16,7 @@
         <!-- 로고 -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <!-- 상단 탭 -->
