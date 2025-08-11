@@ -25,6 +25,17 @@ html, body {
 .search-left .logo img {
     height: 50px;
 }
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 30px;
+    color: #2338A0;
+    font-weight: bold;
+}
 .tab-container {
     width: 100%;
     max-width: 500px;
@@ -55,6 +66,9 @@ html, body {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+}
+.box-shadow{
+    box-shadow: 2px 2px 10px gray
 }
 .search-right {
     flex: 1;

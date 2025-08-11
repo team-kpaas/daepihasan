@@ -16,6 +16,7 @@
         <!-- 로고 -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <!-- 상단 탭 -->
@@ -37,8 +38,8 @@
                 <div class="invalid-feedback" id="errorEmailId"></div>
             </div>
             <div class="d-flex gap-3 mt-3">
-                <button id="btnSearchUserId" type="button" class="btn btn-primary flex-fill">아이디 찾기</button>
-                <button id="btnLogin1" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
+                <button id="btnSearchUserId" type="button" class="btn btn-primary flex-fill box-shadow">아이디 찾기</button>
+                <button id="btnLogin1" type="button" class="btn btn-outline-secondary flex-fill box-shadow">로그인</button>
             </div>
         </form>
 
@@ -60,8 +61,8 @@
                 <div class="invalid-feedback" id="errorEmailPw"></div>
             </div>
             <div class="d-flex gap-3 mt-3">
-                <button id="btnSearchPassword" type="button" class="btn btn-primary flex-fill">비밀번호 찾기</button>
-                <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
+                <button id="btnSearchPassword" type="button" class="btn btn-primary flex-fill box-shadow">비밀번호 찾기</button>
+                <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill box-shadow">로그인</button>
             </div>
         </form>
 

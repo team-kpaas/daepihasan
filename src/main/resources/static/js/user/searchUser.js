@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    // 메일 페이지 이동
+    $(".logo").on("click", function () {
+        location.href = "/";
+    });
+
     // 탭 전환 + URL 동기화
     $("#tabId").on("click", function () {
         setActiveTab("id");

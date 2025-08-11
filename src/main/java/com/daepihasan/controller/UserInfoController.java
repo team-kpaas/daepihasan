@@ -377,4 +377,17 @@ public class UserInfoController {
 
         return dto;
     }
+
+    @GetMapping(value = "logout")
+    public String logout(HttpSession session) {
+        log.info("{}.user/logout Start!", this.getClass().getName());
+
+        // 세션 전체 초기화 (로그인 정보 포함)
+        session.invalidate();
+
+        log.info("{}.user/logout End!", this.getClass().getName());
+
+        // 로그아웃 후 메인 페이지로 리다이렉트
+        return "redirect:/";
+    }
 }
