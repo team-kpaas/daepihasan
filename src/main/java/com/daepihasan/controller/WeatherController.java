@@ -17,18 +17,18 @@ import java.util.Map;
 import static com.daepihasan.util.WeatherUtil.toXY;
 
 @Slf4j
-@RequestMapping(value = "/api")
+@RequestMapping(value = "/weather")
 @RequiredArgsConstructor
 @Controller
 public class WeatherController {
 
     private final IWeatherService weatherService;
 
-    @GetMapping("/weather")
+    @GetMapping("/get")
     public ResponseEntity<List<WeatherDTO>> getWeather(HttpSession session,
                                                        @RequestParam double lat,
                                                        @RequestParam double lng) {
-        log.info("{}.api/weather Start!", this.getClass().getName());
+        log.info("{}.weather/get Start!", this.getClass().getName());
 
 
         log.info("lat:{} lng:{}",  lat, lng);
@@ -42,7 +42,7 @@ public class WeatherController {
         log.info("x: {} y: {} ssUserId: {}", x, y, ssUserId);
         List<WeatherDTO> result = weatherService.getWeather(x, y, ssUserId);
 
-        log.info("{}.api/weather End!", this.getClass().getName());
+        log.info("{}.weather/get End!", this.getClass().getName());
         return ResponseEntity.ok(result);
     }
 }

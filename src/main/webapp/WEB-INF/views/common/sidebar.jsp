@@ -1,30 +1,33 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    String path = request.getRequestURI();
+%>
 <nav class="sidebar" id="sidebar">
     <div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="#">
-                    <i class="fa-solid fa-house" style="color: #2338a0;"></i> 홈
+                <a class="nav-link active" href="/">
+                    <i class="fa-solid fa-house"></i> 홈
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-map" style="color: #2338a0;"></i> 지도
+                <a class="nav-link" href="/map">
+                    <i class="fa-solid fa-map"></i> 지도
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-bullhorn" style="color: #2338a0;"></i> 제보 게시판
+                <a class="nav-link" href="/report">
+                    <i class="fa-solid fa-bullhorn"></i> 제보 게시판
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-chart-line" style="color: #2338a0;"></i> 산불 통계
+                <a class="nav-link" href="/stats">
+                    <i class="fa-solid fa-chart-line"></i> 산불 통계
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
-                    <i class="fa-solid fa-fire-flame-simple" style="color: #2338a0;"></i> 산불 위험 예보
+                <a class="nav-link" href="/forecast">
+                    <i class="fa-solid fa-fire-flame-simple"></i> 산불 위험 예보
                 </a>
             </li>
         </ul>

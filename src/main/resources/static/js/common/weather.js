@@ -1,6 +1,6 @@
 // 날씨 위젯 초기화
 function loadWeather(lat, lng) {
-    fetch(`/api/weather?lat=${lat}&lng=${lng}`)
+    fetch(`/weather/get?lat=${lat}&lng=${lng}`)
         .then(res => res.json())
         .then(data => {
             renderWeather(data);

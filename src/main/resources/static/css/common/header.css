@@ -1,0 +1,72 @@
+/* 레이아웃 */
+header {
+    background-color: #4da3f9;
+    color: #fff;
+    height: 51px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    font-family: 'NanumSquare', sans-serif;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo img {
+    height: 45px;
+    margin-right: 2px;
+}
+.logo-text,
+.logo h6 {
+    font-size: 27px;
+    color: #fff;
+    font-weight: bold;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 헤더 안의 버튼만 모양 통일 */
+header .btn {
+    --bs-btn-border-width: 1px;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.25;
+    min-width: 80px;
+}
+header .btn-primary {
+    background-color: #2338A0;
+    border: 1px solid #3b50c2;
+}
+header .btn-light,
+header .btn-secondary {
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #ccc;
+}
+
+/* 햄버거 버튼 */
+.menu-toggle {
+    display: none;
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    padding: 6px;
+    margin-right: 10px;
+}
+
+/* 768px 이하에서 햄버거 노출 */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+}

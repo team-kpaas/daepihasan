@@ -67,6 +67,9 @@ html, body {
     border-radius: 8px;
     background-color: #2338A0;
 }
+.box-shadow{
+    box-shadow: 2px 2px 10px gray
+}
 .search-right {
     flex: 1;
     background-color: #e6ca92;
