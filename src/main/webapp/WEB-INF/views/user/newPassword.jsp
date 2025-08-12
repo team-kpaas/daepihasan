@@ -47,17 +47,15 @@
         <!-- 비밀번호 재설정 폼 -->
         <form id="formPw" class="newpw-form">
             <div class="mb-3">
-                <label class="form-label">새로운 비밀번호</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="새로운 비밀번호를 입력해주세요.">
+                <label class="form-label">새 비밀번호</label>
+                <input type="password" name="password" class="form-control" placeholder="새 비밀번호를 입력하세요.">
+                <div class="invalid-feedback" id="errorPassword"></div>
             </div>
             <div class="mb-4">
                 <label class="form-label">비밀번호 확인</label>
-                <input type="password" name="password2" id="password2" class="form-control" placeholder="새로운 비밀번호를 확인해주세요.">
+                <input type="password" name="password2" class="form-control" placeholder="비밀번호를 다시 입력하세요.">
+                <div class="invalid-feedback" id="errorPassword2"></div>
             </div>
-
-            <!-- 서버에서 전달된 오류 메시지 -->
-            <p id="errorMsg" style="color: red; display: none; font-weight: bold;"></p>
-
             <div class="d-flex gap-3 mt-3">
                 <button id="btnChangePw" type="button" class="btn btn-primary flex-fill">비밀번호 재설정</button>
                 <button id="btnLogin" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
@@ -70,6 +68,8 @@
         <img src="/images/daepi-inform.jpg" alt="산불발생 긴급대피 요령">
     </div>
 </div>
-
+<script src="/js/common/formValidator.js"></script>
 <script src="/js/user/newPassword.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -5,8 +5,14 @@
     <meta charset="UTF-8">
     <title>아이디/비밀번호 찾기</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/user/searchUser.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'NanumSquare', sans-serif;
+        }
+    </style>
     <script src="/js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
@@ -16,6 +22,7 @@
         <!-- 로고 -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <!-- 상단 탭 -->
@@ -29,14 +36,16 @@
             <div class="mb-3">
                 <label class="form-label">이름</label>
                 <input type="text" name="userName" class="form-control" placeholder="가입 시 등록하신 이름을 입력해주세요.">
+                <div class="invalid-feedback" id="errorNameId"></div>
             </div>
             <div class="mb-4">
                 <label class="form-label">이메일</label>
                 <input type="email" name="email" class="form-control" placeholder="가입 시 등록하신 이메일을 입력해주세요.">
+                <div class="invalid-feedback" id="errorEmailId"></div>
             </div>
             <div class="d-flex gap-3 mt-3">
-                <button id="btnSearchUserId" type="button" class="btn btn-primary flex-fill">아이디 찾기</button>
-                <button id="btnLogin1" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
+                <button id="btnSearchUserId" type="button" class="btn btn-primary flex-fill box-shadow">아이디 찾기</button>
+                <button id="btnLogin1" type="button" class="btn btn-outline-secondary flex-fill box-shadow">로그인</button>
             </div>
         </form>
 
@@ -45,18 +54,21 @@
             <div class="mb-3">
                 <label class="form-label">아이디</label>
                 <input type="text" name="userId" class="form-control" placeholder="가입 시 등록하신 아이디를 입력해주세요.">
+                <div class="invalid-feedback" id="errorUserIdPw"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">이름</label>
                 <input type="text" name="userName" class="form-control" placeholder="가입 시 등록하신 이름을 입력해주세요.">
+                <div class="invalid-feedback" id="errorNamePw"></div>
             </div>
             <div class="mb-4">
                 <label class="form-label">이메일</label>
                 <input type="email" name="email" class="form-control" placeholder="가입 시 등록하신 이메일을 입력해주세요.">
+                <div class="invalid-feedback" id="errorEmailPw"></div>
             </div>
-            <div class="d-flex gap-3  mt-3">
-                <button id="btnSearchPassword" type="button" class="btn btn-primary flex-fill">비밀번호 찾기</button>
-                <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill">로그인</button>
+            <div class="d-flex gap-3 mt-3">
+                <button id="btnSearchPassword" type="button" class="btn btn-primary flex-fill box-shadow">비밀번호 찾기</button>
+                <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill box-shadow">로그인</button>
             </div>
         </form>
     </div>
@@ -66,7 +78,7 @@
         <img src="/images/daepi-inform.jpg" alt="산불발생 긴급대피 요령">
     </div>
 </div>
-
+<script src="/js/common/formValidator.js"></script>
 <script src="/js/user/searchUser.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

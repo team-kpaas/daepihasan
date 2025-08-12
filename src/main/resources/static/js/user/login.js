@@ -55,3 +55,23 @@ $(document).ready(function () {
 
     })
 })
+
+document.addEventListener("DOMContentLoaded", function () {
+    const inputs = document.querySelectorAll("input");
+
+    inputs.forEach((input, index) => {
+        input.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // form 제출 방지
+
+                const next = inputs[index + 1];
+                if (next) {
+                    next.focus(); // 다음 input으로 포커스 이동
+                } else {
+                    // 마지막 input일 경우: 예를 들어 버튼 클릭하거나 submit 실행
+                    document.getElementById("btnSend")?.click();
+                }
+            }
+        });
+    });
+});

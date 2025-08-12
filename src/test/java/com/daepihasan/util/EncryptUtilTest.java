@@ -20,7 +20,7 @@ class EncryptUtilTest {
     @DisplayName("SHA256 암호화 테스트")
     void encHashSHA256() {
         System.out.println("-------------------------------------------");
-        String planText = "암호화할 문자열";
+        String planText = "1234";
         System.out.println("해시 암호화할 문자열 : " + planText);
         String hashEnc = EncryptUtil.encHashSHA256(planText);
 

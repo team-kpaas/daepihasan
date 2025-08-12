@@ -1,7 +1,6 @@
 package com.daepihasan.service.impl;
 
 import com.daepihasan.dto.MailDTO;
-import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
 import com.daepihasan.mapper.IUserInfoMapper;
 import com.daepihasan.service.IMailService;
@@ -153,21 +152,6 @@ public class UserInfoService implements IUserInfoService {
         log.info("{}.searchUserIdOrPasswordProc End!", this.getClass().getName());
 
         return rDTO;
-    }
-
-    // 새 비밀번호, 확인 비밀번호 일치여부 검증
-    @Override
-    public MsgDTO checkPasswordMatch(String password, String password2) {
-        MsgDTO dto = new MsgDTO();
-
-        if (!password.equals(password2)) {
-            dto.setResult(0);
-            dto.setMsg("입력한 두 비밀번호가 일치하지 않습니다.");
-        } else {
-            dto.setResult(1);
-        }
-
-        return dto;
     }
 
     // 비밀번호 재설정

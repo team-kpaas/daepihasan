@@ -11,14 +11,14 @@
     <meta charset="UTF-8">
     <title>로그인 성공</title>
     <link rel="stylesheet" href="/css/table.css"/>
-    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/js/jquery-3.7.1.min.js"></script>
     <script type="text/javascript">
 
         // HTML로딩이 완료되고, 실행됨
         $(document).ready(function () {
             // 버튼 클릭했을때, 발생되는 이벤트 생성함(onclick 이벤트와 동일함)
             $("#btnSend").on("click", function () {
-                location.href = "/html/index.html";
+                location.href = "/";
             })
         })
     </script>

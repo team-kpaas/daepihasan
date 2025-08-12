@@ -14,31 +14,38 @@ $(document).ready(function () {
 
     // 비밀번호 재설정 처리
     $("#btnChangePw").on("click", function () {
-        $("#errorMsg").hide().text("");  // 에러 메시지 초기화
+        FormValidator.clearErrors("#formPw");
 
         const f = document.getElementById("formPw");
-        const password = f.password.value;
-        const password2 = f.password2.value;
+        const password = f.password.value.trim();
+        const password2 = f.password2.value.trim();
 
+        // 비밀번호 유효성 정규식 (8~20자, 소문자+숫자+특수문자(!@#$%^&*()) 필수)
+        const pwRegex = FormValidator.patterns.password;
 
+        let valid = true;
+
+        // 새 비밀번호 검사
         if (password === "") {
-            alert("새로운 비밀번호를 입력하세요.");
-            f.password.focus();
-            return;
+            FormValidator.setError("#formPw input[name='password']", "#errorPassword", "새로운 비밀번호를 입력하세요.");
+            valid = false;
+        } else if (!pwRegex.test(password)) {
+            FormValidator.setError("#formPw input[name='password']", "#errorPassword", "8~20자, 영문 소문자, 숫자, 특수문자(!@#$%^&*())를 사용하세요.");
+            valid = false;
         }
+
+        // 비밀번호 확인 검사
         if (password2 === "") {
-            alert("비밀번호 확인을 입력하세요.");
-            f.password2.focus();
-            return;
+            FormValidator.setError("#formPw input[name='password2']", "#errorPassword2", "비밀번호 확인을 입력하세요.");
+            valid = false;
+        } else if (password !== password2) {
+            FormValidator.setError("#formPw input[name='password2']", "#errorPassword2", "입력한 두 비밀번호가 일치하지 않습니다.");
+            valid = false;
         }
 
-        if (f.password.value !== f.password2.value) {
-            // 불일치 시 화면 아래 표시 (빨간글씨)
-            $("#errorMsg").text("입력한 두 비밀번호가 일치하지 않습니다.").show();
-            f.password.focus();
-            return;
-        }
+        if (!valid) return;
 
+        // 서버 요청 (AJAX)
         $.ajax({
             type: "POST",
             url: "/user/newPasswordProc",
@@ -46,13 +53,12 @@ $(document).ready(function () {
             success: function (json) {
                 if (json.result === 1) {
                     alert(json.msg);
-                    location.href = "/user/login";  // 성공 → 로그인으로
+                    location.href = "/user/login";
                 } else if (json.result === 0 || json.result == null) {
-                    // 불일치 시 화면 아래 표시 (빨간글씨)
-                    $("#errorMsg").text(json.msg).show();
+                    FormValidator.setError("#formPw input[name='password']", "#errorPassword", json.msg);
                 } else if (json.result === 2) {
                     alert(json.msg);
-                    location.href = "/user/login";  // 비정상 접근도 로그인으로
+                    location.href = "/user/login";
                 }
             },
             error: function () {

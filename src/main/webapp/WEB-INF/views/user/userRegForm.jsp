@@ -19,64 +19,81 @@
 <body>
 
 <div class="full-container">
-    <!-- 왼쪽 (회원가입 폼) -->
     <div class="signup-left">
-        <!-- 로고 (왼쪽 상단 고정) -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
         </div>
 
-        <!-- 회원가입 폼 -->
-        <div class="w-100" style="max-width:400px;">
+        <div class="w-100" style="max-width:500px;">
             <h2 class="fw-bold mb-4 text-center">회원가입</h2>
             <form id="f">
                 <div class="mb-3">
+                    <label class="form-label">이름</label>
+                    <input type="text" name="userName" id="userName" class="form-control" placeholder="이름을 입력하세요.">
+                </div>
+                <div class="mb-3">
                     <label class="form-label">아이디</label>
                     <div class="input-group">
-                        <input type="text" name="userId" class="form-control" placeholder="아이디">
-                        <button id="btnUserId" type="button" class="btn btn-outline-secondary">중복체크</button>
+                        <input type="text" name="userId" class="form-control" placeholder="아이디를 입력하세요.">
+                        <button id="btnUserId" type="button" class="btn btn-primary">중복체크</button>
                     </div>
+                    <div id="idRule" class="id-rule"></div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">이메일</label>
-                    <!-- 첫 줄: 이메일 + 중복체크 버튼 -->
                     <div class="input-group mb-2">
-                        <input type="email" name="email" class="form-control" placeholder="이메일">
-                        <button id="btnEmail" type="button" class="btn btn-outline-secondary">중복체크</button>
+                        <input type="text" id="emailId" class="form-control" placeholder="이메일을 입력하세요.">
+                        <span class="input-group-text">@</span>
+                        <select id="emailDomainSelect" class="form-select">
+                            <option value="">==선택하세요==</option>
+                            <option value="gmail.com">gmail.com</option>
+                            <option value="naver.com">naver.com</option>
+                            <option value="daum.net">daum.net</option>
+                            <option value="kakao.com">kakao.com</option>
+                            <option id="inputEmail" value="etc">직접 입력</option>
+                        </select>
+                        <input type="text" id="emailDomainInput" class="form-control" placeholder="직접 입력" style="display:none;">
+
                     </div>
-                    <!-- 둘째 줄: 인증번호 입력 -->
-                    <input type="text" name="authNumber" class="form-control" placeholder="인증번호">
+                    <input type="hidden" name="email" id="email">
+                    <div id="emailRule" class="email-rule"></div>
+                    <div class="input-group">
+                        <input type="text" name="authNumber" class="form-control" placeholder="인증번호">
+                        <button id="btnEmail" type="button" class="btn btn-primary">인증하기</button>
+                    </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">비밀번호</label>
-                    <input type="password" name="password" class="form-control" placeholder="비밀번호">
+                    <input type="password" name="password" id="password" class="form-control" placeholder="비밀번호를 입력하세요.">
+                    <div id="pwRule" class="password-rule"></div>
                 </div>
+
                 <div class="mb-3">
                     <label class="form-label">비밀번호 확인</label>
-                    <input type="password" name="password2" class="form-control" placeholder="비밀번호 확인">
+                    <input type="password" name="password2" id="password2" class="form-control" placeholder="비밀번호 재입력 해주세요.">
+                    <div id="pwMatch" class="password-rule"></div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">주소</label>
                     <div class="input-group">
-                        <input type="text" name="addr1" class="form-control" placeholder="주소">
-                        <button id="btnAddr" type="button" class="btn btn-outline-secondary">우편번호</button>
+                        <input type="text" name="addr1" class="form-control" placeholder="주소를 입력하세요.">
+                        <button id="btnAddr" type="button" class="btn btn-primary">우편번호</button>
                     </div>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label">상세 주소</label>
-                    <input type="text" name="addr2" class="form-control" placeholder="상세주소">
+                    <input type="text" name="addr2" class="form-control" placeholder="상세주소를 입력하세요.">
                 </div>
-
-                <button id="btnSend" type="button" class="btn btn-primary w-100  mt-3">회원가입</button>
+              
+                <button id="btnSend" type="button" class="btn btn-primary w-100  mt-3 boxShadow">회원가입</button>
             </form>
         </div>
     </div>
 
-    <!-- 오른쪽 (배너 이미지) -->
     <div class="signup-right">
         <img src="/images/daepi-inform.jpg" alt="산불발생 긴급대피 요령 배너">
     </div>
