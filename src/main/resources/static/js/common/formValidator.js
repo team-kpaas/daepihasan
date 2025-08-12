@@ -6,7 +6,9 @@ const FormValidator = (function () {
      * @param {string} formSelector - 폼의 CSS 선택자 (예: "#formPw")
      */
     function clearErrors(formSelector) {
-        $(`${formSelector} input`).removeClass("is-invalid");
+        $(`${formSelector} input`)
+            .removeClass("is-invalid")
+            .removeClass("is-valid");
         $(`${formSelector} .invalid-feedback`).text("");
     }
 
@@ -17,8 +19,20 @@ const FormValidator = (function () {
      * @param {string} message - 표시할 에러 메시지
      */
     function setError(inputSelector, errorSelector, message) {
-        $(inputSelector).addClass("is-invalid");
+        $(inputSelector)
+            .removeClass("is-valid")
+            .addClass("is-invalid");
         $(errorSelector).text(message);
+    }
+
+    /**
+     * 특정 입력 필드에 성공 표시
+     * @param {string} inputSelector - 성공 표시할 input의 선택자
+     */
+    function setSuccess(inputSelector) {
+        $(inputSelector)
+            .removeClass("is-invalid")
+            .addClass("is-valid"); // 성공 시 실패 표시 제거
     }
 
     // 공통 정규식 모음
@@ -33,6 +47,7 @@ const FormValidator = (function () {
     return {
         clearErrors: clearErrors,
         setError: setError,
+        setSuccess: setSuccess,
         patterns: patterns
     };
 })();

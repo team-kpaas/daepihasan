@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    // 로고 클릭 → 메인 이동
+    $(".logo").on("click", function () {
+        location.href = "/";
+    });
+
     // 로그인으로 이동
     $("#btnLogin").on("click", function () {
         location.href = "/user/login";

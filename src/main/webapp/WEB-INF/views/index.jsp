@@ -22,7 +22,6 @@
 
         .main-content {
             padding: 20px;
-            background-color: #e1f0ff;
         }
 
         .card {

@@ -30,11 +30,11 @@ html, body {
     display: flex;
     align-items: center;
 }
-
 .logo-text {
-    font-size: 30px;
+    font-size: 27px;
     color: #2338A0;
-    font-weight: bold;
+    font-weight: 900;
+    margin: 0;
 }
 .tab-container {
     width: 100%;
