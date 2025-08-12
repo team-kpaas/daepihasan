@@ -1,0 +1,7 @@
+/* 모든 요소에 NanumSquare 폰트 적용 */
+html, body {
+    font-family: 'NanumSquare', sans-serif;
+}
+* {
+    font-family: inherit;
+}

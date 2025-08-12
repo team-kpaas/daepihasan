@@ -1,14 +1,13 @@
 /* 레이아웃 */
 header {
-    background-color: #4da3f9;
-    color: #fff;
-    height: 51px;
+    background-color: white;
+    height: 60px;
     padding: 0 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
-    font-family: 'NanumSquare', sans-serif;
+    /*font-family: 'NanumSquare', sans-serif;*/
 }
 
 .logo {
@@ -22,7 +21,7 @@ header {
 .logo-text,
 .logo h6 {
     font-size: 27px;
-    color: #fff;
+    color: #2338A0;
     font-weight: bold;
     margin: 0;
 }
@@ -59,7 +58,7 @@ header .btn-secondary {
     font-size: 20px;
     background: none;
     border: none;
-    color: #fff;
+    color: #2338A0;
     padding: 6px;
     margin-right: 10px;
 }

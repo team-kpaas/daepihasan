@@ -1,15 +1,16 @@
 .sidebar {
-    background-color: #f8f9fa;
+    background-color: #2338a0;
     min-width: 404px;
     padding-top: 20px;
-    min-height: calc(100vh - 51px);
+    min-height: calc(100vh - 60px);
     transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    /*font-family: 'NanumSquare', sans-serif;*/
 }
 .sidebar .nav-link {
-    color: #5c636a;
+    color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -17,22 +18,22 @@
     padding: 10px 20px;
 }
 .sidebar .nav-link i {
-    color: #2338a0;
+    color: white;
 }
 .sidebar .nav-link:hover,
 .sidebar .nav-link:focus {
-    background-color: #1e3a8a;
+    background-color: #4da3f9;
     /*background-color: #2338a0;*/
-    color: #fff !important;
+    color: #fff;
 }
 .sidebar .nav-link:hover i,
 .sidebar .nav-link:focus i {
-    color: #fff !important;
+    color: #fff;
 }
 
 /* active 상태에서 폰트 굵게 */
 .sidebar .nav-link.active {
-    color: black;
+    color: white;
     font-weight: 800; /* 더 굵게 */
 }
 
@@ -40,11 +41,11 @@
 @media (max-width: 768px) {
     .sidebar {
         position: absolute;
-        top: 51px;
+        top: 60px;
         left: 0;
         width: 180px;
         height: auto;
-        background-color: #f8f9fa;
+        background-color: #2338a0;
         transform: translateX(-100%);
         z-index: 1000;
     }
