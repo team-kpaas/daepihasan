@@ -9,15 +9,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/js/jquery-3.7.1.min.js"></script>
+    <link rel="stylesheet" href="/css/common/style.css">
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/sidebar.css">
     <link rel="stylesheet" href="/css/common/weather.css">
     <style>
-
         body {
             background-color: #e1f0ff;
             margin: 0;
-            font-family: 'NanumSquare', sans-serif;
+            /*font-family: 'NanumSquare', sans-serif;*/
         }
 
         .main-content {

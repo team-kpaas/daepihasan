@@ -16,6 +16,7 @@
         <!-- 로고 (왼쪽 상단 고정) -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <!-- 로그인 폼 -->
@@ -32,7 +33,7 @@
                 </div>
                 <button id="btnLogin" type="button" class="btn btn-primary w-100 mt-3 mb-3">로그인</button>
                 <div class="text-center d-flex justify-content-center gap-2">
-                    <button id="btnSearchUserId" type="button" class="btn btn-link p-0">아이디 찾기</button>
+                    <button id="btnSearchUserId" type="button" class="btn p-0">아이디 찾기</button>
                     <span>|</span>
                     <button id="btnSearchPassword" type="button" class="btn btn-link p-0">비밀번호 찾기</button>
                     <span>|</span>

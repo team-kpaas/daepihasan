@@ -5,8 +5,14 @@
     <meta charset="UTF-8">
     <title>아이디/비밀번호 찾기</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/user/searchUser.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'NanumSquare', sans-serif;
+        }
+    </style>
     <script src="/js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
