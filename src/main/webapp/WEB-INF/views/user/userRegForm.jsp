@@ -88,7 +88,7 @@
                     <label class="form-label">상세 주소</label>
                     <input type="text" name="addr2" class="form-control" placeholder="상세주소를 입력하세요.">
                 </div>
-
+              
                 <button id="btnSend" type="button" class="btn btn-primary w-100  mt-3 boxShadow">회원가입</button>
             </form>
         </div>

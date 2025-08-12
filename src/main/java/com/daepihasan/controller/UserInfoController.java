@@ -349,6 +349,9 @@ public class UserInfoController {
             if (!password.equals(password2)) {
                 dto.setResult(0);
                 dto.setMsg("입력한 두 비밀번호가 일치하지 않습니다.");
+            dto = userInfoService.checkPasswordMatch(password, password2);
+
+            if (dto.getResult() == 0) {  // 불일치
                 return dto;
             }
 

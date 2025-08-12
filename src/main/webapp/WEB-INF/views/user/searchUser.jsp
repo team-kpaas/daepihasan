@@ -71,7 +71,6 @@
                 <button id="btnLogin2" type="button" class="btn btn-outline-secondary flex-fill box-shadow">로그인</button>
             </div>
         </form>
-
     </div>
 
     <!-- 오른쪽 (배너) -->
