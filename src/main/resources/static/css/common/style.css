@@ -1,7 +1,21 @@
 /* 모든 요소에 NanumSquare 폰트 적용 */
 html, body {
+    min-width: 545px;
+    margin: 0;
+    overflow-x: auto;  /* 더 좁은 기기에서 가로 스크롤로 대응 */
     font-family: 'NanumSquare', sans-serif;
 }
 * {
     font-family: inherit;
+}
+/* 헤더(60px) 제외한 본문 높이를 '보이는 화면'에 정확히 맞춤 */
+.app-body {
+    min-height: calc(100svh - 60px);
+    box-sizing: border-box;
+}
+
+.main-content {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: auto;                      /* 내용 많을 때 본문만 스크롤 */
 }

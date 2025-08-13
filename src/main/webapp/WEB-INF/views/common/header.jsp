@@ -14,7 +14,7 @@
         <c:choose>
             <%-- 로그인 상태: 세션에 SS_USER_NAME 있으면 --%>
             <c:when test="${not empty sessionScope.SS_USER_NAME}">
-                <span class="me-3 fw-bold">
+                <span class="user-name me-3 fw-bold">
                   <c:out value="${sessionScope.SS_USER_NAME}" /> 님
                 </span>
                 <button id="btnMyPage" class="btn btn-secondary">마이페이지</button>

@@ -17,7 +17,6 @@
         body {
             background-color: #e1f0ff;
             margin: 0;
-            /*font-family: 'NanumSquare', sans-serif;*/
         }
 
         .main-content {
@@ -32,7 +31,7 @@
 </head>
 <body>
 <%@ include file="/WEB-INF/views/common/header.jsp" %>
-<div class="d-flex">
+<div class="app-body d-flex">
     <%@ include file="/WEB-INF/views/common/sidebar.jsp" %>
 
     <main class="main-content flex-fill">
