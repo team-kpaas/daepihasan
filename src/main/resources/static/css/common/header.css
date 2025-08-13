@@ -1,5 +1,6 @@
 /* 레이아웃 */
 header {
+    min-width: 330px;
     background-color: white;
     height: 60px;
     padding: 0 20px;
@@ -7,6 +8,8 @@ header {
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
+    position: sticky;
+    z-index: 1300;
 }
 
 .logo {
@@ -29,6 +32,7 @@ header {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
 }
 
 /* 헤더 안의 버튼만 모양 통일 */
@@ -67,27 +71,22 @@ header .btn-secondary {
 header > .d-flex { min-width: 0; }           /* 왼쪽 영역이 이상하게 밀리지 않도록 */
 .header-right { flex-shrink: 0; }            /* 버튼 영역 과도한 수축 방지 */
 
-/* 2) 390px 이하에서 크기 조정 */
-@media (max-width: 390px) {
-    header {
-        padding: 0 12px;
-        height: 60px;
-    }
-    .logo img {
-        height: 34px;
-        margin-right: 2px;
-    }
-    .logo-text {
-        font-size: 20px;
-        font-weight: 800;
-    }
+/* 매우 좁은 화면 대응 */
+@media (max-width: 405px) {
+    .user-name { display: none; }       /* 유저명 숨김 → 버튼만 남겨 폭 절약 */
+    header .btn { min-width: 64px; }    /* 버튼 최소폭 축소(가독성 유지) */
+}
+
+/* 390px 이하에서 크기 조정 */
+@media (max-width: 550px) {
+    header { padding: 0 10px; height: 60px; }
+    .logo img { height: 30px; }
+    .logo-text { font-size: 18px; font-weight: 800; }
 
     .header-right { gap: 6px; }
-
-    /* 버튼 크기 살짝 축소 */
     header .btn {
         padding: 6px 10px;
-        min-width: 64px;      /* 80 → 64 */
+        min-width: 60px;
         font-size: 12px;
         line-height: 1.2;
     }

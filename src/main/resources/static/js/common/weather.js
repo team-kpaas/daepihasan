@@ -1,13 +1,24 @@
-// 날씨 위젯 초기화
-function loadWeather(lat, lng) {
-    fetch(`/weather/get?lat=${lat}&lng=${lng}`)
-        .then(res => res.json())
-        .then(data => {
-            renderWeather(data);
-        })
-        .catch(err => console.error("날씨 불러오기 실패", err));
+// 날씨 위젯 초기화 및 반응형 대응
+// 디바운스 함수
+function debounce(fn, ms) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), ms);
+    };
 }
 
+// 상태 변수
+let cardStepPx = 0;         // 카드 1장의 이동 거리(폭 + gap)
+let visibleCards = 3;       // 화면에 보이는 카드 수
+let currentIndex = 0;
+let totalCards = 0;
+let observersSetup = false;
+
+const VIEW_COUNT = 3;   // 목표
+let gapPx = 0;         // 실측 gap 저장
+
+// 시간 업데이트
 function updateCurrentTime() {
     const now = new Date();
 
@@ -27,51 +38,76 @@ function updateCurrentTime() {
     document.getElementById("current-time").innerText = formatted;
 }
 
-// 페이지 로딩 시 최초 실행
+// 최초 실행
 updateCurrentTime();
-
-// 현재 초를 기준으로 다음 정각(분)까지 남은 시간 계산
-const now = new Date();
-const secondsUntilNextMinute = 60 - now.getSeconds();
-
-// 1회성 타이머: 정각까지 기다린 뒤 실행
-setTimeout(() => {
-    updateCurrentTime(); // 정각에 한 번 실행
-
-    // setInterval: 1분마다 반복 실행
-    // 매 정각(분)이 바뀔 때마다 updateCurrentTime()을 실행
-    setInterval(updateCurrentTime, 60 * 1000);
-
-}, secondsUntilNextMinute * 1000); // 정각까지 남은 초를 밀리초로 변환
-
-
-// 슬라이드 관련
-let cardWidth = 0;
-const visibleCards = 3;
-let currentIndex = 0;
-let totalCards = 0;
-
-function getCardWidth() {
-    const firstCard = document.querySelector(".weather-card-item");
-    const cardStyles = window.getComputedStyle(firstCard);
-    const cardWidth = firstCard.offsetWidth;
-    const gap = parseInt(cardStyles.marginRight || cardStyles.gap || "0"); // fallback
-
-    // gap이 카드 사이에만 있으므로 마지막 카드 제외
-    const parentStyles = window.getComputedStyle(firstCard.parentElement);
-    const actualGap = parseInt(parentStyles.gap || "0");
-
-    return cardWidth + actualGap;
+{
+    const now = new Date();
+    const secondsUntilNextMinute = 60 - now.getSeconds();
+    setTimeout(() => {
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 60 * 1000);
+    }, secondsUntilNextMinute * 1000);
 }
 
+function getMaxStartMinusOne() {
+    // 총 카드 수 - 한 화면 표시 수
+    const raw = totalCards - visibleCards;
+    // 보이는 카드 수가 더 많거나 같으면 이동 없음
+    return raw > 0 ? raw - 1 : 0;
+}
+
+// 카드/슬라이더 치수 재계산
+function recalcMetrics() {
+    const slider = document.getElementById("weatherSlider");
+    const container = slider?.parentElement;
+    const firstCard = slider?.querySelector(".weather-card-item");
+    if (!slider || !container || !firstCard) return;
+
+    const s = getComputedStyle(slider);
+    gapPx = parseFloat(s.columnGap || s.gap || "0") || 0;
+
+    const cardW = firstCard.getBoundingClientRect().width;
+    cardStepPx = cardW + gapPx;
+    totalCards = slider.children.length;
+
+    // 3장 이상 보이지 않도록 컨테이너 최대폭을 제한
+    const targetMax = VIEW_COUNT * cardStepPx - gapPx;
+    container.style.maxWidth = `${targetMax}px`;
+    container.style.margin = "0 auto";
+
+    // 실제 들어가는 개수(클램프 후 측정값)
+    visibleCards = Math.max(1, Math.min(VIEW_COUNT, Math.floor(container.clientWidth / cardStepPx)));
+
+    const maxStart = getMaxStartMinusOne(); // 네가 쓰는 -1 로직이면 -> raw-1
+    currentIndex = Math.min(currentIndex, maxStart);
+
+    applyTransformAndButtons();
+}
+
+// 버튼 상태와 슬라이드 위치 적용
+function applyTransformAndButtons() {
+    const slider = document.getElementById("weatherSlider");
+    if (!slider || cardStepPx === 0) return;
+
+    const maxStart = getMaxStartMinusOne();
+    currentIndex = Math.min(currentIndex, maxStart);
+
+    slider.style.transform = `translateX(-${currentIndex * cardStepPx}px)`;
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    if (prevBtn) prevBtn.style.visibility = currentIndex === 0 ? "hidden" : "visible";
+    if (nextBtn) nextBtn.style.visibility = currentIndex >= maxStart ? "hidden" : "visible";
+}
+
+// 날씨 카드 렌더링
 function renderWeather(data) {
-    const container = document.getElementById("weatherSlider");
+    const slider = document.getElementById("weatherSlider");
+    if (!slider) return;
 
-    if (!container) return;
-
-    container.innerHTML = "";
-    totalCards = data.length;
-    currentIndex = 0; // 초기화
+    slider.innerHTML = "";
+    currentIndex = 0;
 
     data.forEach(item => {
         const card = document.createElement("div");
@@ -82,51 +118,72 @@ function renderWeather(data) {
                 <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}" />
                 <span class="temp-text">${item.temp}°</span>
             </div>
-            <div>습도: ${item.reh}%</div>
-            <div>${item.windInfo}</div>
-            <div>강수: ${item.rn1 || "강수없음"}</div>
+            <div class="weather-text">습도: ${item.reh}%</div>
+            <div class="weather-text">${item.windInfo}</div>
+            <div class="weather-text">강수: ${item.rn1 || "강수없음"}</div>
         `;
-        container.appendChild(card);
+        slider.appendChild(card);
     });
 
-    updateSlide(); // 초기 위치 적용
+    recalcMetrics();
+    setupObserversOnce();
 }
 
-function updateSlide() {
-    if (cardWidth === 0) {
-        cardWidth = getCardWidth();
-    }
-
-    const slider = document.getElementById("weatherSlider");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-
-    slider.style.transform = `translateX(-${currentIndex * cardWidth}px)`;
-
-    // 버튼 숨김 조건
-    prevBtn.style.visibility = currentIndex === 0 ? "hidden" : "visible";
-    nextBtn.style.visibility = currentIndex >= totalCards - visibleCards ? "hidden" : "visible";
-}
-
-document.getElementById("prevBtn").addEventListener("click", () => {
+// 이전/다음 버튼 이벤트
+document.getElementById("prevBtn")?.addEventListener("click", () => {
     if (currentIndex > 0) {
         currentIndex--;
-        updateSlide();
+        applyTransformAndButtons();
     }
 });
-
-document.getElementById("nextBtn").addEventListener("click", () => {
-    if (currentIndex < totalCards - 3) {
+document.getElementById("nextBtn")?.addEventListener("click", () => {
+    const maxStart = getMaxStartMinusOne();
+    if (currentIndex < maxStart) {
         currentIndex++;
-        updateSlide();
+        applyTransformAndButtons();
     }
 });
 
-// 위치 기반 날씨 진입
+// 날씨 데이터 로드
+function loadWeather(lat, lng) {
+    fetch(`/weather/get?lat=${lat}&lng=${lng}`)
+        .then(res => res.json())
+        .then(renderWeather)
+        .catch(err => console.error("날씨 불러오기 실패", err));
+}
+
+// 이벤트/옵저버 설정
+function setupObserversOnce() {
+    if (observersSetup) return;
+    observersSetup = true;
+
+    const debouncedRecalc = debounce(recalcMetrics, 100);
+    window.addEventListener("resize", debouncedRecalc);
+    window.addEventListener("orientationchange", recalcMetrics);
+
+    const sidebar = document.getElementById("sidebar");
+    if (sidebar) {
+        const mo = new MutationObserver(() => {
+            const onEnd = () => {
+                recalcMetrics();
+                sidebar.removeEventListener("transitionend", onEnd);
+            };
+            sidebar.addEventListener("transitionend", onEnd, {once: true});
+            setTimeout(recalcMetrics, 120);
+        });
+        mo.observe(sidebar, {attributes: true, attributeFilter: ["class"]});
+    }
+
+    const container = document.querySelector(".weather-cards-container");
+    if (container && "ResizeObserver" in window) {
+        const ro = new ResizeObserver(() => recalcMetrics());
+        ro.observe(container);
+    }
+}
+
+// 페이지 로드 시 위치 기반 날씨 로드
 window.addEventListener("DOMContentLoaded", () => {
     if (typeof getCurrentLatLng === "function") {
-        getCurrentLatLng((pos) => {
-            loadWeather(pos.lat, pos.lng);
-        });
+        getCurrentLatLng(pos => loadWeather(pos.lat, pos.lng));
     }
 });
