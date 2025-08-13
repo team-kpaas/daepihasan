@@ -1,5 +1,6 @@
 package com.daepihasan.service;
 
+import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
 
 public interface IUserInfoService {
