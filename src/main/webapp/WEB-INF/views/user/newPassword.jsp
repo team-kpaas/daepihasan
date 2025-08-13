@@ -21,7 +21,8 @@
     <title><%=CmmUtil.nvl(rDTO.getUserName())%>님의 비밀번호 재설정</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/user/newPassword.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/common/style.css">
+    <link rel="stylesheet" href="/css/user/newPassword.css">
     <script src="/js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
@@ -31,6 +32,7 @@
         <!-- 로고 -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <!-- 상단 탭 -->

@@ -7,7 +7,6 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /*font-family: 'NanumSquare', sans-serif;*/
 }
 .sidebar .nav-link {
     color: rgba(255, 255, 255, 0.8);
@@ -22,8 +21,8 @@
 }
 .sidebar .nav-link:hover,
 .sidebar .nav-link:focus {
-    background-color: #4da3f9;
-    /*background-color: #2338a0;*/
+    /*background-color: #4da3f9;*/
+    background-color: #0b5ed7;
     color: #fff;
 }
 .sidebar .nav-link:hover i,
@@ -34,11 +33,11 @@
 /* active 상태에서 폰트 굵게 */
 .sidebar .nav-link.active {
     color: white;
-    font-weight: 800; /* 더 굵게 */
+    font-weight: 500; /* 더 굵게 */
 }
 
 /* 모바일에서 사이드바 토글 형태 */
-@media (max-width: 768px) {
+@media (max-width: 860px) {
     .sidebar {
         position: absolute;
         top: 60px;

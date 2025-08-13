@@ -18,12 +18,12 @@ header {
     height: 45px;
     margin-right: 2px;
 }
-.logo-text,
-.logo h6 {
+.logo-text {
     font-size: 27px;
     color: #2338A0;
-    font-weight: bold;
+    font-weight: 900;
     margin: 0;
+    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 .header-right {
@@ -35,11 +35,12 @@ header {
 /* 헤더 안의 버튼만 모양 통일 */
 header .btn {
     --bs-btn-border-width: 1px;
-    padding: 6px 16px;
+    padding: 8px 16px;
     border-radius: 8px;
     font-size: 14px;
     line-height: 1.25;
     min-width: 80px;
+    white-space: nowrap;  /* 줄바꿈 방지 */
 }
 header .btn-primary {
     background-color: #2338A0;
@@ -63,8 +64,44 @@ header .btn-secondary {
     margin-right: 10px;
 }
 
-/* 768px 이하에서 햄버거 노출 */
-@media (max-width: 768px) {
+/* flex 수축/확장 균형 잡기 */
+header > .d-flex { min-width: 0; }           /* 왼쪽 영역이 이상하게 밀리지 않도록 */
+.header-right { flex-shrink: 0; }            /* 버튼 영역 과도한 수축 방지 */
+
+/* 2) 390px 이하에서 크기 조정 */
+@media (max-width: 390px) {
+    header {
+        padding: 0 12px;
+        height: 56px;
+    }
+    .logo img {
+        height: 34px;
+        margin-right: 2px;
+    }
+    .logo-text {
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .header-right { gap: 6px; }
+
+    /* 버튼 크기 살짝 축소 */
+    header .btn {
+        padding: 6px 10px;
+        min-width: 64px;      /* 80 → 64 */
+        font-size: 12px;
+        line-height: 1.2;
+    }
+}
+
+/* 340px 이하에서는 더 타이트하게 (옵션) */
+@media (max-width: 340px) {
+    .logo-text { font-size: 18px; }
+    header .btn { min-width: 56px; padding: 5px 8px; font-size: 11px; }
+}
+
+/* 860px 이하에서 햄버거 노출 */
+@media (max-width: 860px) {
     .menu-toggle {
         display: block;
     }
