@@ -7,7 +7,6 @@ header {
     align-items: center;
     justify-content: space-between;
     box-sizing: border-box;
-    /*font-family: 'NanumSquare', sans-serif;*/
 }
 
 .logo {
@@ -72,7 +71,7 @@ header > .d-flex { min-width: 0; }           /* 왼쪽 영역이 이상하게 �
 @media (max-width: 390px) {
     header {
         padding: 0 12px;
-        height: 56px;
+        height: 60px;
     }
     .logo img {
         height: 34px;
@@ -94,14 +93,8 @@ header > .d-flex { min-width: 0; }           /* 왼쪽 영역이 이상하게 �
     }
 }
 
-/* 340px 이하에서는 더 타이트하게 (옵션) */
-@media (max-width: 340px) {
-    .logo-text { font-size: 18px; }
-    header .btn { min-width: 56px; padding: 5px 8px; font-size: 11px; }
-}
-
-/* 860px 이하에서 햄버거 노출 */
-@media (max-width: 860px) {
+/* 1370px 이하에서 햄버거 노출 */
+@media (max-width: 1370px) {
     .menu-toggle {
         display: block;
     }

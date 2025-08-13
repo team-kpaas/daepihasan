@@ -37,7 +37,7 @@
 }
 
 /* 모바일에서 사이드바 토글 형태 */
-@media (max-width: 860px) {
+@media (max-width: 1370px) {
     .sidebar {
         position: absolute;
         top: 60px;
