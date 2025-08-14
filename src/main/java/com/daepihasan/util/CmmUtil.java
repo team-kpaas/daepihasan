@@ -2,6 +2,23 @@ package com.daepihasan.util;
 
 // null-safe 처리, HTML input 값 체크(checked, selected)
 public class CmmUtil {
+	public static Integer nvl(Integer num, Integer chg_num) {
+		Integer res;
+
+		if(num == 0) {
+			res = chg_num;
+		} else if(num == null) {
+			res = chg_num;
+		} else {
+			res = num;
+		}
+		return res;
+	}
+
+	public static Integer nvl(Integer num) {
+		return nvl(num, 0);
+	}
+
 	public static String nvl(String str, String chg_str) {
 		String res;
 

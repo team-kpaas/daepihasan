@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Controller
 public class UserInfoController {
-        private final IUserInfoService userInfoService;
+    private final IUserInfoService userInfoService;
 
     /**
      * 회원가입 화면으로 이동
@@ -126,17 +126,17 @@ public class UserInfoController {
             pDTO.setEmail(EncryptUtil.encAES128CBC(email));
             pDTO.setAddr1(addr1);
             pDTO.setAddr2(addr2);
-            
+
             /*
-            * 회원가입
-            * */
+             * 회원가입
+             * */
             res = userInfoService.insertUserInfo(pDTO);
-            
+
             log.info("회원가입 결과(res) : " + res);
-            
+
             if(res == 1) {
                 msg = "회원가입되었습니다.";
-                
+
                 // 추후 회원가입 입력화면에서 ajax를 활용해서 아이디 중복, 이메일 중복을 체크
             } else if(res == 2) {
                 msg = "이미 가입된 아이디입니다.";
@@ -349,9 +349,6 @@ public class UserInfoController {
             if (!password.equals(password2)) {
                 dto.setResult(0);
                 dto.setMsg("입력한 두 비밀번호가 일치하지 않습니다.");
-            dto = userInfoService.checkPasswordMatch(password, password2);
-
-            if (dto.getResult() == 0) {  // 불일치
                 return dto;
             }
 

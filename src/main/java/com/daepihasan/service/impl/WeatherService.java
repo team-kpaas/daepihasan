@@ -4,19 +4,14 @@ import com.daepihasan.dto.WeatherCacheDTO;
 import com.daepihasan.dto.WeatherDTO;
 import com.daepihasan.mapper.IWeatherCacheMapper;
 import com.daepihasan.service.IWeatherService;
+import com.daepihasan.util.NetworkUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,13 +37,19 @@ public class WeatherService implements IWeatherService {
      * 2. 캐시가 없거나 유효하지 않은 경우 기상청 API 호출
      * 3. 받아온 데이터를 DB에 캐시로 저장 후 가공하여 반환
      *
-     * @param x 격자 x 좌표
-     * @param y 격자 y 좌표
+     * @param pDTO 격자 x,y 좌표를 가지고 있는 DTO
      * @return 시간대별 날씨 정보 리스트(6시간)
      */
     @Override
-    public List<WeatherDTO> getWeather(Integer x, Integer y, String ssUserId) {
+    public WeatherCacheDTO getWeather(WeatherCacheDTO pDTO, String ssUserId) {
         log.info("{}.getWeather Start!", this.getClass().getName());
+        String lat = pDTO.getLat();
+        String lng = pDTO.getLng();
+
+        Map<String, Integer> xy = toXY(Double.parseDouble(lat), Double.parseDouble(lng));
+        Integer x =  xy.get("x");
+        Integer y =  xy.get("y");
+
         log.info("x: {}, y: {}", x, y);
 
         try {
@@ -60,16 +61,18 @@ public class WeatherService implements IWeatherService {
             WeatherCacheDTO rDTO = WeatherCacheDTO.builder()
                     .x(x)
                     .y(y)
+                    .lat(lat)
+                    .lng(lng)
                     .baseDate(baseDate)
                     .baseTime(baseTime)
                     .build();
 
             // 1. 캐시 조회
-            WeatherCacheDTO pDTO = getCachedWeather(rDTO);
+            WeatherCacheDTO cDTO = getCachedWeather(rDTO);
 
-            if (pDTO != null && pDTO.getData() != null) {
+            if (cDTO != null && cDTO.getData() != null) {
                 log.info("캐시 데이터 사용");
-                return parseWeather(pDTO.getData(), pDTO.getBaseTime());
+                return parseWeather(cDTO.getData(), cDTO.getBaseTime());
             }
 
             // 2. API 호출 & 캐시 저장
@@ -80,7 +83,7 @@ public class WeatherService implements IWeatherService {
 
         } catch (Exception e) {
             log.error("getWeather Error: ", e);
-            return Collections.emptyList(); // 에러 방지를 위해서 빈 리스트 반환
+            return WeatherCacheDTO.builder().weatherList(Collections.emptyList()).build(); // 에러 방지를 위해서 빈 리스트 반환
         } finally {
             log.info("{}.getWeather End!", this.getClass().getName());
         }
@@ -119,64 +122,37 @@ public class WeatherService implements IWeatherService {
         return now.format(DateTimeFormatter.ofPattern("HH")) + "30";
     }
 
-    /** API 호출 */
-    private String getJsonFromUrl(String urlStr) throws IOException {
-        log.info("{}.getJsonFromUrl Start!", this.getClass().getName());
-        log.debug("요청 URL: {}", urlStr); // 요청 URL 확인
-
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(conn.getInputStream(), UTF_8)
-        );
-        StringBuilder sb = new StringBuilder();
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-        }
-
-        br.close();
-
-        String result = sb.toString();
-        log.debug("API 응답값: {}", result); // 여기서 전체 JSON 응답 확인
-
-        log.info("{}.getJsonFromUrl End!", this.getClass().getName());
-
-        return result;
-    }
-
     /** JSON → WeatherDTO 변환 */
-    private List<WeatherDTO> parseWeather(String json, String baseTime) throws JsonProcessingException {
+    private WeatherCacheDTO parseWeather(String json, String baseTime) throws JsonProcessingException {
         log.info("{}.parseWeather Start!", this.getClass().getName());
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(json);
-        JsonNode items = root.path("response").path("body").path("items").path("item");
+        Map<String, Object> root = mapper.readValue(json, LinkedHashMap.class);
 
-        // 시간별로 데이터를 그룹핑
-        Map<String, Map<String, String>> hourlyData = new HashMap<>();
+        Map<String, Object> response = (Map<String, Object>) root.get("response");
+        Map<String, Object> body     = (Map<String, Object>) response.get("body");
+        Map<String, Object> items    = (Map<String, Object>) body.get("items");
+        List<Map<String, Object>> itemList = (List<Map<String, Object>>) items.get("item");
 
-        for (JsonNode item : items) {
-            String fcstTime = item.path("fcstTime").asText();
-            String category = item.path("category").asText();
-            String value = item.path("fcstValue").asText();
+        Map<String, Map<String, String>> hourlyData = new LinkedHashMap<>();
+        for (Map<String, Object> it : itemList) {
+            String fcstTime = String.valueOf(it.get("fcstTime"));
+            String category = String.valueOf(it.get("category"));
+            String value    = String.valueOf(it.get("fcstValue"));
 
-            hourlyData.computeIfAbsent(fcstTime, k -> new HashMap<>()).put(category, value);
+            hourlyData.computeIfAbsent(fcstTime, k -> new LinkedHashMap<>())
+                    .put(category, value);
         }
 
         int baseHour = Integer.parseInt(baseTime.substring(0, 2));
-
         List<String> sortedKeys = hourlyData.keySet().stream()
-                .sorted(Comparator.comparingInt(time -> {
-                    int hour = Integer.parseInt(time.substring(0, 2));
+                .sorted(Comparator.comparingInt(t -> {
+                    int hour = Integer.parseInt(t.substring(0, 2));
                     return (hour - baseHour + 24) % 24;
                 }))
                 .toList();
 
-        List<WeatherDTO> result = new ArrayList<>();
+        List<WeatherDTO> list = new ArrayList<>();
         for (String time : sortedKeys) {
             Map<String, String> data = hourlyData.get(time);
             String sky = data.getOrDefault("SKY", "");
@@ -198,11 +174,15 @@ public class WeatherService implements IWeatherService {
                     .icon("/images/weather/" + getIcon(sky, pty))
                     .desc(getWeatherDesc(sky, pty))
                     .build();
-            result.add(dto);
+            list.add(dto);
         }
 
         log.info("{}.parseWeather End!", this.getClass().getName());
-        return result;
+
+        // WeatherCacheDTO에 세팅해서 반환
+        return WeatherCacheDTO.builder()
+                .weatherList(list)
+                .build();
     }
 
     /** 캐시 조회 */
@@ -225,8 +205,7 @@ public class WeatherService implements IWeatherService {
         String baseDate =  pDTO.getBaseDate();
         String baseTime = pDTO.getBaseTime();
 
-        String urlStr = String.format(
-                "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst" +
+        String apiParam = String.format(
                         "?serviceKey=%s" +
                         "&dataType=JSON" +
                         "&numOfRows=60" +
@@ -235,8 +214,9 @@ public class WeatherService implements IWeatherService {
                         "&base_time=%s" +
                         "&nx=%s&ny=%s",
                 URLEncoder.encode(apiKey, UTF_8), baseDate, baseTime, x, y);
+        log.info("apiParam: {}", apiParam);
 
-        String json = getJsonFromUrl(urlStr);
+        String json = NetworkUtil.get(IWeatherService.apiURL + apiParam);
 
         // 1. 기존 캐시 삭제
         WeatherCacheDTO deleteDTO = WeatherCacheDTO.builder()
@@ -249,6 +229,8 @@ public class WeatherService implements IWeatherService {
         WeatherCacheDTO saveDTO = WeatherCacheDTO.builder()
                 .x(x)
                 .y(y)
+                .lat(pDTO.getLat())
+                .lng(pDTO.getLng())
                 .baseDate(baseDate)
                 .baseTime(baseTime)
                 .data(json)
