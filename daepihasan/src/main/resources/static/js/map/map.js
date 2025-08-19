@@ -1,4 +1,4 @@
-// /js/map/map.js
+// MAP
 function initTmap() {
     const el = document.getElementById('map_div');
     if (!el) return;
