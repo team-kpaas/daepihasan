@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/css/common/header.css">
     <link rel="stylesheet" href="/css/common/sidebar.css">
     <link rel="stylesheet" href="/css/common/weather.css">
+    <link rel="stylesheet" href="/css/common/home.css">
     <style>
         body {
             background-color: #e1f0ff;
@@ -21,12 +22,9 @@
         }
 
         .main-content {
-            padding: 20px;
+            padding: 0px;
         }
 
-        .card {
-            border-radius: 10px;
-        }
 
     </style>
 </head>
