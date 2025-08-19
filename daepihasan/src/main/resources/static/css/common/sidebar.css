@@ -1,0 +1,63 @@
+.sidebar {
+    background-color: #2338a0;
+    width: 400px; /* 데스크톱 기준 너비 고정 */
+    padding-top: 20px;
+    min-height: calc(100svh - 60px); /* 주소창 변동 안정화 */
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+}
+
+.sidebar .nav-link i {
+    color: white;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+    /*background-color: #4da3f9;*/
+    background-color: #0b5ed7;
+    color: #fff;
+}
+
+.sidebar .nav-link:hover i,
+.sidebar .nav-link:focus i {
+    color: #fff;
+}
+
+/* active 상태에서 폰트 굵게 */
+.sidebar .nav-link.active {
+    color: white;
+    font-weight: 500; /* 더 굵게 */
+}
+
+/* 모바일에서 사이드바 토글 형태 */
+@media (max-width: 1370px) {
+    .sidebar {
+        position: fixed;                    /* 화면 위에 고정 (본문에 영향 X) */
+        top: 60px;                          /* 헤더 높이만큼 아래 */
+        left: 0;
+        width: 78vw;                        /* 기기 폭 기준 */
+        max-width: 400px;
+        min-width: 335px;
+        height: calc(100svh - 60px);        /* 화면 가용 높이 */
+        transform: translateX(-100%);
+        background-color: #2338a0;
+        z-index: 1200;                      /* 헤더/본문 위로 */
+        overflow-y: auto;                   /* 내부 스크롤 */
+        -webkit-overflow-scrolling: touch;  /* iOS 부드러운 스크롤 */
+        padding-bottom: env(safe-area-inset-bottom, 0); /* iOS 하단 안전영역 */
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}

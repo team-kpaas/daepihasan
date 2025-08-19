@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.IWeatherCacheMapper">
+
+    <!-- 1. 캐시 조회 -->
+    <select id="getWeatherCache" parameterType="WeatherCacheDTO" resultType="WeatherCacheDTO">
+        SELECT X, Y, BASE_DATE, BASE_TIME, DATA
+        FROM WEATHER_CACHE
+        WHERE X = #{x}
+          AND Y = #{y}
+          AND BASE_DATE = #{baseDate}
+          AND BASE_TIME = #{baseTime}
+    </select>
+
+    <!-- 2. 기존 캐시 데이터 삭제 -->
+    <delete id="deleteWeatherCache" parameterType="WeatherCacheDTO">
+        DELETE FROM WEATHER_CACHE
+        WHERE X = #{x}
+          AND Y = #{y}
+    </delete>
+
+
+    <!-- 3. 캐시 등록 -->
+    <insert id="insertWeatherCache" parameterType="WeatherCacheDTO">
+        INSERT INTO WEATHER_CACHE (
+            X, Y, lat, lng, BASE_DATE, BASE_TIME, DATA,
+            REG_ID, REG_DT, CHG_ID, CHG_DT
+        ) VALUES (
+            #{x}, #{y}, #{lat}, #{lng}, #{baseDate}, #{baseTime}, #{data},
+            #{regId}, NOW(), #{chgId}, NOW()
+        )
+    </insert>
+</mapper>
