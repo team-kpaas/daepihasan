@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>대피하산</title>
+    <script src="https://apis.openapi.sk.com/tmap/vectorjs?version=1&appKey=${tmapApiKey}"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -30,18 +31,21 @@
     </style>
 </head>
 <body>
-<%@ include file="/WEB-INF/views/common/header.jsp" %>
+<%@ include file="common/header.jsp" %>
 <div class="app-body d-flex">
-    <%@ include file="/WEB-INF/views/common/sidebar.jsp" %>
+    <%@ include file="common/sidebar.jsp" %>
 
-    <main class="main-content flex-fill">
-        <h4 class="fw-bold mb-4">페이지별 내용</h4>
+    <main id="content" class="main-content flex-fill">
 
     </main>
 </div>
+
 <script src="/js/common/header.js"></script>
 <script src="/js/common/sidebar.js"></script>
 <script src="/js/common/location.js"></script>
 <script src="/js/common/weather.js"></script>
+<script src="/js/map/map.js"></script>
+<script src="/js/common/router.js"></script>
+<script>window.CTX = "${pageContext.request.contextPath}";</script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+<%--사이드바--%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     String path = request.getRequestURI();
@@ -6,17 +7,17 @@
     <div>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active" href="/">
+                <a class="nav-link active js-nav" href="#" data-view="home">
                     <i class="fa-solid fa-house"></i> 홈
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/map">
+                <a class="nav-link js-nav" href="#" data-view="map">
                     <i class="fa-solid fa-map"></i> 지도
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/report">
+                <a class="nav-link"  href="/report">
                     <i class="fa-solid fa-bullhorn"></i> 제보 게시판
                 </a>
             </li>
