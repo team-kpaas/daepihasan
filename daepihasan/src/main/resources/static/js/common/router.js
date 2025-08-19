@@ -1,4 +1,4 @@
-// /js/common/router.js
+// 메뉴바
 (function () {
     const $content = document.getElementById('content');
     const KNOWN_VIEWS = ['home', 'map', 'board'];
