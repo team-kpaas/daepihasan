@@ -21,6 +21,17 @@ html, body {
     padding: 3rem;
 }
 
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo-text {
+    font-size: 27px;
+    color: #2338A0;
+    font-weight: 900;
+    margin: 0;
+}
+
 /* 로고 고정 */
 .login-left .logo {
     position: absolute;
@@ -60,6 +71,13 @@ html, body {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+}
+.links {
+    font-size: 12px; /* 글자 크기 */
+}
+
+.links .btn{
+    font-size: 12px; /* 글자 크기 */
 }
 
 /* 모바일 반응형: 배너 숨김 */

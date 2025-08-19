@@ -1,4 +1,3 @@
-// /js/user/searchUser.js  (전체 교체본)
 $(document).ready(function () {
     // 로고 클릭 → 메인 이동
     $(".logo").on("click", function () {

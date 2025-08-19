@@ -26,6 +26,7 @@
     <script src="/js/jquery-3.7.1.min.js"></script>
 </head>
 <body>
+<%@ include file="../modal/modal.jsp" %>
 <div class="full-container">
     <!-- 왼쪽 (비밀번호 재설정 폼) -->
     <div class="newpw-left">

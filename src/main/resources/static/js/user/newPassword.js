@@ -99,17 +99,21 @@ $(document).ready(function () {
             data: { password: password, password2: password2 },
             success: function (json) {
                 if (json.result === 1) {
-                    alert(json.msg);
-                    location.href = "/user/login";
+                    showModal(json.msg);
+                    setTimeout(function () {
+                        location.href = "/user/login";
+                    }, 2000); // 2초 후 페이지 이동
                 } else if (json.result === 0 || json.result == null) {
                     FormValidator.setError("#formPw input[name='password']", "#errorPassword", json.msg);
                 } else if (json.result === 2) {
-                    alert(json.msg);
-                    location.href = "/user/login";
+                    showModal(json.msg);
+                    setTimeout(function () {
+                        location.href = "/user/login";
+                    }, 2000); // 2초 후 페이지 이동
                 }
             },
             error: function () {
-                alert("서버와 통신 중 오류가 발생했습니다.");
+                showModal("서버와 통신 중 오류가 발생했습니다.");
             }
         });
     });

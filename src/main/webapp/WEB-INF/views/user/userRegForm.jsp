@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
+    <link href="/css/common/style.css" rel="stylesheet" >
     <link href="/css/user/userRegForm.css" rel="stylesheet">
 
     <!-- jQuery & Kakao API -->
@@ -20,8 +21,10 @@
 
 <div class="full-container">
     <div class="signup-left">
+        <!-- 로고 -->
         <div class="logo">
             <img src="/images/logo-daepihasan.png" alt="대피하산 로고">
+            <span class="logo-text">대피하산</span>
         </div>
 
         <div class="w-100" style="max-width:500px;">
