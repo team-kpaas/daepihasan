@@ -1,0 +1,79 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+.full-container {
+    display: flex;
+    height: 100%;
+    flex-direction: row;
+}
+.signup-left, .signup-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 왼쪽 */
+.signup-left {
+    position: relative;
+    background-color: #fff;
+    padding: 3rem;
+    justify-content: center;
+    align-items: center;
+}
+.signup-left .logo {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+}
+.signup-left .logo img {
+    height: 50px;
+}
+
+/* 오른쪽 */
+.signup-right {
+    background-color: #e6ca92;
+    justify-content: center;
+    align-items: center;
+}
+.signup-right img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 반응형 */
+@media (max-width: 992px) {
+    .signup-right { display: none; }
+    .signup-left {
+        flex: 1 0 100%;
+        padding: 2rem;
+    }
+    .signup-left .logo {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+/* 공통 스타일 */
+.form-control {
+    height: 45px;
+    border-radius: 8px;
+}
+.btn-primary {
+    border-radius: 8px;
+    background-color: #2338A0;
+}
+
+.boxShadow{
+    height: 50px;
+    box-shadow: 2px 2px 2px 2px gray;
+}
+
+
+/* 아이디, 이메일, 비밀번호 유효성*/
+.id-rule, .email-rule, .password-rule {
+    font-size: 0.875rem;
+    margin-top: 4px;
+}
+
