@@ -7,6 +7,11 @@ let emailAuthNumber = "";
 $(document).ready(function () {
     const f = document.getElementById("f");
 
+    // 로고 클릭 → 메인 이동
+    $(".logo").on("click", function () {
+        location.href = "/";
+    });
+
     $("#btnUserId").on("click", function () { userIdExists(f); });
     $("#btnEmail").on("click", function () {
         buildEmail(); // 최신 이메일 반영

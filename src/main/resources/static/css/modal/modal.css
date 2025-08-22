@@ -32,6 +32,7 @@
 #modalMessage {
     margin: 0;
     line-height: 1.4;
+    white-space: pre-line;
 }
 
 /* 버튼: 오른쪽 아래 고정 */

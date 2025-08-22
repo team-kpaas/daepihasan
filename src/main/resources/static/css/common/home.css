@@ -1,0 +1,28 @@
+.main-content {
+    background-image: url("../../images/background/img_1.png");
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: red;
+}
+
+
+.swiper {
+    position: relative;
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+
+.swiper-slide {
+    background-color: white;
+    background-position: center;
+    background-size: cover;
+    width: 300px;
+    height: 300px;
+}
+
+.swiper-slide p {
+    display: block;
+    width: 100%;
+}

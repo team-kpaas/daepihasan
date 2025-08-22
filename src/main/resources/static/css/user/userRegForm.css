@@ -2,6 +2,16 @@ html, body {
     height: 100%;
     margin: 0;
 }
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo-text {
+    font-size: 27px;
+    color: #2338A0;
+    font-weight: 900;
+    margin: 0;
+}
 .full-container {
     display: flex;
     height: 100%;
