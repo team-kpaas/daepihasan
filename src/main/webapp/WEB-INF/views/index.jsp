@@ -29,7 +29,7 @@
                     <h1>지도 탐색</h1>
                     <p>가장 가까운 대피소와 안전한</p>
                     <p>경로를 손쉽게 확인하세요</p>
-                    <button class="blue-gradation">시작하기</button>
+                    <button class="blue-gradation" id="map-move-button">시작하기</button>
                 </div>
             </div>
             <div class="swiper-slide">
@@ -38,7 +38,7 @@
                     <h1>제보 하기</h1>
                     <p>산불 발생 상황을 빠르게 공유해</p>
                     <p>모두의 안전을 지켜주세요</p>
-                    <button class="puple-gradation">시작하기</button>
+                    <button class="puple-gradation" id="board-move-button">시작하기</button>
                 </div>
             </div>
             <div class="swiper-slide">
@@ -47,7 +47,7 @@
                     <h1>산불 통계</h1>
                     <p>실시간 통계와 과거 데이터를 통해</p>
                     <p>산불 현황을 한눈에 확인하세요</p>
-                    <button class="green-gradation">시작하기</button>
+                    <button class="green-gradation" id="stat-move-button">시작하기</button>
                 </div>
             </div>
             <div class="swiper-slide">
@@ -56,7 +56,7 @@
                     <h1>산불 위험 예보</h1>
                     <p>오늘의 산불 위험도를 예보로</p>
                     <p>확인하고 미리 대비하세요</p>
-                    <button class="yellow-gradation">시작하기</button>
+                    <button class="yellow-gradation" id="forecast-move-button">시작하기</button>
                 </div>
             </div>
         </div>
@@ -71,4 +71,5 @@
 <!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/home.js"></script>
+<script src="${pageContext.request.contextPath}/js/common/header.js"></script>
 </html>
