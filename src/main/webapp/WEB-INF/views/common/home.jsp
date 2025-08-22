@@ -1,19 +1,51 @@
-<%--메인홈--%>
-<div class="contentBox">
-    <div class="card" onclick="location.href='/map'">
-        <h1>🗺️</h1>
-        <p>지도</p>
+
+    <%
+        String ctx = request.getContextPath();
+    %>
+
+    <meta charset="utf-8" />
+    <title>Swiper demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" />
+    <!-- Link Swiper's CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+<link rel="stylesheet" href="<%=ctx%>/css/common/home.css">
+<!-- Swiper -->
+<div class="swiper mySwiper">
+    <div class="swiper-wrapper">
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-1.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-2.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-3.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-4.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-5.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-6.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-7.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-8.jpg" />
+        </div>
+        <div class="swiper-slide">
+            <img src="https://swiperjs.com/demos/images/nature-9.jpg" />
+        </div>
     </div>
-    <div class="card" onclick="location.href='/board'">
-        <h1>📝</h1>
-        <p>제보</p>
-    </div>
-    <div class="card" onclick="location.href='/stats'">
-        <h1>📊</h1>
-        <p>산불 통계</p>
-    </div>
-    <div class="card" onclick="location.href='/forecast'">
-        <h1>🔥</h1>
-        <p>산불 위험 예보</p>
-    </div>
+    <div class="swiper-pagination"></div>
 </div>
+
+<!-- Swiper JS -->
+    <script src="<%=ctx%>/js/common/home.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+
