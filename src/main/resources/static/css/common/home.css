@@ -1,58 +1,28 @@
-
-.contentBox {
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(2, 500px); /* 카드 가로 2개 */
-    grid-template-rows: repeat(2, 300px);   /* 카드 세로 2개 */
-    gap: 20px;                  /* 카드 간격 */
-    place-content: center;      /* 가로 + 세로 중앙 정렬 */
-    height: 100%;               /* 화면 전체 높이 */
-    background-image: url("/images/background/img_1.png");
-    background-size: cover;      /* 화면 꽉 차게 */
-    background-position: center; /* 가운데 정렬 */
+.main-content {
+    background-image: url("../../images/background/img_1.png");
+    width: 100%;
     background-repeat: no-repeat;
-}
-
-.card {
-    font-weight: 900;
-    background: #f9f9f9;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 2px 2px 10px 2px;
-
+    background-size: cover;
+    background-color: red;
 }
 
 
-.card h1{
-    font-size: 100px;
+.swiper {
+    position: relative;
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
 }
 
-
-.card:hover {
-    background: linear-gradient(135deg, #4facfe, #00f2fe); /* 블루톤 */
-    color: white;
-    transform: translateY(-5px) scale(1.05);
+.swiper-slide {
+    background-color: white;
+    background-position: center;
+    background-size: cover;
+    width: 300px;
+    height: 300px;
 }
 
-/*하늘*/
-/*.card:hover {*/
-/*    background: linear-gradient(135deg, #4facfe, #00f2fe); !* 하늘→민트 *!*/
-/*    color: white;*/
-/*    transform: translateY(-5px) scale(1.05);*/
-/*}*/
-/*네이비*/
-/*.card:hover {*/
-/*    background: linear-gradient(135deg, #283e51, #485563); !* 진한 네이비톤 *!*/
-/*    color: #f9f9f9;*/
-/*    transform: translateY(-5px) scale(1.05);*/
-/*}*/
-/*보라*/
-/*.card:hover {*/
-/*    background: linear-gradient(135deg, #7f00ff, #e100ff); !* 보라→핑크 *!*/
-/*    color: white;*/
-/*    transform: translateY(-5px) scale(1.05);*/
-/*}*/
+.swiper-slide p {
+    display: block;
+    width: 100%;
+}
