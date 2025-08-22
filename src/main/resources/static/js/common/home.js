@@ -10,4 +10,14 @@ var swiper = new Swiper(".mySwiper", {
     observer: true,
     observeParents: true,
 });
+$(document).ready(function () {
 
+    $("#map-move-button").on("click", function () {
+        location.href = "/view/map";
+    });
+
+    $("#forecast-move-button").on("click", function () {
+        location.href = "/view/map";
+    });
+
+})

@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class MainController {
     private final IUserInfoService userInfoService;
-    @Value("${tmap.api.key}")
-    private String tmapApiKey;
+
     /**
      * 메인 화면으로 이동
      */
@@ -23,7 +22,6 @@ public class MainController {
     @GetMapping(value = "/")
     public String indexPage(Model model) {
         log.info("{}.indexPage Start!", this.getClass().getName());
-        model.addAttribute("tmapApiKey", tmapApiKey);//api키넘기기
         log.info("{}.indexPage End!", this.getClass().getName());
         return "index";
     }
