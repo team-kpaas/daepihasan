@@ -65,4 +65,67 @@
                              CHG_DT            = VALUES(CHG_DT)
     </insert>
 
+    <!-- 통계 데이터 조회용 쿼리  -->
+    <!-- KPI: 현재 구간 vs 전년 동기 비교 -->
+    <select id="selectKpiYoY" resultType="com.daepihasan.dto.FireForestKpiDTO">
+        WITH
+            PARAMS AS (
+                SELECT CAST(#{from} AS DATE) AS FROM_DT,
+                       CAST(#{to}   AS DATE) AS TO_DT
+            ),
+            PREV_RNG AS (  -- 전년 동기
+                SELECT DATE_SUB(FROM_DT, INTERVAL 1 YEAR) AS PREV_FROM,
+                       DATE_SUB(TO_DT,   INTERVAL 1 YEAR) AS PREV_TO
+                FROM PARAMS
+            ),
+            CUR AS (  -- 현재 구간 집계
+                SELECT
+                    SUM(OCRN_MNB)          AS CUR_CNT,   -- 현재: 발생건수
+                    SUM(PRPT_DMG_SBTT_AMT) AS CUR_PROP,  -- 현재: 재산피해
+                    SUM(VCTM_PERCNT)       AS CUR_DEATH, -- 현재: 사망자수
+                    SUM(INJRDPR_PERCNT)    AS CUR_INJURY -- 현재: 부상자수
+                FROM FIRE_FOREST_STAT F
+                         JOIN PARAMS P
+                              ON F.OCRN_YMD BETWEEN P.FROM_DT AND P.TO_DT
+            ),
+            PREV AS (  -- 전동기(전년 동기) 구간 집계
+                SELECT
+                    SUM(OCRN_MNB)          AS PREV_CNT,   -- 전동기: 발생건수
+                    SUM(PRPT_DMG_SBTT_AMT) AS PREV_PROP,  -- 전동기: 재산피해
+                    SUM(VCTM_PERCNT)       AS PREV_DEATH, -- 전동기: 사망자수
+                    SUM(INJRDPR_PERCNT)    AS PREV_INJURY -- 전동기: 부상자수
+                FROM FIRE_FOREST_STAT F
+                         JOIN PREV_RNG PR
+                              ON F.OCRN_YMD BETWEEN PR.PREV_FROM AND PR.PREV_TO
+            )
+        SELECT
+            -- ===== 발생건수 =====
+            PREV.PREV_CNT  AS cnt_prev,    -- 전동기 발생건수
+            CUR.CUR_CNT    AS cnt_cur,     -- 현재 발생건수
+            (CUR.CUR_CNT - PREV.PREV_CNT) AS cnt_diff,      -- 발생건수 증감
+            CASE WHEN PREV.PREV_CNT=0 THEN NULL
+                 ELSE ROUND((CUR.CUR_CNT - PREV.PREV_CNT)/PREV.PREV_CNT*100,0) END AS cnt_diff_pct, -- 발생건수 증감률(%)
+
+            -- ===== 재산피해 =====
+            PREV.PREV_PROP AS prop_prev,   -- 전동기 재산피해액
+            CUR.CUR_PROP   AS prop_cur,    -- 현재 재산피해액
+            (CUR.CUR_PROP - PREV.PREV_PROP) AS prop_diff,   -- 재산피해 증감
+            CASE WHEN PREV.PREV_PROP=0 THEN NULL
+                 ELSE ROUND((CUR.CUR_PROP - PREV.PREV_PROP)/PREV.PREV_PROP*100,0) END AS prop_diff_pct, -- 재산피해 증감률(%)
+
+            -- ===== 사망 =====
+            PREV.PREV_DEATH AS death_prev, -- 전동기 사망자수
+            CUR.CUR_DEATH   AS death_cur,  -- 현재 사망자수
+            (CUR.CUR_DEATH - PREV.PREV_DEATH) AS death_diff, -- 사망자 증감
+            CASE WHEN PREV.PREV_DEATH=0 THEN NULL
+                 ELSE ROUND((CUR.CUR_DEATH - PREV.PREV_DEATH)/PREV.PREV_DEATH*100,0) END AS death_diff_pct, -- 사망자 증감률(%)
+
+            -- ===== 부상 =====
+            PREV.PREV_INJURY AS injury_prev, -- 전동기 부상자수
+            CUR.CUR_INJURY   AS injury_cur,  -- 현재 부상자수
+            (CUR.CUR_INJURY - PREV.PREV_INJURY) AS injury_diff, -- 부상자 증감
+            CASE WHEN PREV.PREV_INJURY=0 THEN NULL
+                 ELSE ROUND((CUR.CUR_INJURY - PREV.PREV_INJURY)/PREV.PREV_INJURY*100,0) END AS injury_diff_pct -- 부상자 증감률(%)
+        FROM CUR, PREV
+    </select>
 </mapper>
