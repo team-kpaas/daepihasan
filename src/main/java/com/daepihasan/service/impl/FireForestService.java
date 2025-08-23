@@ -1,9 +1,11 @@
 package com.daepihasan.service.impl;
 
 import com.daepihasan.dto.CodeDTO;
+import com.daepihasan.dto.FireForestKpiDTO;
 import com.daepihasan.dto.FireForestStatDTO;
+import com.daepihasan.mapper.ICodeMapper;
 import com.daepihasan.mapper.IFireForestMapper;
-import com.daepihasan.service.IFireForestStatService;
+import com.daepihasan.service.IFireForestService;
 import com.daepihasan.util.CmmUtil;
 import com.daepihasan.util.NetworkUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,9 +26,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class FireForestService implements IFireForestStatService {
+public class FireForestService implements IFireForestService {
 
     private final IFireForestMapper fireForestMapper;
+    private final ICodeMapper codeMapper;
 
     @Value("${data.api.decodeKey}")
     private String apiKey;
@@ -82,7 +85,8 @@ public class FireForestService implements IFireForestStatService {
                     String sclsfNm = normalizeName(safeNm); // 정규화
 
                     // 코드 조회/생성
-                    String sclsfCd = getOrCreateSclsfCode(sclsfNm);
+                    CodeDTO codeDTO = getOrCreateSclsfCode(sclsfNm);
+                    String sclsfCd = codeDTO.getCodeCd();
 
                     // 숫자값 파싱 (Number/String 모두 허용)
                     long ocrnMnb = CmmUtil.nvl(String.valueOf(it.get("OCRN_MNB")), 0L);
@@ -136,6 +140,31 @@ public class FireForestService implements IFireForestStatService {
         log.info("{}.ingest End!", this.getClass().getName());
     }
 
+    @Override
+    @Transactional(readOnly = true) // 조회만 수행
+    public FireForestKpiDTO getKpiYoY(LocalDate from, LocalDate to) {
+        log.info("{}.getKpiYoY Start!,", this.getClass().getName());
+
+        log.info("getKpiYoY from={}, to={}", from, to);
+
+        FireForestKpiDTO dto = fireForestMapper.selectKpiYoY(from, to);
+
+        if (dto == null) {
+            // 결과가 없을 때 UI 일관성을 위해 0L/NULL 채우기 수행
+            dto = FireForestKpiDTO.builder()
+                    .cntPrev(0L).cntCur(0L).cntDiff(0L).cntDiffPct(null)
+                    .propPrev(0L).propCur(0L).propDiff(0L).propDiffPct(null)
+                    .deathPrev(0L).deathCur(0L).deathDiff(0L).deathDiffPct(null)
+                    .injuryPrev(0L).injuryCur(0L).injuryDiff(0L).injuryDiffPct(null)
+                    .build();
+        }
+        log.info(dto.toString());
+
+        log.info("{}.getKpiYoY End!,", this.getClass().getName());
+
+        return dto;
+    }
+
 
     /** 이름 정규화: ',-,·' → '.' + 공백 정리 */
     private String normalizeName(String s) {
@@ -149,30 +178,34 @@ public class FireForestService implements IFireForestStatService {
     }
 
     /** 임야(001) 하위 소분류 코드 조회/생성 */
-    private String getOrCreateSclsfCode(String sclsfNm) {
+    private CodeDTO getOrCreateSclsfCode(String sclsfNm) {
         log.info("{}.getOrCreateSclsfCode Start!", this.getClass().getName());
 
+        // 1) 조회
         CodeDTO q = CodeDTO.builder().codeNm(sclsfNm).build();
-        CodeDTO cur = fireForestMapper.getSclsfCodeByName(q);
+        CodeDTO cur = codeMapper.getSclsfCodeByName(q);
+
         if (cur != null && cur.getCodeCd() != null) {
-            return cur.getCodeCd();
+            log.info("Found existing code: {}", cur);
+            return cur;
         }
-        String next = fireForestMapper.selectNextSclsfCode();
+
+        // 2) 없으면 신규 코드 생성
+        String nextCd = codeMapper.selectNextSclsfCode();
+
         CodeDTO ins = CodeDTO.builder()
-                .codeCd(next)
+                .codeCd(nextCd)
                 .codeNm(sclsfNm)
                 .codeStat("Y")
 //                .regId("SYSTEM")
 //                .chgId("SYSTEM")
                 .build();
-        fireForestMapper.insertSclsfCode(ins);
 
-        log.info("CodeDTO.getCodeCd(): {}", ins.getCodeCd());
-        log.info("CodeDTO.getCodeNm(): {}", ins.getCodeNm());
-        log.info("CodeDTO.getCodeStat(): {}", ins.getCodeStat());
+        codeMapper.insertSclsfCode(ins);
+        log.info("Inserted new code: {}", ins);
 
         log.info("{}.getOrCreateSclsfCode End!", this.getClass().getName());
 
-        return next;
+        return ins;  // DTO 자체 반환
     }
 }
