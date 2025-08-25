@@ -4,8 +4,22 @@
 <!-- JAVA와 연결할 Mapper 파일 설정 -->
 <mapper namespace="com.daepihasan.mapper.ICodeMapper">
 
+    <!-- 임야(001) 하위 소분류 코드 목록 -->
+    <select id="getForestSclsfCodes" resultType="CodeDTO">
+        SELECT
+            CODE_CD   AS codeCd,
+            P_CODE_CD AS pCodeCd,
+            CODE_NM   AS codeNm,
+            CODE_STAT AS codeStat,
+            REG_ID, REG_DT, CHG_ID, CHG_DT
+        FROM CODE
+        WHERE P_CODE_CD = '001'
+          AND CODE_STAT = 'Y'
+        ORDER BY CODE_NM ASC
+    </select>
+
     <!-- 소분류 코드 조회: 임야(001) 하위에서 CODE_NM 일치 -->
-    <select id="getSclsfCodeByName" parameterType="CodeDTO" resultType="CodeDTO">
+    <select id="getForestSclsfCodeNm" parameterType="CodeDTO" resultType="CodeDTO">
         SELECT
             CODE_CD, P_CODE_CD, CODE_NM, CODE_STAT
         FROM CODE

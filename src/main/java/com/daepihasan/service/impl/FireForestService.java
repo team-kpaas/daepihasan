@@ -1,8 +1,6 @@
 package com.daepihasan.service.impl;
 
-import com.daepihasan.dto.CodeDTO;
-import com.daepihasan.dto.FireForestKpiDTO;
-import com.daepihasan.dto.FireForestStatDTO;
+import com.daepihasan.dto.*;
 import com.daepihasan.mapper.ICodeMapper;
 import com.daepihasan.mapper.IFireForestMapper;
 import com.daepihasan.service.IFireForestService;
@@ -19,7 +17,9 @@ import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -44,7 +44,7 @@ public class FireForestService implements IFireForestService {
         log.info("{}.ingest Start!", this.getClass().getName());
 
         // 구간 결정: 비어있으면 2015-01-01부터, 있으면 MAX+1일부터 어제까지
-        LocalDate maxYmd = fireForestMapper.selectMaxOcrnYmd();
+        LocalDate maxYmd = fireForestMapper.getMaxOcrnYmd();
         log.info("maxYmd: {}", maxYmd);
 
         LocalDate start  = (maxYmd == null) ? LocalDate.of(2015, 1, 1) : maxYmd.plusDays(1);
@@ -142,12 +142,10 @@ public class FireForestService implements IFireForestService {
 
     @Override
     @Transactional(readOnly = true) // 조회만 수행
-    public FireForestKpiDTO getKpiYoY(LocalDate from, LocalDate to) {
+    public FireForestKpiDTO getKpiYoY(FireForestRangeDTO range) {
         log.info("{}.getKpiYoY Start!,", this.getClass().getName());
 
-        log.info("getKpiYoY from={}, to={}", from, to);
-
-        FireForestKpiDTO dto = fireForestMapper.selectKpiYoY(from, to);
+        FireForestKpiDTO dto = fireForestMapper.getKpiYoY(range);
 
         if (dto == null) {
             // 결과가 없을 때 UI 일관성을 위해 0L/NULL 채우기 수행
@@ -165,6 +163,16 @@ public class FireForestService implements IFireForestService {
         return dto;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO range) {
+        log.info("{}.getCausesAgg Start!", this.getClass().getName());
+
+        List<FireForestCauseDTO> rDTO = fireForestMapper.getCausesAgg(range);
+
+        log.info("{}.getCausesAgg End!", this.getClass().getName());
+        return rDTO;
+    }
 
     /** 이름 정규화: ',-,·' → '.' + 공백 정리 */
     private String normalizeName(String s) {
@@ -183,7 +191,7 @@ public class FireForestService implements IFireForestService {
 
         // 1) 조회
         CodeDTO q = CodeDTO.builder().codeNm(sclsfNm).build();
-        CodeDTO cur = codeMapper.getSclsfCodeByName(q);
+        CodeDTO cur = codeMapper.getForestSclsfCodeNm(q);
 
         if (cur != null && cur.getCodeCd() != null) {
             log.info("Found existing code: {}", cur);
