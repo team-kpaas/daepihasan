@@ -24,7 +24,9 @@ public class StatisticsController {
     // 의존성 주입
     private final IFireForestService fireForestService;
 
-    // 1. 임야 화제 통계
+
+
+    // 1. 임야 화제 통계 수집
     @GetMapping("/fire-forest/ingest")
     public String ingest() {
         log.info("{}.ingest Start!", this.getClass().getName());
@@ -168,4 +170,32 @@ public class StatisticsController {
         }
     }
 
+    /**
+     * 2.3 최근 12개월 월별 시계열 통계자료
+     */
+    @PostMapping("/fire-forest/monthly")
+    @ResponseBody
+    public MsgDTO monthlySeries(HttpServletRequest req) {
+        MsgDTO dto = new MsgDTO();
+        try {
+            String toParam   = CmmUtil.nvl(req.getParameter("to"));      // yyyy-MM-dd (옵션)
+            String codeParam = CmmUtil.nvl(req.getParameter("codeCd"));  // 옵션
+            String metric    = CmmUtil.nvl(req.getParameter("metric"));  // OCRN/LIFE/VCTM/INJRDPR/PRPT
+
+            FireForestRangeDTO r = FireForestRangeDTO.builder()
+                    .to(toParam.isBlank() ? null : LocalDate.parse(toParam))
+                    .codeCd(codeParam.isBlank() ? null : codeParam)
+                    .metric(metric.isBlank() ? "OCRN" : metric)
+                    .build();
+
+            dto.setData(fireForestService.getMonthlyTimeSeries(r));
+            dto.setResult(1);
+            dto.setMsg("정상적으로 조회되었습니다.");
+            return dto;
+        } catch (Exception e) {
+            dto.setResult(2);
+            dto.setMsg("서버 오류가 발생했습니다.");
+            return dto;
+        }
+    }
 }

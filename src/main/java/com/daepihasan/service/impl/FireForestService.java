@@ -174,6 +174,40 @@ public class FireForestService implements IFireForestService {
         return rDTO;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<FireForestMonthlyDTO> getMonthlyTimeSeries(FireForestRangeDTO range) {
+
+        // 기본값/보정
+        LocalDate today = LocalDate.now();
+        LocalDate maxQueryable = today.minusDays(1);
+
+        LocalDate to = (range != null && range.getTo() != null) ? range.getTo() : today;
+        if (to.isAfter(maxQueryable)) to = maxQueryable;
+
+        // 최근 12개월: to 기준 11개월 전 '1일'을 from으로
+        LocalDate from = (range != null && range.getFrom() != null)
+                ? range.getFrom()
+                : to.minusMonths(11).withDayOfMonth(1);
+
+        // 월 단위 시각화 깔끔하게: to는 말일로 맞춤
+        LocalDate toEnd = to.withDayOfMonth(to.lengthOfMonth());
+
+        String codeCd = (range != null) ? range.getCodeCd() : null;
+        String metric = (range != null && range.getMetric() != null && !range.getMetric().isBlank())
+                ? range.getMetric().toUpperCase()
+                : "OCRN"; // 기본: 발생건수
+
+        FireForestRangeDTO q = FireForestRangeDTO.builder()
+                .from(from)
+                .to(toEnd)
+                .codeCd((codeCd == null || codeCd.isBlank()) ? null : codeCd)
+                .metric(metric)
+                .build();
+
+        return fireForestMapper.getMonthlyTimeSeries(q);
+    }
+
     /** 이름 정규화: ',-,·' → '.' + 공백 정리 */
     private String normalizeName(String s) {
         s = CmmUtil.nvl(s, "기타 들불");
