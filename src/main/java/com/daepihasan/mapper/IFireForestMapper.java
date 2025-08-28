@@ -1,9 +1,6 @@
 package com.daepihasan.mapper;
 
-import com.daepihasan.dto.FireForestCauseDTO;
-import com.daepihasan.dto.FireForestKpiDTO;
-import com.daepihasan.dto.FireForestRangeDTO;
-import com.daepihasan.dto.FireForestStatDTO;
+import com.daepihasan.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDate;
@@ -23,4 +20,6 @@ public interface IFireForestMapper {
 
     /** 원인별(소분류) 화재 통계 */
     List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO pDTO);
+
+    List<FireForestMonthlyDTO> getMonthlyTotal(FireForestRangeDTO range);
 }

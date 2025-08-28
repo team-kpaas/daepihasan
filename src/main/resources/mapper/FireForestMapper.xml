@@ -110,4 +110,47 @@
         ORDER BY ocrnMnb DESC, wdldSclsfCd ASC
     </select>
 
+    <!-- 최근 12개월(or from~to) 월별 시계열: 코드 × 월 -->
+    <select id="getMonthlyTotal"
+            parameterType="FireForestRangeDTO"
+            resultType="FireForestMonthlyDTO">
+
+        SELECT
+            DATE_FORMAT(m.mon, '%Y-%m')         AS yearMonth,
+            COALESCE(a.sum_ocrn ,0)             AS ocrnMnb,
+            COALESCE(a.sum_life ,0)             AS lifeDmgPercnt,
+            COALESCE(a.sum_vctm ,0)             AS vctmPercnt,
+            COALESCE(a.sum_injr ,0)             AS injrdprPercnt,
+            COALESCE(a.sum_prpt ,0)             AS prptDmgSbttAmt
+        FROM
+            (
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  0 MONTH), '%Y-%m-01') AS mon UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  1 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  2 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  3 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  4 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  5 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  6 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  7 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  8 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  9 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 10 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 11 MONTH), '%Y-%m-01')
+            ) m
+                LEFT JOIN (
+                SELECT
+                    DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01') AS mon,
+                    SUM(s.OCRN_MNB)                     AS sum_ocrn,
+                    SUM(s.LIFE_DMG_PERCNT)              AS sum_life,
+                    SUM(s.VCTM_PERCNT)                  AS sum_vctm,
+                    SUM(s.INJRDPR_PERCNT)               AS sum_injr,
+                    SUM(s.PRPT_DMG_SBTT_AMT)            AS sum_prpt
+                FROM FIRE_FOREST_STAT s
+                WHERE s.OCRN_YMD BETWEEN #{from} AND #{to}
+                GROUP BY DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01')
+            ) a
+                          ON a.mon = m.mon
+        ORDER BY m.mon ASC
+    </select>
+
 </mapper>

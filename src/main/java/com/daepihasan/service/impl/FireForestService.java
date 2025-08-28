@@ -141,11 +141,43 @@ public class FireForestService implements IFireForestService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public FireForestDashboardDTO getFireForestDashboard(FireForestRangeDTO rangeDTO) {
+        log.info("{}.getFireForestDashboard Start!", this.getClass().getName());
+
+        FireForestKpiDTO kpiDTO = getKpiYoY(rangeDTO);
+        log.info("kpiDTO: {}", kpiDTO);
+        List<CodeDTO> codeList = codeMapper.getForestSclsfCodes();
+        for(CodeDTO codeDTO : codeList) {
+            log.info("codeDTO: {}", codeDTO);
+        }
+        List<FireForestCauseDTO> causeList = getCausesAgg(rangeDTO);
+        for(FireForestCauseDTO causeDTO : causeList) {
+            log.info("FireForestCauseDTO: {}", causeDTO);
+        }
+        List<FireForestMonthlyDTO> monthlyList = getMonthlyTotal();
+        for(FireForestMonthlyDTO monthlyDTO : monthlyList) {
+            log.info("FireForestMonthlyDTO: {}", monthlyDTO);
+        }
+
+        FireForestDashboardDTO rDTO = FireForestDashboardDTO.builder()
+                .kpi(kpiDTO)
+                .codeList(codeList)
+                .causeList(causeList)
+                .monthlyList(monthlyList)
+                .build();
+
+        log.info("{}.getFireForestDashboard End!", this.getClass().getName());
+
+        return rDTO;
+    }
+
+    @Override
     @Transactional(readOnly = true) // 조회만 수행
-    public FireForestKpiDTO getKpiYoY(FireForestRangeDTO range) {
+    public FireForestKpiDTO getKpiYoY(FireForestRangeDTO rangeDTO) {
         log.info("{}.getKpiYoY Start!,", this.getClass().getName());
 
-        FireForestKpiDTO dto = fireForestMapper.getKpiYoY(range);
+        FireForestKpiDTO dto = fireForestMapper.getKpiYoY(rangeDTO);
 
         if (dto == null) {
             // 결과가 없을 때 UI 일관성을 위해 0L/NULL 채우기 수행
@@ -165,13 +197,35 @@ public class FireForestService implements IFireForestService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO range) {
+    public List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO rangeDTO) {
         log.info("{}.getCausesAgg Start!", this.getClass().getName());
 
-        List<FireForestCauseDTO> rDTO = fireForestMapper.getCausesAgg(range);
+        List<FireForestCauseDTO> rDTO = fireForestMapper.getCausesAgg(rangeDTO);
 
         log.info("{}.getCausesAgg End!", this.getClass().getName());
         return rDTO;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<FireForestMonthlyDTO> getMonthlyTotal() {
+        log.info("{}.getMonthlyTotal Start!", this.getClass().getName());
+        LocalDate to = LocalDate.now();
+        LocalDate maxQueryable = to.minusDays(1);
+
+        if (to.isAfter(maxQueryable)) to = maxQueryable;
+
+        // 최근 12개월: 시작을 11개월 전 1일로, 종료는 to의 말일
+        LocalDate from = to.minusMonths(11).withDayOfMonth(1);
+        log.info("from ~ to: {} ~ {}", from , to);
+
+        FireForestRangeDTO rDTO = FireForestRangeDTO.builder()
+                .from(from)
+                .to(to)
+                .build();
+
+        log.info("{}.getMonthlyTotal End!", this.getClass().getName());
+        return fireForestMapper.getMonthlyTotal(rDTO);
     }
 
     /** 이름 정규화: ',-,·' → '.' + 공백 정리 */
