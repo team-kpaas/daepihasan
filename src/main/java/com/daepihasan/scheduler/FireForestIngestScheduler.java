@@ -1,6 +1,6 @@
 package com.daepihasan.scheduler;
 
-import com.daepihasan.service.IFireForestStatService;
+import com.daepihasan.service.IFireForestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FireForestIngestScheduler {
 
-    private final IFireForestStatService fireForestStatService;
+    private final IFireForestService fireForestStatService;
 
     // 매일 새벽 03:00에 실행
     @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")

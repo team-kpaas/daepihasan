@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="com.daepihasan.mapper.ICodeMapper">
+
+    <!-- 임야(001) 하위 소분류 코드 목록 -->
+    <select id="getForestSclsfCodes" resultType="CodeDTO">
+        SELECT
+            CODE_CD   AS codeCd,
+            P_CODE_CD AS pCodeCd,
+            CODE_NM   AS codeNm,
+            CODE_STAT AS codeStat,
+            REG_ID, REG_DT, CHG_ID, CHG_DT
+        FROM CODE
+        WHERE P_CODE_CD = '001'
+          AND CODE_STAT = 'Y'
+        ORDER BY CODE_NM ASC
+    </select>
+
+    <!-- 소분류 코드 조회: 임야(001) 하위에서 CODE_NM 일치 -->
+    <select id="getForestSclsfCodeNm" parameterType="CodeDTO" resultType="CodeDTO">
+        SELECT
+            CODE_CD, P_CODE_CD, CODE_NM, CODE_STAT
+        FROM CODE
+        WHERE P_CODE_CD = '001'
+          AND CODE_STAT = 'Y'
+          AND CODE_NM = #{codeNm}
+            LIMIT 1
+    </select>
+
+    <!-- 임야 하위 다음 6자리 코드 생성 -->
+    <select id="selectNextSclsfCode" resultType="string">
+        SELECT CONCAT('001', LPAD(COALESCE(MAX(CAST(SUBSTRING(CODE_CD,4,3) AS UNSIGNED)), 0) + 1, 3, '0'))
+        FROM CODE
+        WHERE P_CODE_CD = '001'
+          AND CHAR_LENGTH(CODE_CD) = 6
+    </select>
+
+    <!-- CODE(소분류) 신규 추가 -->
+    <insert id="insertSclsfCode" parameterType="CodeDTO">
+        INSERT INTO CODE (
+            CODE_CD, CODE_NM, P_CODE_CD, CODE_STAT, REG_ID, REG_DT, CHG_ID, CHG_DT
+        ) VALUES (
+                     #{codeCd}, #{codeNm}, '001', 'Y', #{regId}, NOW(), #{chgId}, NOW()
+        )
+    </insert>
+
+</mapper>

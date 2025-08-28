@@ -1,32 +1,25 @@
 package com.daepihasan.controller;
 
-import com.daepihasan.service.IFireForestStatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 
 @Slf4j
-@RequestMapping(value = "/stat")
+@RequestMapping(value = "/dashboard")
 @RequiredArgsConstructor
-@RestController
+@Controller
 public class StatisticsController {
 
-    // 의존성 주입
-    private final IFireForestStatService fireForestStatService;
+    // 1. 임야 화제 통계 페이지 이동
+    @GetMapping("fireForest")
+    public String getFireForestDashboard() {
+        log.info("{}.getFireForestDashboard Start!", this.getClass().getName());
 
-    //    1. 임야 화제 통계
-    @GetMapping("/fire-forest/ingest")
-    public String ingest() {
-        log.info("{}.ingest Start!", this.getClass().getName());
 
-        fireForestStatService.ingest();
-
-        log.info("{}.ingest End!", this.getClass().getName());
-        return "OK";
+        log.info("{}.getFireForestDashboard End!", this.getClass().getName());
+        return "/dashboard/fireForest";
     }
-
-    //    2. 산불 통계
 }

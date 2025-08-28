@@ -5,42 +5,9 @@
 <mapper namespace="com.daepihasan.mapper.IFireForestMapper">
 
     <!-- 비었으면 NULL -->
-    <select id="selectMaxOcrnYmd" resultType="java.time.LocalDate">
+    <select id="getMaxOcrnYmd" resultType="java.time.LocalDate">
         SELECT MAX(OCRN_YMD) FROM FIRE_FOREST_STAT
     </select>
-
-    <!-- 소분류 코드 조회: 임야(001) 하위에서 CODE_NM 일치 -->
-    <select id="getSclsfCodeByName"
-            parameterType="CodeDTO"
-            resultType="CodeDTO">
-        SELECT
-            CODE_CD   AS codeCd,
-            P_CODE_CD AS pCodeCd,
-            CODE_NM   AS codeNm,
-            CODE_STAT AS codeStat
-        FROM CODE
-        WHERE P_CODE_CD = '001'
-          AND CODE_STAT = 'Y'
-          AND CODE_NM = #{codeNm}
-        LIMIT 1
-    </select>
-
-    <!-- 임야 하위 다음 6자리 코드 생성 -->
-    <select id="selectNextSclsfCode" resultType="string">
-        SELECT CONCAT('001', LPAD(COALESCE(MAX(CAST(SUBSTRING(CODE_CD,4,3) AS UNSIGNED)), 0) + 1, 3, '0'))
-        FROM CODE
-        WHERE P_CODE_CD = '001'
-          AND CHAR_LENGTH(CODE_CD) = 6
-    </select>
-
-    <!-- CODE(소분류) 신규 추가 -->
-    <insert id="insertSclsfCode" parameterType="CodeDTO">
-        INSERT INTO CODE (
-            CODE_CD, CODE_NM, P_CODE_CD, CODE_STAT, REG_ID, REG_DT, CHG_ID, CHG_DT
-        ) VALUES (
-                     #{codeCd}, #{codeNm}, '001', 'Y', #{regId}, NOW(), #{chgId}, NOW()
-                 )
-    </insert>
 
     <!-- FIRE_FOREST_STAT UPSERT (덮어쓰기) -->
     <insert id="upsertFireForestStat" parameterType="FireForestStatDTO">
@@ -54,15 +21,136 @@
                      #{searchDate}, #{regId}, #{regDt}, #{chgId}, #{chgDt}
                  )
         ON DUPLICATE KEY UPDATE
-                             -- PK는 갱신 X
-                             OCRN_MNB          = VALUES(OCRN_MNB),
-                             LIFE_DMG_PERCNT   = VALUES(LIFE_DMG_PERCNT),
-                             VCTM_PERCNT       = VALUES(VCTM_PERCNT),
-                             INJRDPR_PERCNT    = VALUES(INJRDPR_PERCNT),
-                             PRPT_DMG_SBTT_AMT = VALUES(PRPT_DMG_SBTT_AMT),
-                             SEARCH_DATE       = VALUES(SEARCH_DATE),
-                             CHG_ID            = VALUES(CHG_ID),
-                             CHG_DT            = VALUES(CHG_DT)
+             -- PK는 갱신 X
+             OCRN_MNB          = VALUES(OCRN_MNB),
+             LIFE_DMG_PERCNT   = VALUES(LIFE_DMG_PERCNT),
+             VCTM_PERCNT       = VALUES(VCTM_PERCNT),
+             INJRDPR_PERCNT    = VALUES(INJRDPR_PERCNT),
+             PRPT_DMG_SBTT_AMT = VALUES(PRPT_DMG_SBTT_AMT),
+             SEARCH_DATE       = VALUES(SEARCH_DATE),
+             CHG_ID            = VALUES(CHG_ID),
+             CHG_DT            = VALUES(CHG_DT)
     </insert>
+
+    <!-- 통계 데이터 조회용 쿼리  -->
+    <!-- KPI: 현재 구간 vs 전년 동기 비교 -->
+    <select id="getKpiYoY"
+            parameterType="FireForestRangeDTO"
+            resultType="FireForestKpiDTO">
+
+        SELECT
+            -- ===== 발생건수 =====
+            p.prev_cnt  AS cnt_prev,
+            c.cur_cnt   AS cnt_cur,
+            (c.cur_cnt - p.prev_cnt) AS cnt_diff,
+            CASE WHEN p.prev_cnt = 0 THEN NULL
+                 ELSE ROUND((c.cur_cnt - p.prev_cnt) / p.prev_cnt * 100, 0) END AS cnt_diff_pct,
+
+            -- ===== 재산피해 =====
+            p.prev_prop AS prop_prev,
+            c.cur_prop  AS prop_cur,
+            (c.cur_prop - p.prev_prop) AS prop_diff,
+            CASE WHEN p.prev_prop = 0 THEN NULL
+                 ELSE ROUND((c.cur_prop - p.prev_prop) / p.prev_prop * 100, 0) END AS prop_diff_pct,
+
+            -- ===== 사망 =====
+            p.prev_death AS death_prev,
+            c.cur_death  AS death_cur,
+            (c.cur_death - p.prev_death) AS death_diff,
+            CASE WHEN p.prev_death = 0 THEN NULL
+                 ELSE ROUND((c.cur_death - p.prev_death) / p.prev_death * 100, 0) END AS death_diff_pct,
+
+            -- ===== 부상 =====
+            p.prev_injury AS injury_prev,
+            c.cur_injury  AS injury_cur,
+            (c.cur_injury - p.prev_injury) AS injury_diff,
+            CASE WHEN p.prev_injury = 0 THEN NULL
+                 ELSE ROUND((c.cur_injury - p.prev_injury) / p.prev_injury * 100, 0) END AS injury_diff_pct
+
+        FROM
+            (
+                SELECT
+                    COALESCE(SUM(OCRN_MNB), 0)          AS cur_cnt,
+                    COALESCE(SUM(PRPT_DMG_SBTT_AMT), 0) AS cur_prop,
+                    COALESCE(SUM(VCTM_PERCNT), 0)       AS cur_death,
+                    COALESCE(SUM(INJRDPR_PERCNT), 0)    AS cur_injury
+                FROM FIRE_FOREST_STAT
+                WHERE OCRN_YMD BETWEEN #{from} AND #{to}
+            ) c
+                CROSS JOIN
+            (
+                SELECT
+                    COALESCE(SUM(OCRN_MNB), 0)          AS prev_cnt,
+                    COALESCE(SUM(PRPT_DMG_SBTT_AMT), 0) AS prev_prop,
+                    COALESCE(SUM(VCTM_PERCNT), 0)       AS prev_death,
+                    COALESCE(SUM(INJRDPR_PERCNT), 0)    AS prev_injury
+                FROM FIRE_FOREST_STAT
+                WHERE OCRN_YMD BETWEEN #{prevFrom} AND #{prevTo}
+            ) p
+    </select>
+
+    <!-- 기간(from~to) 동안 원인(소분류)별 통계 -->
+    <select id="getCausesAgg"
+            parameterType="FireForestRangeDTO"
+            resultType="FireForestCauseDTO">
+        SELECT
+        F.WDLD_SCLSF_CD                      AS wdldSclsfCd,
+        getCodeNM(F.WDLD_SCLSF_CD)           AS wdldSclsfNm,  -- 함수로 라벨링
+        SUM(F.OCRN_MNB)                      AS ocrnMnb,
+        SUM(F.LIFE_DMG_PERCNT)               AS lifeDmgPercnt,
+        SUM(F.VCTM_PERCNT)                   AS vctmPercnt,
+        SUM(F.INJRDPR_PERCNT)                AS injrdprPercnt,
+        SUM(F.PRPT_DMG_SBTT_AMT)             AS prptDmgSbttAmt
+        FROM FIRE_FOREST_STAT F
+        WHERE F.OCRN_YMD BETWEEN #{from} AND #{to}
+        <if test="codeCd != null and codeCd != ''">
+            AND F.WDLD_SCLSF_CD = #{codeCd}    <!-- 선택 코드 -->
+        </if>
+        GROUP BY F.WDLD_SCLSF_CD
+        ORDER BY ocrnMnb DESC, wdldSclsfCd ASC
+    </select>
+
+    <!-- 최근 12개월(or from~to) 월별 시계열: 코드 × 월 -->
+    <select id="getMonthlyTotal"
+            parameterType="FireForestRangeDTO"
+            resultType="FireForestMonthlyDTO">
+
+        SELECT
+            DATE_FORMAT(m.mon, '%Y-%m')         AS yearMonth,
+            COALESCE(a.sum_ocrn ,0)             AS ocrnMnb,
+            COALESCE(a.sum_life ,0)             AS lifeDmgPercnt,
+            COALESCE(a.sum_vctm ,0)             AS vctmPercnt,
+            COALESCE(a.sum_injr ,0)             AS injrdprPercnt,
+            COALESCE(a.sum_prpt ,0)             AS prptDmgSbttAmt
+        FROM
+            (
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  0 MONTH), '%Y-%m-01') AS mon UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  1 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  2 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  3 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  4 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  5 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  6 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  7 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  8 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  9 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 10 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 11 MONTH), '%Y-%m-01')
+            ) m
+                LEFT JOIN (
+                SELECT
+                    DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01') AS mon,
+                    SUM(s.OCRN_MNB)                     AS sum_ocrn,
+                    SUM(s.LIFE_DMG_PERCNT)              AS sum_life,
+                    SUM(s.VCTM_PERCNT)                  AS sum_vctm,
+                    SUM(s.INJRDPR_PERCNT)               AS sum_injr,
+                    SUM(s.PRPT_DMG_SBTT_AMT)            AS sum_prpt
+                FROM FIRE_FOREST_STAT s
+                WHERE s.OCRN_YMD BETWEEN #{from} AND #{to}
+                GROUP BY DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01')
+            ) a
+                          ON a.mon = m.mon
+        ORDER BY m.mon ASC
+    </select>
 
 </mapper>
