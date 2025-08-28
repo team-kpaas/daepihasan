@@ -21,5 +21,5 @@ public interface IFireForestMapper {
     /** 원인별(소분류) 화재 통계 */
     List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO pDTO);
 
-    List<FireForestMonthlyDTO> getMonthlyTimeSeries(FireForestRangeDTO range);
+    List<FireForestMonthlyDTO> getMonthlyTotal(FireForestRangeDTO range);
 }

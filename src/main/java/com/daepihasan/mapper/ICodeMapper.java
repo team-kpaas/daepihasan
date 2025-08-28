@@ -18,5 +18,5 @@ public interface ICodeMapper {
     int insertSclsfCode(CodeDTO pDTO);
 
     /** 임야(001) 모두 조회 */
-    List<CodeDTO> selectForestSclsfCodes();
+    List<CodeDTO> getForestSclsfCodes();
 }

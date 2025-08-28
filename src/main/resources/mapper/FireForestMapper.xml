@@ -111,68 +111,46 @@
     </select>
 
     <!-- 최근 12개월(or from~to) 월별 시계열: 코드 × 월 -->
-    <select id="getMonthlyTimeSeries"
+    <select id="getMonthlyTotal"
             parameterType="FireForestRangeDTO"
             resultType="FireForestMonthlyDTO">
 
         SELECT
             DATE_FORMAT(m.mon, '%Y-%m')         AS yearMonth,
-            c.CODE_CD                           AS wdldSclsfCd,
-            c.CODE_NM                           AS wdldSclsfNm,
-            /* 선택 지표 -> DTO.value 가 String 이므로 CHAR로 캐스팅 */
-            CASE
-                WHEN UPPER(#{metric}) = 'PRPT'    THEN CAST(COALESCE(a.sum_prpt ,0) AS CHAR)
-                WHEN UPPER(#{metric}) = 'LIFE'    THEN CAST(COALESCE(a.sum_life ,0) AS CHAR)
-                WHEN UPPER(#{metric}) = 'VCTM'    THEN CAST(COALESCE(a.sum_vctm,0) AS CHAR)
-                WHEN UPPER(#{metric}) = 'INJRDPR' THEN CAST(COALESCE(a.sum_injr ,0) AS CHAR)
-                ELSE                                   CAST(COALESCE(a.sum_ocrn ,0) AS CHAR) /* OCRN 기본 */
-                END AS value
+            COALESCE(a.sum_ocrn ,0)             AS ocrnMnb,
+            COALESCE(a.sum_life ,0)             AS lifeDmgPercnt,
+            COALESCE(a.sum_vctm ,0)             AS vctmPercnt,
+            COALESCE(a.sum_injr ,0)             AS injrdprPercnt,
+            COALESCE(a.sum_prpt ,0)             AS prptDmgSbttAmt
         FROM
-            /* 12개월 월 시퀀스: to 기준 -0..-11개월의 1일 */
             (
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  0 MONTH), '%Y-%m-01') AS mon UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  1 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  2 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  3 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  4 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  5 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  6 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  7 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  8 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  9 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 10 MONTH), '%Y-%m-01') UNION ALL
-            SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 11 MONTH), '%Y-%m-01')
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  0 MONTH), '%Y-%m-01') AS mon UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  1 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  2 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  3 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  4 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  5 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  6 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  7 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  8 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL  9 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 10 MONTH), '%Y-%m-01') UNION ALL
+                SELECT DATE_FORMAT(DATE_SUB(#{to}, INTERVAL 11 MONTH), '%Y-%m-01')
             ) m
-
-            /* 임야(001) 하위 코드 목록 (특정 코드 선택 시 그 코드만) */
-            JOIN (
-            SELECT CODE_CD, CODE_NM
-            FROM CODE
-            WHERE CODE_STAT = 'Y'
-            AND (
-            (#{codeCd} IS NULL AND P_CODE_CD = '001')
-            OR (#{codeCd} IS NOT NULL AND CODE_CD = #{codeCd})
-            )
-            ) c
-
-            /* 실제 집계: month × code 로 합계 */
-            LEFT JOIN (
-            SELECT
-            DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01') AS mon,
-            s.WDLD_SCLSF_CD                     AS codeCd,
-            SUM(s.OCRN_MNB)                     AS sum_ocrn,
-            SUM(s.LIFE_DMG_PERCNT)              AS sum_life,
-            SUM(s.VCTM_PERCNT)                  AS sum_vctm,
-            SUM(s.INJRDPR_PERCNT)               AS sum_injr,
-            SUM(s.PRPT_DMG_SBTT_AMT)            AS sum_prpt
-            FROM FIRE_FOREST_STAT s
-            WHERE s.OCRN_YMD BETWEEN #{from} AND #{to}
-            GROUP BY DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01'), s.WDLD_SCLSF_CD
+                LEFT JOIN (
+                SELECT
+                    DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01') AS mon,
+                    SUM(s.OCRN_MNB)                     AS sum_ocrn,
+                    SUM(s.LIFE_DMG_PERCNT)              AS sum_life,
+                    SUM(s.VCTM_PERCNT)                  AS sum_vctm,
+                    SUM(s.INJRDPR_PERCNT)               AS sum_injr,
+                    SUM(s.PRPT_DMG_SBTT_AMT)            AS sum_prpt
+                FROM FIRE_FOREST_STAT s
+                WHERE s.OCRN_YMD BETWEEN #{from} AND #{to}
+                GROUP BY DATE_FORMAT(s.OCRN_YMD, '%Y-%m-01')
             ) a
-        ON a.mon = m.mon
-            AND a.codeCd = c.CODE_CD
-
-        ORDER BY m.mon ASC, c.CODE_NM ASC
+                          ON a.mon = m.mon
+        ORDER BY m.mon ASC
     </select>
 
 </mapper>

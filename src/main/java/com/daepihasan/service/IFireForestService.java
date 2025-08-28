@@ -1,20 +1,21 @@
 package com.daepihasan.service;
 
-import com.daepihasan.dto.FireForestCauseDTO;
-import com.daepihasan.dto.FireForestKpiDTO;
-import com.daepihasan.dto.FireForestMonthlyDTO;
-import com.daepihasan.dto.FireForestRangeDTO;
+import com.daepihasan.dto.*;
 
 import java.util.List;
 
 public interface IFireForestService {
     void ingest(); // 배치 진입점
 
-    // KPI: 현재 구간 vs 전년 동기
-    FireForestKpiDTO getKpiYoY(FireForestRangeDTO range);
+    // 임야화재 통계 페이지 초기 진입
+    FireForestDashboardDTO getFireForestDashboard(FireForestRangeDTO rangeDTO);
 
-    List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO range);
+    // KPI: 현재 구간 vs 전년 동기
+    FireForestKpiDTO getKpiYoY(FireForestRangeDTO rangeDTO);
+
+    // 원인별
+    List<FireForestCauseDTO> getCausesAgg(FireForestRangeDTO rangeDTO);
 
     // 시계열
-    List<FireForestMonthlyDTO> getMonthlyTimeSeries(FireForestRangeDTO range);
+    List<FireForestMonthlyDTO> getMonthlyTotal();
 }
