@@ -20,6 +20,6 @@ public class StatisticsController {
 
 
         log.info("{}.getFireForestDashboard End!", this.getClass().getName());
-        return "/dashboard/fireForest";
+        return "dashboard/fireForest";
     }
 }
