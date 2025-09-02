@@ -63,7 +63,7 @@
         <div class="swiper-button-next"></div>
         <div class="swiper-button-prev"></div>
     </div>
-<main>
+</main>
 <%--자바스크립트 파일--%>
 <%--<script src="/static/js/common/header.js"></script>--%>
 
