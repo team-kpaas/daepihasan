@@ -1,0 +1,61 @@
+.sidebar {
+    position: absolute;                /* map_wrapper(relative) 기준 */
+    top: 0;
+    left: 0;
+    width: 400px;                      /* 데스크톱 기준 너비 */
+    height: 100%;                      /* map 높이에 맞게 */
+    background-color: #2338a0;
+    padding-top: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    transform: translateX(-100%);      /* 기본: 숨김 */
+    transition: transform 0.3s ease-in-out;
+    z-index: 1200;                     /* 지도보다 위 */
+}
+
+.sidebar.show {
+    transform: translateX(0);          /* 열렸을 때 */
+}
+
+/* 메뉴 스타일 */
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar .nav-link i {
+    color: white;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+    background-color: #0b5ed7;
+    color: #fff;
+}
+
+.sidebar .nav-link:hover i,
+.sidebar .nav-link:focus i {
+    color: #fff;
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    font-weight: 600;
+}
+
+/* 📱 모바일에서 사이드바 너비 자동 조정 */
+@media (max-width: 1370px) {
+    .sidebar {
+        width: 78vw;
+        max-width: 400px;
+        min-width: 280px;
+    }
+}
