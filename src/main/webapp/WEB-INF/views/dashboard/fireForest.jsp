@@ -8,6 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/sidebar.css">
@@ -42,7 +43,7 @@
 <div id="ffPage">
     <div class="ff-wrap">
         <h1 style="margin:0 0 8px">임야 화재 대시보드</h1>
-        <div class="ff-muted">기간과 원인을 바꾸면 KPI/차트가 즉시 갱신됩니다.</div>
+        <div class="ff-muted">기간을 바꾸면 전동기 차트가 즉시 갱신됩니다.</div>
 
         <!-- 상단: 날짜만 -->
         <div class="ff-controls">
