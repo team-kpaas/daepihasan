@@ -1,5 +1,6 @@
 /* 레이아웃 */
 header {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
     min-width: 330px;
     background-color: white;
     height: 60px;

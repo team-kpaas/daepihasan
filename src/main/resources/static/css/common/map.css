@@ -1,0 +1,329 @@
+/* ===== Reset & Base ===== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+    width: 100%; height: 100%;
+    margin: 0; padding: 0;
+    font-family: 'NanumSquare','Noto Sans KR',sans-serif;
+    color: #1b1f2a;
+}
+
+#map_wrapper {
+    position: relative;     /* ✅ map을 relative 기준 컨테이너 */
+    width: 100%;
+    height: 100%;
+}
+#map_div {
+    width: 100%; height: 100%;
+    position: fixed;
+    inset:0;
+}
+
+/* ===== Header ===== */
+header{
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 70px;
+    display: flex; justify-content: end; align-items: center;
+    padding: 10px 16px;
+    background: transparent;
+    z-index: 1000;
+}
+
+/* 검색바 */
+.search-bar{
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 5px; margin-left: 5px;
+    height: 50px;
+}
+
+.menu-toggle {
+    display: flex; align-items: center; justify-content: center;
+    width: 50px; height: 50px;
+    font-size: 24px;
+    border: none; border-radius: 12px;
+    color: #fff; background: linear-gradient(145deg, #3148c9, #1e2e80);
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.18),
+    -3px -3px 8px rgba(255,255,255,0.35);
+    cursor: pointer;
+    margin-right: 12px;
+    transition: all .2s ease;
+}
+.menu-toggle:hover { filter: brightness(1.04); }
+.menu-toggle:active {
+    transform: translateY(1px);
+    box-shadow: inset 4px 4px 10px rgba(0,0,0,0.18),
+    inset -3px -3px 8px rgba(255,255,255,0.35);
+}
+
+.map-search-form{
+    display: flex; align-items: center;
+    height: 50px;
+    background: #f6f7fb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.map-search-form input[type="search"]{
+    width: 330px; height: 50px;
+    border: none; outline: none;
+    padding: 0 14px;
+    background: #f6f7fb;
+    font-size: 15px;
+}
+.map-search-form button{
+    width: 50px; height: 50px;
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    background: #eef1f7; color: #2338A0;
+    border-left: 1px solid #e5e7eb;
+    transition: background .15s ease, transform .08s ease;
+}
+.map-search-form button:hover{ background: #e7ebf4; }
+.map-search-form button:active{ transform: translateY(1px); }
+
+/* 길찾기 버튼 */
+header > button{
+    width: 48px; height: 48px;
+    margin-top: 5px; margin-left: 7px;
+    border-radius: 12px;
+    background:#206def;
+    padding-top: 5px;
+    border: none;
+    color: #fff; font-size: 16px; font-weight: 500;
+    box-shadow: 0 8px 18px rgba(35,56,160,0.28),
+    0 2px 6px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: all .15s ease;
+}
+header > button p{ font-weight: 500; font-size: 11px; }
+
+/* 맵 컨트롤 버튼 */
+.map-controls{
+    position: absolute; right: 12px; bottom: 16px;
+    display: grid; gap: 10px; z-index: 1000;
+}
+.ctrl{
+    width: 44px; height: 44px; border-radius: 12px;
+    color:#206def;
+    border: 1px solid #e5e7eb; background: #fff;
+    display: grid; place-items: center;
+    cursor: pointer;
+}
+.ctrl:hover{ filter: brightness(0.98); }
+
+/* ===== Side Peek Button ===== */
+.side-peek {
+    position: absolute;
+    top: 50%;
+    left: 0;                          /* 화면 왼쪽 */
+    transform: translateY(-50%);      /* 세로만 중앙정렬 */
+    z-index: 1300;                    /* 사이드바보다 위 */
+
+    width: 48px;
+    height: 64px;
+    border: none;
+    border-radius: 0 14px 14px 0;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    transition: transform 0.3s ease;
+}
+.side-peek i {
+    font-size: 18px;
+    color: #2338A0;
+    transition: transform 0.3s ease;
+}
+.side-peek:hover{ filter: brightness(1.05); box-shadow: 0 8px 22px rgba(0,0,0,0.2); }
+.side-peek:active{ transform: translate(-100%, -50%) scale(0.95); }
+
+/* 사이드바 열렸을 때 버튼 따라옴 */
+.side-peek.open {
+    transform: translate(400px, -50%); /* 사이드바 너비만큼 이동 */
+}
+
+.side-peek.open i {
+    transform: rotate(180deg);
+}
+
+.search-suggest{
+    position:absolute; z-index:1200;
+    margin-top:6px; padding:6px 0; list-style:none;
+    width: 390px; /* 입력창 너비(330) + 여유 */
+    max-height: 320px; overflow:auto;
+    border:1px solid #e5e7eb; border-radius:12px;
+    background:#fff; box-shadow:0 10px 24px rgba(0,0,0,.12);
+    display:none;
+}
+
+.search-suggest.show{ display:block; }
+.search-suggest li{
+    padding:10px 14px; cursor:pointer; line-height:1.2;
+    display:flex; gap:10px; align-items:flex-start;
+}
+.search-suggest li:hover, .search-suggest li[aria-selected="true"]{
+    background:#f3f4f6;
+}
+.search-suggest .title{ font-weight:700; font-size:14px; color:#111827; }
+.search-suggest .addr{ font-size:12px; color:#6b7280; margin-top:2px; }
+
+.search-suggest .section-title{
+    padding:8px 12px;
+    font-size:12px; color:#6b7280;
+    cursor:default; user-select:none;
+}
+
+.search-suggest .recent-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; cursor:pointer;
+}
+.search-suggest .recent-item:hover{ background:#f3f4f6; }
+.search-suggest .recent-item .text{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.search-suggest .recent-item .del{
+    border:none; background:transparent; font-size:16px; line-height:1;
+    cursor:pointer; color:#9ca3af; padding:2px 6px; margin-left:10px;
+}
+.search-suggest .recent-item .del:hover{ color:#4b5563; }
+.ctrl.loading { opacity: .6; pointer-events: none; }
+/* ===== 반응형 ===== */
+@media (max-width: 480px){
+    .map-search-form input[type="search"]{ width: 270px; }
+    header{ padding: 8px; }
+}
+#btnRefresh i { display: inline-block; }
+#btnRefresh.spin-once i { animation: spin-once .7s linear 1; } /* 1회전 */
+@keyframes spin-once { to { transform: rotate(360deg); } }
+/* 오른쪽 아래 토스트 */
+.map-toast{
+    position: fixed; right: 12px; bottom: 90px;
+    background: rgba(0,0,0,.72); color:#fff;
+    padding: 8px 12px; border-radius: 8px;
+    font-size: 12px; z-index: 2147483647;
+    opacity: 0; transform: translateY(6px);
+    transition: opacity .18s ease, transform .18s ease;
+}
+.map-toast.show{ opacity: 1; transform: translateY(0); }
+/* ===== Zoom controls (top-right) ===== */
+.zoom-controls{
+    position: fixed; top: 80px; right: 13px;
+    z-index: 2147483647;               /* 최상단 */
+    display: inline-flex; flex-direction: column; /* 수직으로 +/– 붙이기 */
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+    box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    overflow: hidden;                   /* 모서리 둥글게 유지 */
+    pointer-events: auto;
+}
+.zoom-btn{
+    width: 30px; height: 35px;
+    display: grid; place-items: center;
+    background: transparent; border: 0; cursor: pointer;
+}
+.zoom-btn + .zoom-btn{ border-top: 1px solid #e5e7eb; }  /* 버튼 사이 구분선 */
+.zoom-btn:hover{ background: #f6f7fb; }
+
+/* 아이콘이 회전할 수 있게 inline-block */
+.zoom-btn i{ display: inline-block; }
+
+/* 검색창 왼쪽 메뉴 아이콘 (기본은 데스크톱에서 숨김) */
+.menu-in-search{
+    display: none;                  /* 데스크톱: 감춤 */
+    width: 50px; height: 50px;
+    border: none; cursor: pointer;
+    display: none;
+    align-items: center; justify-content: center;
+    background: #eef1f7; color: #2338A0;
+    border-right: 1px solid #e5e7eb; /* 입력과 구분선 */
+}
+.menu-in-search:hover{ background:#e7ebf4; }
+.menu-in-search { display: none !important; }
+/* 모바일에서만 메뉴 아이콘 보이기 + 사이드피크 숨기기 */
+@media (max-width: 768px){
+    .menu-in-search { display: inline-flex !important; }
+    .side-peek      { display: none !important; }
+    .bottom-bar {top:60px; right:0px; }
+    /* 아이콘이 들어와도 입력창이 자연스럽게 늘어나도록 */
+    .map-search-form { display: flex; }
+    .map-search-form input[type="search"]{
+        width: auto; flex: 1 1 auto; min-width: 0;
+    }
+}
+
+/* (안전망) 넓은 화면 다시 한 번 확실히 숨기기 */
+@media (min-width: 769px){
+    .menu-in-search { display: none !important; }
+    .side-peek      { display: flex !important; } /* 데스크톱에선 기존 사이드버튼 보이기 */
+    .bottom-bar {left:5px;}
+}
+
+/*s*/
+/* ===== 모바일 안전영역/레이어 ===== */
+:root{
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --elev-1: 1000; --elev-2: 1200; --elev-3: 1400;
+}
+
+/* 지도는 상단 헤더, 하단 바를 피해서 꽉 채우기 (기존 header 높이 70px) */
+
+
+/* ===== FAB 클러스터 ===== */
+.fab-cluster{
+    position: fixed; right: 12px; bottom: calc(12px + var(--safe-bottom));
+    display:flex; flex-direction:column; gap:10px; z-index: var(--elev-2);
+}
+.fab{
+    width: 52px; height: 52px; border-radius: 16px; border: 1px solid #e5e7eb;
+    background:#fff; display:grid; place-items:center; box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    cursor: pointer;
+}
+.fab[aria-pressed="true"]{ background:#206def; color:#fff; }
+
+/* ===== 하단 바 (필터칩/상태) ===== */
+.bottom-bar{
+    position: fixed;
+    padding: 8px 10px calc(8px + var(--safe-bottom));
+    background: transparent;
+    z-index: var(--elev-1);
+    display:flex; align-items:center; gap: 8px; overflow-x:auto;
+}
+.chips{ display:flex; gap:8px; overflow-x:auto; }
+.chip{
+    padding: 8px 12px; border-radius: 999px; border:1px solid #e5e7eb; background:#fff;
+    font-size: 12px; white-space: nowrap; cursor: pointer;
+}
+.chip.is-on{ background:#206def; border-color:#206def; color:#fff; }
+.status{ margin-left:auto; font-size: 12px; color:#6b7280; white-space: nowrap; }
+
+/* ===== 바텀시트 ===== */
+.sheet{
+    position: fixed; left:0; right:0; bottom:0; height: 32vh;
+    transform: translateY(110%); transition: transform .25s ease;
+    background:#fff; border-radius: 16px 16px 0 0; z-index: var(--elev-3);
+    box-shadow: 0 -8px 22px rgba(0,0,0,.12);
+    padding-bottom: var(--safe-bottom);
+}
+.sheet.show{ transform: translateY(0); }
+.sheet .handle{
+    width: 44px; height: 4px; background:#e5e7eb; border-radius: 999px; margin: 8px auto;
+}
+.sheet-content{ padding: 8px 14px 16px; max-height: calc(32vh - 24px); overflow:auto; }
+
+/* ===== 검색 제안: 모바일에서 키보드와 겹치지 않게 고정(선택) ===== */
+@media (max-width: 768px){
+    .search-suggest{
+        position: fixed !important;
+        left: 8px !important; right: 8px !important;
+        top: calc(70px + var(--safe-top)) !important;
+        width: auto !important;
+        max-height: 50vh;
+    }
+}
