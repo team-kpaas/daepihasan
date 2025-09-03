@@ -5,160 +5,158 @@
     <meta charset="UTF-8" />
     <title>임야화재 대시보드</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/header.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/style.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/header.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/sidebar.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/weather.css">
     <style>
-        body { color:black; margin: 0; background:#e1f0ff; }
-        .wrap { max-width: 1280px; margin: 24px auto; padding: 0 16px; }
-        .controls { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px; }
-        .control { display:flex; flex-direction:column; gap:6px; }
-        .control input, .control select, .control button { padding:8px 10px; border:1px solid #ddd; border-radius:8px; background:#fff; }
-        .btn { cursor:pointer; background:#111827; color:#fff; border:0; }
-        .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap:16px; }
-        .card { background:#fff; border-radius:12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding:16px; }
-        .kpi { grid-column: span 3; }
-        .kpi h3 { margin:0 0 6px; font-size:14px; color:#6b7280; }
-        .kpi .val { font-size:28px; font-weight:700; }
-        .kpi .diff { margin-top:8px; font-size:12px; color:#6b7280; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-        .chart { grid-column: span 12; height: 340px; }
-        .muted { color:#6b7280; font-size:12px; }
-        .section-title { margin:24px 0 8px; font-weight:700; font-size: 20px}
-        .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
-        .spacer { height: 8px; }
-        /* 색상 */
-        .diff-up   { color:#dc2626; } /* red-600 */
-        .diff-down { color:#2563eb; } /* blue-600 */
-        .diff-zero { color:#6b7280; } /* gray-500 */
-        .arrow { font-weight:900; }
-        .gap8 { display:inline-flex; gap:6px; align-items:center; }
+        #ffPage { background:#e1f0ff; color:#000; }
+        #ffPage .ff-wrap { max-width:1280px; margin:0 auto; padding:24px 16px; }
+        #ffPage .ff-controls { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px; }
+        #ffPage .ff-control { display:flex; flex-direction:column; gap:6px; }
+        #ffPage .ff-control input, #ffPage .ff-control select { padding:8px 10px; border:1px solid #ddd; border-radius:8px; background:#fff; }
+        #ffPage .ff-row { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+        #ffPage .ff-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+        #ffPage .ff-card { background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:16px; }
+        #ffPage .ff-kpi { grid-column:span 3; }
+        #ffPage .ff-kpi h3 { margin:0 0 6px; font-size:14px; color:#6b7280; }
+        #ffPage .ff-kpi .ff-val { font-size:28px; font-weight:700; }
+        #ffPage .ff-kpi .ff-diff { margin-top:8px; font-size:12px; color:#6b7280; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+        #ffPage .ff-chart { grid-column:span 12; height:340px; }
+        #ffPage .ff-muted { color:#6b7280; font-size:12px; }
+        #ffPage .ff-section-title { margin:24px 0 8px; font-weight:700; font-size:20px; }
+        #ffPage .ff-spacer { height:8px; }
+        #ffPage .ff-up{color:#dc2626;} #ffPage .ff-down{color:#2563eb;} #ffPage .ff-zero{color:#6b7280;}
+        #ffPage .ff-arrow{font-weight:900;} #ffPage .ff-gap8{display:inline-flex; gap:6px; align-items:center;}
+        #ffPage .ff-label { font-size:12px; color:#6b7280; margin-bottom:6px; }
     </style>
 </head>
 <body>
 <%@ include file="../common/header.jsp" %>
-<div class="wrap">
-    <h1 style="margin:0 0 8px">임야 화재 대시보드</h1>
-    <div class="muted">기간과 원인을 바꿔보며 추이를 확인하세요.</div>
+<div class="app-body d-flex">
+<%@ include file="../common/sidebar.jsp" %>
+<main id="content" class="main-content flex-fill">
+<div id="ffPage">
+    <div class="ff-wrap">
+        <h1 style="margin:0 0 8px">임야 화재 대시보드</h1>
+        <div class="ff-muted">기간과 원인을 바꾸면 KPI/차트가 즉시 갱신됩니다.</div>
 
-    <!-- 컨트롤 -->
-    <div class="controls">
-        <div class="control">
-            <label for="from">시작일</label>
-            <input id="from" type="date" />
+        <!-- 상단: 날짜만 -->
+        <div class="ff-controls">
+            <div class="ff-control">
+                <label for="from">시작일</label>
+                <input id="from" type="date" />
+            </div>
+            <div class="ff-control">
+                <label for="to">종료일</label>
+                <input id="to" type="date" />
+            </div>
         </div>
-        <div class="control">
-            <label for="to">종료일</label>
-            <input id="to" type="date" />
+
+        <!-- KPI -->
+        <div class="ff-grid" id="kpiGrid">
+            <div class="ff-card ff-kpi">
+                <h3>발생건수</h3>
+                <div class="ff-val" id="kpiCntCur">-</div>
+                <div class="ff-diff">
+                    <span class="ff-muted">전동기:</span> <span id="kpiCntPrev">-</span>
+                    <span class="ff-muted">/ 증감</span>
+                    <span class="ff-gap8"><span id="kpiCntArrow" class="ff-arrow ff-zero">–</span><span id="kpiCntDiffVal" class="ff-zero">-</span></span>
+                    (<span id="kpiCntDiffPct" class="ff-zero">-</span>%)
+                </div>
+            </div>
+            <div class="ff-card ff-kpi">
+                <h3>재산피해</h3>
+                <div class="ff-val" id="kpiPropCur">-</div>
+                <div class="ff-diff">
+                    <span class="ff-muted">전동기:</span> <span id="kpiPropPrev">-</span>
+                    <span class="ff-muted">/ 증감</span>
+                    <span class="ff-gap8"><span id="kpiPropArrow" class="ff-arrow ff-zero">–</span><span id="kpiPropDiffVal" class="ff-zero">-</span></span>
+                    (<span id="kpiPropDiffPct" class="ff-zero">-</span>%)
+                </div>
+            </div>
+            <div class="ff-card ff-kpi">
+                <h3>사망자수</h3>
+                <div class="ff-val" id="kpiDeathCur">-</div>
+                <div class="ff-diff">
+                    <span class="ff-muted">전동기:</span> <span id="kpiDeathPrev">-</span>
+                    <span class="ff-muted">/ 증감</span>
+                    <span class="ff-gap8"><span id="kpiDeathArrow" class="ff-arrow ff-zero">–</span><span id="kpiDeathDiffVal" class="ff-zero">-</span></span>
+                    (<span id="kpiDeathDiffPct" class="ff-zero">-</span>%)
+                </div>
+            </div>
+            <div class="ff-card ff-kpi">
+                <h3>부상자수</h3>
+                <div class="ff-val" id="kpiInjuryCur">-</div>
+                <div class="ff-diff">
+                    <span class="ff-muted">전동기:</span> <span id="kpiInjuryPrev">-</span>
+                    <span class="ff-muted">/ 증감</span>
+                    <span class="ff-gap8"><span id="kpiInjuryArrow" class="ff-arrow ff-zero">–</span><span id="kpiInjuryDiffVal" class="ff-zero">-</span></span>
+                    (<span id="kpiInjuryDiffPct" class="ff-zero">-</span>%)
+                </div>
+            </div>
         </div>
-        <div class="control">
-            <label for="codeCd">원인(소분류)</label>
-            <select id="codeCd">
-                <option value="">전체</option>
-            </select>
+
+        <!-- 임야별 -->
+        <div class="ff-section-title">임야별 통계</div>
+        <div class="ff-row" style="margin-bottom:8px">
+            <div class="ff-control">
+                <span class="ff-label">임야 분류</span>
+                <select id="codeCd">
+                    <option value="">전체</option>
+                    <!-- dashboard 로드 시 채움 -->
+                </select>
+            </div>
+            <div class="ff-control">
+                <span class="ff-label">지표</span>
+                <select id="metricBottom">
+                    <option value="OCRN">발생건수</option>
+                    <option value="LIFE">인명피해인원수</option>
+                    <option value="VCTM">사고자인원수</option>
+                    <option value="INJRDPR">부상자인원수</option>
+                    <option value="PRPT">재산피해소계금액</option>
+                </select>
+            </div>
         </div>
-        <div class="control">
-            <button class="btn" id="btnApply">적용</button>
-        </div>
+        <div id="chartCauses" class="ff-card ff-chart"></div>
+
+        <!-- 월별 -->
+        <div class="ff-section-title">월별 추이 (최근 12개월)</div>
+        <div id="chartMonthly" class="ff-card ff-chart"></div>
+        <div class="ff-spacer"></div>
     </div>
-
-    <!-- KPI -->
-    <div class="grid" id="kpiGrid">
-        <!-- 발생건수 -->
-        <div class="card kpi">
-            <h3>발생건수</h3>
-            <div class="val" id="kpiCntCur">-</div>
-            <div class="diff">
-                <span class="muted">전년동기:</span> <span id="kpiCntPrev">-</span>
-                <span class="muted">/ 증감</span>
-                <span class="gap8">
-                    <span id="kpiCntArrow" class="arrow diff-zero">–</span>
-                    <span id="kpiCntDiffVal" class="diff-zero">-</span>
-                </span>
-                (<span id="kpiCntDiffPct" class="diff-zero">-</span>%)
-            </div>
-        </div>
-        <!-- 재산피해 -->
-        <div class="card kpi">
-            <h3>재산피해</h3>
-            <div class="val" id="kpiPropCur">-</div>
-            <div class="diff">
-                <span class="muted">전년동기:</span> <span id="kpiPropPrev">-</span>
-                <span class="muted">/ 증감</span>
-                <span class="gap8">
-                    <span id="kpiPropArrow" class="arrow diff-zero">–</span>
-                    <span id="kpiPropDiffVal" class="diff-zero">-</span>
-                </span>
-                (<span id="kpiPropDiffPct" class="diff-zero">-</span>%)
-            </div>
-        </div>
-        <!-- 사망자수 -->
-        <div class="card kpi">
-            <h3>사망자수</h3>
-            <div class="val" id="kpiDeathCur">-</div>
-            <div class="diff">
-                <span class="muted">전년동기:</span> <span id="kpiDeathPrev">-</span>
-                <span class="muted">/ 증감</span>
-                <span class="gap8">
-                    <span id="kpiDeathArrow" class="arrow diff-zero">–</span>
-                    <span id="kpiDeathDiffVal" class="diff-zero">-</span>
-                </span>
-                (<span id="kpiDeathDiffPct" class="diff-zero">-</span>%)
-            </div>
-        </div>
-        <!-- 부상자수 -->
-        <div class="card kpi">
-            <h3>부상자수</h3>
-            <div class="val" id="kpiInjuryCur">-</div>
-            <div class="diff">
-                <span class="muted">전년동기:</span> <span id="kpiInjuryPrev">-</span>
-                <span class="muted">/ 증감</span>
-                <span class="gap8">
-                    <span id="kpiInjuryArrow" class="arrow diff-zero">–</span>
-                    <span id="kpiInjuryDiffVal" class="diff-zero">-</span>
-                </span>
-                (<span id="kpiInjuryDiffPct" class="diff-zero">-</span>%)
-            </div>
-        </div>
-    </div>
-
-    <div class="section-title">원인(소분류)별 통계</div>
-    <div class="row" style="margin-bottom:8px">
-        <div class="control">
-            <select id="metricBottom">
-                <option value="OCRN">발생건수</option>
-                <option value="LIFE">인명피해인원수</option>
-                <option value="VCTM">사고자인원수</option>
-                <option value="INJRDPR">부상자인원수</option>
-                <option value="PRPT">재산피해소계금액</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="chartCauses" class="card chart"></div>
-
-    <div class="section-title">월별 추이 (최근 12개월)</div>
-    <div id="chartMonthly" class="card chart"></div>
-    <div class="spacer"></div>
 </div>
-
+</main>
+</div>
 <script>
-    const $ = (id) => document.getElementById(id);
+    const ff$ = (id) => document.getElementById(id);
 
-    // 날짜 기본값
-    (function initDates() {
-        const today = new Date();
-        const toStr = today.toISOString().slice(0,10);
-        const monthAgo = new Date(today); monthAgo.setMonth(monthAgo.getMonth()-1);
-        const fromStr = monthAgo.toISOString().slice(0,10);
-        $('from').value = fromStr;
-        $('to').value   = toStr;
-    })();
-
-    // 차트
-    const chartMonthly = echarts.init($('chartMonthly'));
-    const chartCauses  = echarts.init($('chartCauses'));
+    const chartMonthly = echarts.init(ff$('chartMonthly'));
+    const chartCauses  = echarts.init(ff$('chartCauses'));
     const nf = new Intl.NumberFormat('ko-KR');
 
+    const cache = { causes: [], monthly: [] };
+
+    (function initDates() {
+        const today = new Date();
+        today.setDate(today.getDate() - 1);
+        const todayStr = today.toISOString().slice(0,10);
+        const monthAgo = new Date(today); monthAgo.setMonth(monthAgo.getMonth()-1);
+        const fromStr = monthAgo.toISOString().slice(0,10);
+
+        ff$('from').value = fromStr;
+        ff$('to').value   = todayStr;
+
+        ff$('from').setAttribute('min', '2015-01-01');
+        ff$('from').setAttribute('max', todayStr);
+        ff$('to').setAttribute('min', '2015-01-01');
+        ff$('to').setAttribute('max', todayStr);
+    })();
+
+    // 유틸
     function scaleUnit(max) {
         if (!isFinite(max) || max <= 0) return { div: 1, label: '원' };
         if (max >= 1e9) return { div: 1e8, label: '억 원' };
@@ -172,120 +170,117 @@
         return nf.format(v) + ' 원';
     }
 
-    // ▲/▼/색상 렌더 (Arrow/Value/Pct 분리)
-    function renderKpi(prefix, cur, prev, diff, pct, isMoney=false) {
-        const arrowEl = $('kpi' + prefix + 'Arrow');
-        const valEl   = $('kpi' + prefix + 'DiffVal');
-        const pctEl   = $('kpi' + prefix + 'DiffPct');
+    function renderKpi(prefix, diff, pct, isMoney=false) {
+        const arrowEl = ff$('kpi'+prefix+'Arrow');
+        const valEl   = ff$('kpi'+prefix+'DiffVal');
+        const pctEl   = ff$('kpi'+prefix+'DiffPct');
         if (!arrowEl || !valEl || !pctEl) return;
 
-        const nDiff = (diff == null ? NaN : Number(diff));
-        const nPct  = (pct  == null ? NaN : Number(pct));
-
+        const nDiff = diff == null ? NaN : Number(diff);
+        const nPct  = pct  == null ? NaN : Number(pct);
         const sign = Number.isFinite(nPct) ? Math.sign(nPct)
             : (Number.isFinite(nDiff) ? Math.sign(nDiff) : 0);
 
-        let cls='diff-zero', arrow='–';
-        if (sign > 0) { cls='diff-up'; arrow='▲'; }
-        else if (sign < 0) { cls='diff-down'; arrow='▼'; }
+        let cls='ff-zero', arrow='–';
+        if (sign > 0) { cls='ff-up'; arrow='▲'; }
+        else if (sign < 0) { cls='ff-down'; arrow='▼'; }
 
         const absDiffTxt = Number.isFinite(nDiff)
-            ? (isMoney ? fmtMoneyShort(Math.abs(nDiff)) : nf.format(Math.abs(nDiff)))
-            : '-';
-        const absPctTxt = Number.isFinite(nPct) ? Math.abs(nPct) : '-';
+            ? (isMoney ? fmtMoneyShort(Math.abs(nDiff)) : nf.format(Math.abs(nDiff))) : '-';
+        const absPctTxt  = Number.isFinite(nPct) ? Math.abs(nPct) : '-';
 
-        arrowEl.className = 'arrow ' + cls;
+        arrowEl.className = 'ff-arrow ' + cls;
         valEl.className   = cls;
         pctEl.className   = cls;
-
         arrowEl.textContent = arrow;
         valEl.textContent   = absDiffTxt;
         pctEl.textContent   = absPctTxt;
     }
 
-    async function postJSON(url, bodyObj) {
-        const res = await fetch(url, {
-            method:'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-            body: new URLSearchParams(bodyObj || {})
-        });
-        return res.json();
+    function setText(id, v, money=false) {
+        const el = ff$(id); if (!el) return;
+        el.textContent = money ? fmtMoneyShort(v) : nf.format(v ?? 0);
     }
 
-    async function loadKPI(from, to) {
-        const data = await postJSON('/fireForest/kpi', { from, to });
-        if (data.result !== 1) { console.warn('KPI load fail:', data.msg); return; }
-        const k = data.data || {};
+    function renderKpiFromObject(k) {
+        setText('kpiCntCur',   k.cntCur);
+        setText('kpiCntPrev',  k.cntPrev);
+        setText('kpiPropCur',  k.propCur,  true);
+        setText('kpiPropPrev', k.propPrev, true);
+        setText('kpiDeathCur',  k.deathCur);
+        setText('kpiDeathPrev', k.deathPrev);
+        setText('kpiInjuryCur',  k.injuryCur);
+        setText('kpiInjuryPrev', k.injuryPrev);
 
-        const setTxt = (id, v, money=false) => {
-            const el = $(id); if (!el) return;
-            el.textContent = money ? fmtMoneyShort(v) : nf.format(v ?? 0);
-        };
-        setTxt('kpiCntCur',   k.cntCur);
-        setTxt('kpiCntPrev',  k.cntPrev);
-        setTxt('kpiPropCur',  k.propCur,  true);
-        setTxt('kpiPropPrev', k.propPrev, true);
-        setTxt('kpiDeathCur',  k.deathCur);
-        setTxt('kpiDeathPrev', k.deathPrev);
-        setTxt('kpiInjuryCur',  k.injuryCur);
-        setTxt('kpiInjuryPrev', k.injuryPrev);
-
-        renderKpi('Cnt',    k.cntCur,   k.cntPrev,   k.cntDiff,   k.cntDiffPct,   false);
-        renderKpi('Prop',   k.propCur,  k.propPrev,  k.propDiff,  k.propDiffPct,  true);
-        renderKpi('Death',  k.deathCur, k.deathPrev, k.deathDiff, k.deathDiffPct, false);
-        renderKpi('Injury', k.injuryCur,k.injuryPrev,k.injuryDiff,k.injuryDiffPct,false);
+        renderKpi('Cnt',    k.cntDiff,   k.cntDiffPct,   false);
+        renderKpi('Prop',   k.propDiff,  k.propDiffPct,  true);
+        renderKpi('Death',  k.deathDiff, k.deathDiffPct, false);
+        renderKpi('Injury', k.injuryDiff,k.injuryDiffPct,false);
     }
 
-    async function loadMonthly() {
-        const data = await postJSON('/fireForest/monthly');
-        if (data.result !== 1) { console.warn('Monthly load fail:', data.msg); return; }
-        const rows = data.data || [];
+    function renderMonthlyFromArray(rows) {
+        if (!Array.isArray(rows) || rows.length === 0) {
+            chartMonthly.setOption({
+                title: { text: '월별 추이 (데이터 없음)' },
+                xAxis: { type: 'category', data: [] },
+                yAxis: [{ type: 'value' }, { type: 'value' }],
+                series: []
+            });
+            return;
+        }
+
         const months = [...new Set(rows.map(r => r.yearMonth))].sort();
-
         const pick = (key) => months.map(m => (rows.find(x => x.yearMonth === m)?.[key]) || 0);
-        const sOCRN = pick('ocrnMnb');
-        const sLIFE = pick('lifeDmgPercnt');
-        const sVCTM = pick('vctmPercnt');
-        const sINJR = pick('injrdprPercnt');
-        const sPRPT = pick('prptDmgSbttAmt');
+
+        const sOCRN = pick('ocrnMnb');          // 발생건수
+        const sLIFE = pick('lifeDmgPercnt');    // 인명피해
+        const sVCTM = pick('vctmPercnt');       // 사고자
+        const sINJR = pick('injrdprPercnt');    // 부상자
+        const sPRPT = pick('prptDmgSbttAmt');   // 재산피해
 
         const maxProp = Math.max(...sPRPT);
         const { div, label } = scaleUnit(maxProp);
         const sPRPTScaled = sPRPT.map(v => Math.round(v / div));
 
         chartMonthly.setOption({
-            tooltip: { trigger:'axis', valueFormatter: v => nf.format(v) },
-            legend: { data:['발생건수','인명피해','사고자','부상자', `재산피해(${label})`] },
+            tooltip: { trigger: 'axis', valueFormatter: v => nf.format(v) },
+            legend: { data: ['발생건수','인명피해','사고자','부상자', `재산피해(${label})`] },
             grid: { left: 50, right: 50, top: 40, bottom: 40 },
-            xAxis: { type:'category', data: months },
+            xAxis: { type: 'category', data: months },
             yAxis: [
-                { type:'value', name:'건/명' },
-                { type:'value', name: label, alignTicks:true }
+                { type: 'value', name: '건/명' },
+                { type: 'value', name: label, alignTicks: true }
             ],
             series: [
-                { name:'발생건수', type:'line', data: sOCRN, smooth:true, yAxisIndex:0 },
-                { name:'인명피해', type:'line', data: sLIFE, smooth:true, yAxisIndex:0 },
-                { name:'사고자',   type:'line', data: sVCTM, smooth:true, yAxisIndex:0 },
-                { name:'부상자',   type:'line', data: sINJR, smooth:true, yAxisIndex:0 },
-                { name:`재산피해(${label})`, type:'bar', data: sPRPTScaled, yAxisIndex:1 }
+                { name: '발생건수', type: 'line', data: sOCRN, smooth: true, yAxisIndex: 0 },
+                { name: '인명피해', type: 'line', data: sLIFE, smooth: true, yAxisIndex: 0 },
+                { name: '사고자',   type: 'line', data: sVCTM, smooth: true, yAxisIndex: 0 },
+                { name: '부상자',   type: 'line', data: sINJR, smooth: true, yAxisIndex: 0 },
+                { name: `재산피해(${label})`, type: 'bar', data: sPRPTScaled, yAxisIndex: 1 }
             ]
         });
     }
 
-    async function loadCauses(from, to, codeCd, metricKey) {
-        const data = await postJSON('/fireForest/causes', { from, to, codeCd });
-        if (data.result === 0) { alert('날짜 선택이 올바르지 않습니다.'); return; }
-        if (data.result === 2) { console.warn('Causes load error'); return; }
 
-        const rows = data.data || [];
+    function renderCausesFromArray(rows, metricKey) {
         const metricMap = { OCRN:'ocrnMnb', LIFE:'lifeDmgPercnt', VCTM:'vctmPercnt', INJRDPR:'injrdprPercnt', PRPT:'prptDmgSbttAmt' };
         const field = metricMap[metricKey] || 'ocrnMnb';
 
-        const names = rows.map(r => r.wdldSclsfNm);
-        const vals  = rows.map(r => r[field] || 0);
+        // 방어: 데이터 없을 때
+        if (!Array.isArray(rows) || rows.length === 0) {
+            chartCauses.setOption({
+                title: { text: '임야별 - (데이터 없음)' },
+                xAxis: { type:'value' }, yAxis: { type:'category', data: [] }, series: [{ type:'bar', data: [] }]
+            });
+            return;
+        }
+
+        const metricLabel = ff$('metricBottom')?.selectedOptions?.[0]?.text || '지표';
+        const names = rows.map(r => r.wdldSclsfNm ?? '');
+        const vals  = rows.map(r => r?.[field] ?? 0);
 
         chartCauses.setOption({
-            title: { text: '원인(소분류)별 - ' + $('metricBottom').selectedOptions[0].text },
+            title: { text: '임야별 - ' + metricLabel },
             tooltip: { trigger:'axis', valueFormatter: v => nf.format(v) },
             grid: { left: 120, right: 20, top: 30, bottom: 30 },
             xAxis: { type:'value' },
@@ -294,36 +289,110 @@
         });
     }
 
-    async function initLoad() {
-        const from = $('from').value;
-        const to   = $('to').value;
-        const codeCd = $('codeCd').value;
-        const metric = $('metricBottom').value;
-        await Promise.all([ loadKPI(from, to), loadMonthly(), loadCauses(from, to, codeCd, metric) ]);
+    function renderCausesUsingCache(shouldAlert=false) {
+        const codeCd = ff$('codeCd')?.value || '';
+        const metric = ff$('metricBottom')?.value || 'OCRN';
+
+        const rows = codeCd
+            ? (cache.causes || []).filter(r => r.wdldSclsfCd === codeCd)
+            : (cache.causes || []);
+
+        if (!rows.length) {
+            if (shouldAlert) alert('해당 임야의 화재 정보가 없습니다.');
+            chartCauses.setOption({
+                title: { text: '임야별 - ' + (ff$('metricBottom')?.selectedOptions?.[0]?.text || '지표') },
+                xAxis: { type:'value' }, yAxis: { type:'category', data: [] }, series: [{ type:'bar', data: [] }]
+            });
+            return;
+        }
+        renderCausesFromArray(rows, metric);
     }
 
-    $('btnApply').addEventListener('click', async () => {
-        const from = $('from').value;
-        const to   = $('to').value;
-        const codeCd = $('codeCd').value;
-        const metric = $('metricBottom').value;
-        await Promise.all([ loadKPI(from, to), loadCauses(from, to, codeCd, metric) ]);
+    // API
+    async function postJSON(url, bodyObj) {
+        const res = await fetch(url, {
+            method:'POST',
+            headers:{ 'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8' },
+            body:new URLSearchParams(bodyObj || {})
+        });
+        return res.json();
+    }
+
+    // 초기: 대시보드 한 번에
+    async function loadDashboard() {
+        const res = await fetch('/fireForest/dashboard'); // GET
+        const data = await res.json();
+
+        renderKpiFromObject(data.kpi || {});
+
+        // 코드 목록 채우기
+        const sel = ff$('codeCd');
+        sel.length = 1;
+        (data.codeList || []).forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.codeCd;
+            opt.text  = c.codeNm;
+            sel.appendChild(opt);
+        });
+
+        cache.causes  = data.causeList   || [];
+        cache.monthly = data.monthlyList || [];
+        renderCausesUsingCache(false);
+        renderMonthlyFromArray(cache.monthly);
+    }
+
+    // 날짜 바뀔 때 서버에서 KPI/원인 재조회 (monthly는 그대로)
+    async function refreshOnDateChange() {
+        const codeSel = ff$('codeCd');
+        codeSel.value = '';
+
+        const todayStr = new Date().toISOString().slice(0,10);
+        if (ff$('to').value > todayStr) ff$('to').value = todayStr;
+        if (ff$('from').value > ff$('to').value) ff$('from').value = ff$('to').value;
+
+        const from = ff$('from').value;
+        const to   = ff$('to').value;
+
+        const [kpiRes, causesRes] = await Promise.all([
+            postJSON('/fireForest/kpi',    { from, to }),
+            postJSON('/fireForest/causes', { from, to })
+        ]);
+
+        if (kpiRes?.result === 1) renderKpiFromObject(kpiRes.data || {});
+        if (causesRes?.result === 1) {
+            cache.causes = causesRes.data || [];
+            renderCausesUsingCache(false);
+        }
+    }
+
+    // 이벤트: 날짜 변경 → 리셋 + 재조회
+    const ffDebounce = (fn, ms=80) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms);} };
+
+    ff$('from').addEventListener('change', ffDebounce(refreshOnDateChange, 80));
+    ff$('to').addEventListener('change',   ffDebounce(refreshOnDateChange, 80));
+
+    // 종료일이 수동으로 미래가 들어와도 보정
+    ff$('to').addEventListener('input', () => {
+        const todayStr = new Date().toISOString().slice(0,10);
+        if (ff$('to').value > todayStr) ff$('to').value = todayStr;
     });
 
-    $('metricBottom').addEventListener('change', async () => {
-        const from = $('from').value;
-        const to   = $('to').value;
-        const codeCd = $('codeCd').value;
-        const metric = $('metricBottom').value;
-        await loadCauses(from, to, codeCd, metric);
-    });
+    // 임야 분류/지표 변경 → 캐시만 사용
+    ff$('codeCd').addEventListener('change', () => renderCausesUsingCache(true));
+    ff$('metricBottom').addEventListener('change', () => renderCausesUsingCache(false));
 
+    // 리사이즈
     window.addEventListener('resize', () => {
         chartMonthly.resize();
         chartCauses.resize();
     });
 
-    initLoad();
+    // 시작
+    loadDashboard();
 </script>
+<script src="/js/common/header.js"></script>
+<script src="/js/common/location.js"></script>
+<script src="/js/common/sidebar.js"></script>
+<script src="/js/common/weather.js"></script>
 </body>
 </html>

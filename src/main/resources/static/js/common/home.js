@@ -16,8 +16,8 @@ $(document).ready(function () {
         location.href = "/view/map";
     });
 
-    $("#forecast-move-button").on("click", function () {
-        location.href = "/view/map";
+    $("#stat-move-button").on("click", function () {
+        location.href = "/dashboard/fireForest";
     });
 
 })
