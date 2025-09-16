@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="com.daepihasan.mapper.IRegionMapper">
+
+    <!-- 1) 시도 목록 -->
+    <select id="getRegions" resultType="RegionDTO">
+        SELECT
+            REGION_CD,
+            P_REGION_CD,
+            REGION_NM,
+            LV,
+            CODE_STAT,
+            REG_ID, REG_DT, CHG_ID, CHG_DT
+        FROM REGION
+        WHERE CODE_STAT = 'Y'
+        AND LV = 1
+        ORDER BY REGION_CD
+    </select>
+
+    <!-- 2) 부모코드로 하위 조회 -->
+    <select id="getChildrenRegion" parameterType="string"
+            resultType="RegionDTO">
+        SELECT
+            REGION_CD,
+            P_REGION_CD,
+            REGION_NM,
+            LV,
+            CODE_STAT,
+            REG_ID, REG_DT, CHG_ID, CHG_DT
+        FROM REGION
+        WHERE CODE_STAT = 'Y'
+        AND P_REGION_CD = #{pRegionCD}
+        ORDER BY REGION_CD
+    </select>
+
+</mapper>
