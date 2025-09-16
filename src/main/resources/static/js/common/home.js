@@ -17,7 +17,7 @@ $(document).ready(function () {
     });
 
     $("#stat-move-button").on("click", function () {
-        location.href = "/dashboard/fireForest";
+        location.href = "/dashboard/forestFireCase";
     });
 
 })

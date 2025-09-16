@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.IForestFireCaseMapper">
+
+    <!-- provinceCd만 선택적으로 필터 -->
+    <sql id="CommonWhere">
+        <where>
+            1=1
+            <if test="provinceCd != null and provinceCd != ''">
+                AND ffc.OCRN_PROVINCE_CD = #{provinceCd}
+            </if>
+        </where>
+    </sql>
+
+    <!-- 평균 이상치 제거용: 음수/과대(7일 초과) 제외 -->
+    <sql id="SafeDurationExpr">
+        CASE
+            WHEN ffc.DURATION_MIN IS NULL THEN NULL
+            WHEN ffc.DURATION_MIN &lt; 0 THEN NULL
+            ELSE ffc.DURATION_MIN
+        END
+    </sql>
+
+    <!-- 집계 공통 -->
+    <sql id="AggSelect">
+        COUNT(*) AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+    </sql>
+
+    <!-- ===== 목록 조회 / 카운트 ===== -->
+
+    <!-- resultType = DTO, 조인 컬럼만 별칭을 스네이크로 -->
+    <select id="selectCases" resultType="ForestFireCaseDTO">
+        SELECT
+        ffc.OCRN_YMD,
+        ffc.OCRN_TIME,
+        ffc.OCRN_WEEKDAY,
+        ffc.EXT_YMD,
+        ffc.EXT_TIME,
+        ffc.DURATION_MIN,
+        ffc.OCRN_AGENCY,
+        ffc.OCRN_PROVINCE_CD,
+        ffc.OCRN_CITY,
+        ffc.OCRN_TOWN,
+        ffc.OCRN_VILLAGE,
+        ffc.CAUSE_DETAIL_CD,
+        ffc.DAMAGE_AREA,
+        ffc.REG_ID,
+        ffc.REG_DT,
+        ffc.CHG_ID,
+        ffc.CHG_DT,
+        r.REGION_NM AS ocrn_province_nm,  -- DTO: ocrnProvinceNm
+        c.CODE_NM   AS cause_detail_nm   -- DTO: causeDetailNm
+        FROM FOREST_FIRE_CASE ffc
+        LEFT JOIN REGION r ON r.REGION_CD = ffc.OCRN_PROVINCE_CD
+        LEFT JOIN CODE   c ON c.CODE_CD   = ffc.CAUSE_DETAIL_CD
+        <include refid="CommonWhere"/>
+        ORDER BY ffc.OCRN_YMD DESC, ffc.OCRN_TIME DESC
+    </select>
+
+    <select id="countCases" resultType="long">
+        SELECT COUNT(*)
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+    </select>
+
+    <!-- ===== 통계 ===== -->
+
+    <!-- 1) 연도별 현황 -->
+    <select id="yearlyCounts" resultType="ForestFireCaseStatDTO">
+        SELECT
+        YEAR(ffc.OCRN_YMD) AS `key`,
+        YEAR(ffc.OCRN_YMD) AS `name`,
+        <include refid="AggSelect"/>
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        GROUP BY YEAR(ffc.OCRN_YMD)
+        ORDER BY `key` ASC
+    </select>
+
+    <!-- 1-1) 연도 평균(1건) -->
+    <select id="yearlyAverage" resultType="ForestFireCaseStatDTO">
+        SELECT
+        'AVG' AS `key`,
+        '연도 평균' AS `name`,
+        AVG(t.totalCnt)        AS totalCnt,
+        AVG(t.totalDamageArea) AS totalDamageArea,
+        AVG(t.avgDurationMin)  AS avgDurationMin
+        FROM (
+        SELECT
+        YEAR(ffc.OCRN_YMD) y,
+        COUNT(*)                         AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        GROUP BY YEAR(ffc.OCRN_YMD)
+        ) t
+    </select>
+
+    <!-- 2) 원인별 현황 -->
+    <select id="causeCounts" resultType="ForestFireCaseStatDTO">
+        SELECT
+        ffc.CAUSE_DETAIL_CD AS `key`,
+        c.CODE_NM           AS `name`,
+        <include refid="AggSelect"/>
+        FROM FOREST_FIRE_CASE ffc
+        LEFT JOIN CODE c ON c.CODE_CD = ffc.CAUSE_DETAIL_CD
+        <include refid="CommonWhere"/>
+        GROUP BY ffc.CAUSE_DETAIL_CD, c.CODE_NM
+        ORDER BY totalCnt DESC
+    </select>
+
+    <!-- 3) 지역(시도)별 현황 - 전국 기준(필터 무시) + 건수 내림차순 -->
+    <select id="provinceCountsAll" resultType="ForestFireCaseStatDTO">
+        SELECT
+            ffc.OCRN_PROVINCE_CD AS `key`,
+            r.REGION_NM          AS `name`,
+            <include refid="AggSelect"/>
+        FROM FOREST_FIRE_CASE ffc
+                 LEFT JOIN REGION r ON r.REGION_CD = ffc.OCRN_PROVINCE_CD
+        GROUP BY ffc.OCRN_PROVINCE_CD, r.REGION_NM
+        ORDER BY totalCnt DESC
+    </select>
+
+    <!-- 3) 지역(시도)별 현황 -->
+    <select id="provinceCounts" resultType="ForestFireCaseStatDTO">
+        SELECT
+        ffc.OCRN_PROVINCE_CD AS `key`,
+        r.REGION_NM          AS `name`,
+        <include refid="AggSelect"/>
+        FROM FOREST_FIRE_CASE ffc
+        LEFT JOIN REGION r ON r.REGION_CD = ffc.OCRN_PROVINCE_CD
+        <include refid="CommonWhere"/>
+        GROUP BY ffc.OCRN_PROVINCE_CD, r.REGION_NM
+        ORDER BY ffc.OCRN_PROVINCE_CD
+    </select>
+
+    <!-- 4) 연간 피해 현황 -->
+    <select id="yearlyDamageStats" resultType="ForestFireCaseStatDTO">
+        SELECT
+        YEAR(ffc.OCRN_YMD) AS `key`,
+        YEAR(ffc.OCRN_YMD) AS `name`,
+        COUNT(*)                         AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        GROUP BY YEAR(ffc.OCRN_YMD)
+        ORDER BY `key` ASC
+    </select>
+
+    <!-- 5) 계절별 현황 -->
+    <select id="seasonalCounts" resultType="ForestFireCaseStatDTO">
+        SELECT
+        CASE
+        WHEN MONTH(ffc.OCRN_YMD) IN (12,1,2) THEN 'WINTER'
+        WHEN MONTH(ffc.OCRN_YMD) IN (3,4,5)  THEN 'SPRING'
+        WHEN MONTH(ffc.OCRN_YMD) IN (6,7,8)  THEN 'SUMMER'
+        ELSE 'AUTUMN'
+        END AS `key`,
+        CASE
+        WHEN MONTH(ffc.OCRN_YMD) IN (12,1,2) THEN '겨울'
+        WHEN MONTH(ffc.OCRN_YMD) IN (3,4,5)  THEN '봄'
+        WHEN MONTH(ffc.OCRN_YMD) IN (6,7,8)  THEN '여름'
+        ELSE '가을'
+        END AS `name`,
+        COUNT(*)                         AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        GROUP BY `key`, `name`
+        ORDER BY FIELD(`key`,'SPRING','SUMMER','AUTUMN','WINTER')
+    </select>
+
+    <!-- 6) 월별 현황 -->
+    <select id="monthlyCounts" resultType="ForestFireCaseStatDTO">
+        SELECT
+        LPAD(MONTH(ffc.OCRN_YMD),2,'0') AS `key`,
+        LPAD(MONTH(ffc.OCRN_YMD),2,'0') AS `name`,
+        COUNT(*)                         AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        GROUP BY MONTH(ffc.OCRN_YMD)
+        ORDER BY CAST(`key` AS UNSIGNED)
+    </select>
+
+    <!-- 9) 누적 합계 -->
+    <select id="totals" resultType="ForestFireCaseStatDTO">
+        SELECT
+        'TOTAL' AS `key`,
+        '누적'   AS `name`,
+        <include refid="AggSelect"/>
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+    </select>
+
+    <!-- 10) 최근 12개월 연월별 -->
+    <select id="last12MonthsStats" resultType="ForestFireCaseStatDTO">
+        SELECT
+        DATE_FORMAT(ffc.OCRN_YMD, '%Y-%m') AS `key`,
+        DATE_FORMAT(ffc.OCRN_YMD, '%Y-%m') AS `name`,
+        COUNT(*)                         AS totalCnt,
+        COALESCE(SUM(ffc.DAMAGE_AREA),0) AS totalDamageArea,
+        AVG(<include refid="SafeDurationExpr"/>) AS avgDurationMin
+        FROM FOREST_FIRE_CASE ffc
+        <include refid="CommonWhere"/>
+        AND ffc.OCRN_YMD >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+        GROUP BY DATE_FORMAT(ffc.OCRN_YMD, '%Y-%m')
+        ORDER BY `key` ASC
+    </select>
+
+</mapper>

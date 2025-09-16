@@ -40,6 +40,49 @@
     font-weight: 500; /* 더 굵게 */
 }
 
+/* 기존 .sidebar 스타일 유지 */
+
+/* ▼ submenu 기본 숨김 */
+.sidebar .has-submenu {
+    position: relative;
+}
+.sidebar .submenu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 6px 0 8px 0;      /* 살짝 여백 */
+    background: rgba(255,255,255,0.06);
+}
+.sidebar .submenu .nav-link {
+    padding: 8px 34px;          /* 들여쓰기 느낌 */
+    font-weight: 400;
+}
+
+/* hover 시 표시 (데스크톱 전용) */
+@media (hover: hover) and (pointer: fine) {
+    .sidebar .has-submenu:hover > .submenu {
+        display: block;
+    }
+    .sidebar .has-submenu:hover > .submenu-toggle .submenu-caret {
+        transform: rotate(180deg);
+    }
+}
+
+/* caret 아이콘 */
+.submenu-caret {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+/* 활성화 시(모바일/스크린리더 접근 포함) 수동 열림 */
+.sidebar .has-submenu.open > .submenu {
+    display: block;
+}
+.sidebar .has-submenu.open > .submenu-toggle .submenu-caret {
+    transform: rotate(180deg);
+}
+
+
 /* 모바일에서 사이드바 토글 형태 */
 @media (max-width: 1370px) {
     .sidebar {

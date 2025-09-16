@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/sidebar.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/weather.css">
     <style>
-        #ffPage { background:#e1f0ff; color:#000; }
+        #ffPage { background:#f3f6ff; color:#111; }
         #ffPage .ff-wrap { max-width:1280px; margin:0 auto; padding:24px 16px; }
         #ffPage .ff-controls { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:16px; }
         #ffPage .ff-control { display:flex; flex-direction:column; gap:6px; }
@@ -33,6 +33,13 @@
         #ffPage .ff-up{color:#dc2626;} #ffPage .ff-down{color:#2563eb;} #ffPage .ff-zero{color:#6b7280;}
         #ffPage .ff-arrow{font-weight:900;} #ffPage .ff-gap8{display:inline-flex; gap:6px; align-items:center;}
         #ffPage .ff-label { font-size:12px; color:#6b7280; margin-bottom:6px; }
+
+        @media (max-width: 992px) {
+            #ffPage .ff-grid { grid-template-columns:repeat(1, 1fr); }
+            #ffPage .ff-kpi { grid-column:span 1; }
+            #ffPage .ff-chart { height:280px; } /* 모바일에서 높이 줄이기 */
+            #ffPage .ff-controls { flex-direction:column; align-items:flex-start; }
+        }
     </style>
 </head>
 <body>
@@ -245,7 +252,7 @@
 
         chartMonthly.setOption({
             tooltip: { trigger: 'axis', valueFormatter: v => nf.format(v) },
-            legend: { data: ['발생건수','인명피해','사고자','부상자', `재산피해(${label})`] },
+            legend: { data: ['발생건수','인명피해','사고자','부상자', '재산피해('+ label +')'] },
             grid: { left: 50, right: 50, top: 40, bottom: 40 },
             xAxis: { type: 'category', data: months },
             yAxis: [
@@ -257,7 +264,7 @@
                 { name: '인명피해', type: 'line', data: sLIFE, smooth: true, yAxisIndex: 0 },
                 { name: '사고자',   type: 'line', data: sVCTM, smooth: true, yAxisIndex: 0 },
                 { name: '부상자',   type: 'line', data: sINJR, smooth: true, yAxisIndex: 0 },
-                { name: `재산피해(${label})`, type: 'bar', data: sPRPTScaled, yAxisIndex: 1 }
+                { name: '재산피해('+ label +')', type: 'bar', data: sPRPTScaled, yAxisIndex: 1 }
             ]
         });
     }
