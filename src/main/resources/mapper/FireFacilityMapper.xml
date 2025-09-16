@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.daepihasan.mapper.IFireFacilityMapper">
+
+    <!-- 단건 (업서트)    = (UPDATE와 INSERT를 합친거)-->
+    <insert id="upsertFireFacility" parameterType="com.daepihasan.dto.FireFacilityDTO">
+        INSERT INTO FIRE_WATER_FACILITY (
+            FACILITY_NO, NAME, FACILITY_TYPE_CD, MNG_INST_NM, MNG_INST_TEL,
+            INSTALL_YEAR, LAT, LON, LOC, CHG_DT
+        ) VALUES (
+                     #{facilityNo}, #{name}, #{facilityTypeCd}, #{mngInstNm}, #{mngInstTel},
+                     #{installYear}, #{lat}, #{lon},
+                     ST_PointFromText(CONCAT('POINT(', #{lon}, ' ', #{lat}, ')'), 4326),
+                     NOW()
+                 )
+            ON DUPLICATE KEY UPDATE
+                                 NAME             = VALUES(NAME),
+                                 FACILITY_TYPE_CD = VALUES(FACILITY_TYPE_CD),
+                                 MNG_INST_NM      = VALUES(MNG_INST_NM),
+                                 MNG_INST_TEL     = VALUES(MNG_INST_TEL),
+                                 INSTALL_YEAR     = VALUES(INSTALL_YEAR),
+                                 LAT              = VALUES(LAT),
+                                 LON              = VALUES(LON),
+                                 LOC              = VALUES(LOC),
+                                 CHG_DT           = NOW()
+    </insert>
+
+    <!-- 벌크 업서트 -->
+    <insert id="upsertFireFacilityBulk" parameterType="java.util.List">
+        INSERT INTO FIRE_WATER_FACILITY (
+        FACILITY_NO, NAME, FACILITY_TYPE_CD, MNG_INST_NM, MNG_INST_TEL,
+        INSTALL_YEAR, LAT, LON, LOC, CHG_DT
+        ) VALUES
+        <foreach collection="list" item="p" separator=",">
+            (
+            #{p.facilityNo}, #{p.name}, #{p.facilityTypeCd}, #{p.mngInstNm}, #{p.mngInstTel},
+            #{p.installYear}, #{p.lat}, #{p.lon},
+            ST_PointFromText(CONCAT('POINT(', #{p.lon}, ' ', #{p.lat}, ')'), 4326),
+            NOW()
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        NAME             = VALUES(NAME),
+        FACILITY_TYPE_CD = VALUES(FACILITY_TYPE_CD),
+        MNG_INST_NM      = VALUES(MNG_INST_NM),
+        MNG_INST_TEL     = VALUES(MNG_INST_TEL),
+        INSTALL_YEAR     = VALUES(INSTALL_YEAR),
+        LAT              = VALUES(LAT),
+        LON              = VALUES(LON),
+        LOC              = VALUES(LOC),
+        CHG_DT           = NOW()
+    </insert>
+
+    <!-- BBox 조회 (미니멀 응답) -->
+    <select id="findFacilitiesInBBox"
+            parameterType="com.daepihasan.dto.FireFacilityBBoxDTO"
+            resultType="com.daepihasan.dto.FireFacilityItemDTO">
+        SELECT
+            ID               AS id,
+            NAME             AS name,
+            FACILITY_TYPE_CD AS facilityTypeCd,
+            ST_Y(LOC)        AS lat,
+            ST_X(LOC)        AS lon
+        FROM FIRE_WATER_FACILITY
+        WHERE ST_Y(LOC) BETWEEN #{minLat} AND #{maxLat}
+          AND ST_X(LOC) BETWEEN #{minLon} AND #{maxLon}
+        ORDER BY CHG_DT DESC
+            LIMIT 2000
+    </select>
+
+</mapper>
