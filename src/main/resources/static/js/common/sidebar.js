@@ -1,25 +1,44 @@
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('show');
+// /js/map/sidebar.js
+const SEL = '#sidebar, .sidebar';
+
+export function toggleSidebar(force) {
+    const sidebar = document.querySelector(SEL);
+    const peekBtn = document.querySelector('.side-peek');
+    if (!sidebar) return;
+
+    const open = (typeof force === 'boolean')
+        ? force
+        : !sidebar.classList.contains('show');
+
+    sidebar.classList.toggle('show', open);
+    sidebar.style.transform = open ? 'translateX(0)' : 'translateX(-110%)';
+    sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+
+    if (peekBtn) {
+        peekBtn.classList.toggle('open', open);
+        peekBtn.style.transform = open ? 'translate(360px, -50%)' : 'translateY(-50%)';
+    }
+
+    console.log('[sidebar] toggled:', open);
 }
 
-// 사이드바 외부 클릭 시 닫기
-document.addEventListener('click', function (event) {
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.querySelector('.menu-toggle');
+// ★ 지도 클릭 억제 타이머
+function suppressMapClick(ms = 350) {
+    window.__suppressMapClickUntil = Date.now() + ms;
+}
 
-    const isClickInsideSidebar = sidebar.contains(event.target);
-    const isClickToggleBtn = toggleBtn.contains(event.target);
+export function bindSidebar() {
+    // click 대신 pointerdown 사용 + 즉시 억제
+    document.addEventListener('pointerdown', (e) => {
+        const btn = e.target.closest('[data-action="toggle-sidebar"], .side-peek');
+        if (!btn) return;
 
-    if (!isClickInsideSidebar && !isClickToggleBtn && sidebar.classList.contains('show')) {
-        sidebar.classList.remove('show');
-    }
-});
+        e.preventDefault();
+        e.stopPropagation();
+        suppressMapClick();        // 다음 짧은 시간 동안 지도 클릭 무시
+        toggleSidebar();
+    }, { passive: false });
+}
 
-// 화면 크기 조절 시 사이드바 닫기
-window.addEventListener('resize', function () {
-    const sidebar = document.getElementById('sidebar');
-    if (window.innerWidth > 768 && sidebar.classList.contains('show')) {
-        sidebar.classList.remove('show');
-    }
-});
+// (구형 페이지 호환용)
+if (typeof window !== 'undefined') window.toggleSidebar = toggleSidebar;
