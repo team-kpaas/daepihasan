@@ -98,6 +98,7 @@
     <div class="handle"></div>
     <div class="sheet-content" id="sheetContent"></div>
 </div>
+<script src="${pageContext.request.contextPath}/js/common/location.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/weather.js"></script>
 <script type="module" src="${pageContext.request.contextPath}/js/map/app.js?v=20250912"></script>
 

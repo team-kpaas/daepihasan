@@ -40,3 +40,4 @@ function getCurrentLatLng(callback) {
         }
     );
 }
+window.getCurrentLatLng = getCurrentLatLng;
