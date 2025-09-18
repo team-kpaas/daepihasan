@@ -39,6 +39,32 @@
     color: white;
     font-weight: 500; /* 더 굵게 */
 }
+
+.sidebar .has-submenu {
+    position: relative;
+}
+.sidebar .submenu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 6px 0 8px 0;      /* 살짝 여백 */
+    background: rgba(255,255,255,0.06);
+}
+.sidebar .submenu .nav-link {
+    padding: 8px 34px;          /* 들여쓰기 느낌 */
+    font-weight: 400;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .sidebar .has-submenu:hover > .submenu {
+        display: block;
+    }
+    .sidebar .has-submenu:hover > .submenu-toggle .submenu-caret {
+        transform: rotate(180deg);
+    }
+}
+
+
 /* 📱 모바일에서 사이드바 너비 자동 조정 */
 @media (max-width: 1370px) {
     .sidebar {

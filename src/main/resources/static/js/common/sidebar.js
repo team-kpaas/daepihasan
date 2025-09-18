@@ -2,43 +2,38 @@
 const SEL = '#sidebar, .sidebar';
 
 export function toggleSidebar(force) {
-    const sidebar = document.querySelector(SEL);
-    const peekBtn = document.querySelector('.side-peek');
-    if (!sidebar) return;
+    const bars = [...document.querySelectorAll(SEL)];
+    const peek = document.querySelector('.side-peek');
 
+    if (!bars.length) { console.warn('[sidebar] not found'); return; }
+
+    // 상태 계산: force가 boolean이면 그 값, 아니면 반전
     const open = (typeof force === 'boolean')
         ? force
-        : !sidebar.classList.contains('show');
+        : !bars[0].classList.contains('show');
 
-    sidebar.classList.toggle('show', open);
-    sidebar.style.transform = open ? 'translateX(0)' : 'translateX(-110%)';
-    sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
-
-    if (peekBtn) {
-        peekBtn.classList.toggle('open', open);
-        peekBtn.style.transform = open ? 'translate(360px, -50%)' : 'translateY(-50%)';
-    }
+    bars.forEach(el => {
+        el.classList.toggle('show', open);
+        el.setAttribute('aria-hidden', open ? 'false' : 'true');
+    });
+    if (peek) peek.classList.toggle('open', open);
 
     console.log('[sidebar] toggled:', open);
 }
 
-// ★ 지도 클릭 억제 타이머
-function suppressMapClick(ms = 350) {
-    window.__suppressMapClickUntil = Date.now() + ms;
-}
-
 export function bindSidebar() {
-    // click 대신 pointerdown 사용 + 즉시 억제
-    document.addEventListener('pointerdown', (e) => {
-        const btn = e.target.closest('[data-action="toggle-sidebar"], .side-peek');
-        if (!btn) return;
+    const triggers = [
+        document.getElementById('btnSidebarInSearch'),
+        document.querySelector('.side-peek'),
+        ...document.querySelectorAll('[data-action="toggle-sidebar"]')
+    ].filter(Boolean);
 
-        e.preventDefault();
-        e.stopPropagation();
-        suppressMapClick();        // 다음 짧은 시간 동안 지도 클릭 무시
-        toggleSidebar();
-    }, { passive: false });
+    triggers.forEach(btn => {
+        btn.addEventListener('click', (e) => { e.preventDefault(); toggleSidebar(); });
+    });
 }
 
-// (구형 페이지 호환용)
-if (typeof window !== 'undefined') window.toggleSidebar = toggleSidebar;
+// JSP 인라인 onclick 대응
+if (typeof window !== 'undefined') {
+    window.toggleSidebar = toggleSidebar;
+}
