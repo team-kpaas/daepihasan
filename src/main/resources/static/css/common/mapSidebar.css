@@ -1,26 +1,14 @@
 .sidebar {
-    position: absolute;                /* map_wrapper(relative) 기준 */
-    top: 0;
-    left: 0;
-    width: 400px;                      /* 데스크톱 기준 너비 */
-    height: 100%;                      /* map 높이에 맞게 */
     background-color: #2338a0;
+    width: 400px; /* 데스크톱 기준 너비 고정 */
     padding-top: 20px;
-
+    min-height: calc(100svh - 60px); /* 주소창 변동 안정화 */
+    transition: transform 0.3s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-
-    transform: translateX(-100%);      /* 기본: 숨김 */
-    transition: transform 0.3s ease-in-out;
-    z-index: 1200;                     /* 지도보다 위 */
 }
 
-.sidebar.show {
-    transform: translateX(0);          /* 열렸을 때 */
-}
-
-/* 메뉴 스타일 */
 .sidebar .nav-link {
     color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
@@ -28,7 +16,6 @@
     align-items: center;
     gap: 10px;
     padding: 10px 20px;
-    transition: background-color 0.2s, color 0.2s;
 }
 
 .sidebar .nav-link i {
@@ -37,6 +24,7 @@
 
 .sidebar .nav-link:hover,
 .sidebar .nav-link:focus {
+    /*background-color: #4da3f9;*/
     background-color: #0b5ed7;
     color: #fff;
 }
@@ -46,9 +34,10 @@
     color: #fff;
 }
 
+/* active 상태에서 폰트 굵게 */
 .sidebar .nav-link.active {
     color: white;
-    font-weight: 600;
+    font-weight: 500; /* 더 굵게 */
 }
 
 .sidebar .has-submenu {
@@ -83,4 +72,45 @@
         max-width: 400px;
         min-width: 280px;
     }
+}
+/* === Sidebar base === */
+.sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 360px; max-width: 86vw;
+    height: 100vh;
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    transform: translateX(-110%);      /* 기본: 화면 밖 */
+    transition: transform .25s ease;
+    z-index: 2147483500;
+    pointer-events: auto;
+    overflow-y: auto;
+}
+.sidebar.show {
+    transform: translateX(0);          /* 열림 */
+}
+
+/* 사이드바 핸들 버튼 */
+.side-peek {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 2147483600;
+    /* 나머지 버튼 스타일은 기존 유지 */
+}
+.side-peek.open {
+    transform: translate(360px, -50%); /* 사이드바 폭만큼 이동 */
+}
+
+
+.side-peek{
+    width: 32px;        /* 기존보다 작게 */
+    height: 44px;
+    border-radius: 0 10px 10px 0;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+.side-peek i{
+    font-size: 14px;    /* 아이콘도 살짝 축소 */
 }
