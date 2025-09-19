@@ -1,6 +1,6 @@
 // /js/map/app.js
 import { initMapAsync } from './mapCore.js';
-import { refreshFacilitiesNow, getFacilityMarkers, normalizeType } from './facilities.js';
+import { refreshFacilitiesNow, getFacilityMarkers, normalizeType, ACTIVE_TYPES } from './facilities.js';
 import { setupSearchSuggest } from './search.js';
 import { showPoiCard } from './poiCard.js';
 import { debounce } from './utils.js';
@@ -18,6 +18,7 @@ async function boot(){
     setupSearchSuggest(map);
     bindControls();
     bindSidebar();
+    bindChips(map);
 
     // 이동/확대 시 시설 자동 새로고침
     const onMove = debounce(() => refreshFacilitiesNow(map), 250);
@@ -120,5 +121,29 @@ function wireChipsBarReposition(){
     // 입력 중에도 살짝 보정
     document.getElementById('mapSearchInput')?.addEventListener('input', () => {
         requestAnimationFrame(positionChipsBar);
+    });
+}
+function bindChips(map){
+    const chips = document.querySelectorAll('.chips .chip');
+    chips.forEach(btn => {
+        btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            const type = btn.dataset.type;                 // hydrant | tower | ebox | reservoir
+            const wasOn = btn.classList.contains('is-on');
+
+            // 모두 끔
+            chips.forEach(b => b.classList.remove('is-on'));
+            ACTIVE_TYPES.clear();
+
+            // 다시 켬(토글)
+            if (!wasOn) {
+                btn.classList.add('is-on');
+                ACTIVE_TYPES.add(type);
+            }
+
+            refreshFacilitiesNow(map);
+        }, { passive:false });
     });
 }
