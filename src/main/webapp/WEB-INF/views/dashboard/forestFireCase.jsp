@@ -40,6 +40,10 @@
         /* 드롭다운 */
         #ffcPage .controls{ display:flex; gap:12px; margin:0 0 12px; }
         #ffcPage select{ padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; }
+
+        /* (중요) flex 자식이 가로로 충분히 줄어들 수 있게 */
+        .main-content{ min-width:0; }
+
         /* 반응형 */
         @media (max-width: 992px){
             #ffcPage .half, #ffcPage .half-sm{ grid-column:span 12; height:var(--card-h-sm); }
@@ -166,8 +170,8 @@
 
     /* ===== 유틸 ===== */
     const nf = new Intl.NumberFormat('ko-KR');
-    const $  = (id)=>document.getElementById(id);
-    function setText(id, v){ const el=$(id); if(!el) return; el.textContent = (v==null||Number.isNaN(v))?'-':(typeof v==='number'?nf.format(v):v); }
+    const $id  = (id)=>document.getElementById(id);   // ★ jQuery와 충돌 안 나게 이름 변경
+    function setText(id, v){ const el=$id(id); if(!el) return; el.textContent = (v==null||Number.isNaN(v))?'-':(typeof v==='number'?nf.format(v):v); }
     function provinceNameOf(code){ return code? (REGION_MAP[code]||'전국') : '전국'; }
 
     // 분 → "X시간 Y분" 변환
@@ -175,8 +179,6 @@
         if (mins == null || isNaN(mins)) return '-';
         const h = Math.floor(mins / 60);
         const m = Math.round(mins % 60);
-        console.log(h);
-        console.log(m);
         return h > 0 ? (h + '시간 ' + m + '분') : (m + '분');
     }
 
@@ -184,26 +186,20 @@
     function renderKpis(totals, provinceCd){
         setText('kpiTotalCnt', totals?.totalCnt ?? 0);
         setText('kpiTotalArea', Math.round(((totals?.totalDamageArea ?? 0)+Number.EPSILON)*100)/100);
-
-        // 평균 진화시간: 분 → 시간/분
-        const durMin = totals?.avgDurationMin ?? 0;
-        let textContent = formatDuration(durMin);
-        console.log(textContent);
-        $('kpiAvgDur').textContent = textContent;
-
+        $id('kpiAvgDur').textContent = formatDuration(totals?.avgDurationMin ?? 0);
         setText('kpiFilterText', provinceNameOf(provinceCd));
     }
 
     /* ===== 차트 인스턴스 ===== */
-    const chLast12   = echarts.init($('chartLast12'));
-    const chYearly   = echarts.init($('chartYearly'));
-    const chMonthly  = echarts.init($('chartMonthly'));
-    const chSeasonal = echarts.init($('chartSeasonal'));
-    const chCause    = echarts.init($('chartCause'));
-    const chProv     = echarts.init($('chartProvince'));
+    const chLast12   = echarts.init($id('chartLast12'));
+    const chYearly   = echarts.init($id('chartYearly'));
+    const chMonthly  = echarts.init($id('chartMonthly'));
+    const chSeasonal = echarts.init($id('chartSeasonal'));
+    const chCause    = echarts.init($id('chartCause'));
+    const chProv     = echarts.init($id('chartProvince'));
 
     /* ===== 공통 옵션 헬퍼 ===== */
-    const baseGrid = { left: 56, right: 50, top: 36, bottom: 18, containLabel: true };
+    const baseGrid = { left: 56, right: 50, top: 70, bottom: 0, containLabel: true };
 
     /* ===== 렌더러 ===== */
     function renderLast12(rows){
@@ -215,10 +211,10 @@
             tooltip:{ trigger:'axis' },
             legend:{ top:6, data:['발생건수','피해면적(ha)'] },
             grid: baseGrid,
-            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-30, margin:12 } },
+            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-30, margin:12, hideOverlap:true } }, // ★
             yAxis:[
-                { type:'value', name:'건', axisLabel:{ margin:8 } },
-                { type:'value', name:'ha', alignTicks:true, axisLabel:{ margin:8 } }
+                { type:'value', name:'건', axisLabel:{ margin:8, hideOverlap:true } },                 // ★
+                { type:'value', name:'ha', alignTicks:true, axisLabel:{ margin:8, hideOverlap:true } } // ★
             ],
             series:[
                 { name:'발생건수', type:'bar', data:cnt, barMaxWidth:22 },
@@ -236,10 +232,10 @@
             tooltip:{ trigger:'axis' },
             legend:{ top:6, data:['발생건수','피해면적(ha)'] },
             grid: baseGrid,
-            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-20, margin:12 } },
+            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-20, margin:12, hideOverlap:true } }, // ★
             yAxis:[
-                { type:'value', name:'건' },
-                { type:'value', name:'ha', alignTicks:true }
+                { type:'value', name:'건', axisLabel:{ hideOverlap:true } },                            // ★
+                { type:'value', name:'ha', alignTicks:true, axisLabel:{ hideOverlap:true } }           // ★
             ],
             series:[
                 { name:'발생건수', type:'bar', data:cnt, barMaxWidth:26 },
@@ -255,19 +251,22 @@
 
         chMonthly.setOption({
             tooltip:{ trigger:'axis' },
-            grid: baseGrid,
-            xAxis:{ type:'category', data:xs, axisLabel:{ margin:10 } },
-            yAxis:{ type:'value', name:'건' },
+            grid: {...baseGrid, top:6},
+            xAxis:{ type:'category', data:xs, axisLabel:{ margin:10, hideOverlap:true } }, // ★
+            yAxis:{ type:'value', name:'건', axisLabel:{ hideOverlap:true } },              // ★
             series:[{ type:'bar', data:cnt, barMaxWidth:26 }]
         });
     }
 
     function renderSeasonal(rows){
-        const data = rows.map(r=>({ name:r.name, value:r.totalCnt||0 }));
+        const data = rows.map(r => ({
+            name: r.name,
+            value: Number(r.totalCnt) || 0
+        }));
         chSeasonal.setOption({
             title:{ text:'계절별 발생건수' },
-            tooltip:{ trigger:'item', formatter: p => `${p.name}<br>${nf.format(p.value)}건 (${p.percent}%)` },
-            legend:{ top:6 },
+            tooltip:{ trigger:'item', formatter: p => p.name + "<br>" + nf.format(p.value) +"건 (" + p.percent + "%)"},
+            legend:{ top:30 },
             grid: { ...baseGrid, left:24, right:24 },
             series:[{
                 type:'pie',
@@ -276,7 +275,8 @@
                 minAngle:6,
                 label:{ formatter:'{b|{b}} {c}건 ({d}%)', rich:{ b:{fontWeight:600} } },
                 labelLine:{ length:10, length2:10 },
-                data
+                data,
+                avoidLabelOverlap: true // ★
             }]
         });
     }
@@ -289,11 +289,11 @@
         chCause.setOption({
             title:{ text:'원인 TOP 12 (발생건수)' },
             tooltip:{ trigger:'axis' },
-            grid:{ ...baseGrid, left:40, right:30 },
-            xAxis:{ type:'value', axisLabel:{ margin:8, formatter: v => nf.format(v) } },
+            grid:{ ...baseGrid, top:35, left:20, right:30 },
+            xAxis:{ type:'value', axisLabel:{ margin:8, formatter: v => nf.format(v), hideOverlap:true } }, // ★
             yAxis:{
                 type:'category', data:names, inverse:true,
-                axisLabel:{ margin:10, overflow:'truncate', width:160 }
+                axisLabel:{ margin:10, overflow:'truncate', width:160, hideOverlap:true }                    // ★
             },
             series:[{ type:'bar', data:cnt, barCategoryGap:'28%' }]
         });
@@ -304,16 +304,16 @@
         const cnt   = rows.map(r=>r.totalCnt||0);
         chProv.setOption({
             tooltip:{ trigger:'axis' },
-            grid:{ ...baseGrid, left:40, right:36 },
-            xAxis:{ type:'value', axisLabel:{ formatter:v=>nf.format(v) } },
-            yAxis:{ type:'category', data:names, inverse:true, axisLabel:{ overflow:'truncate', width:180 } },
+            grid:{ ...baseGrid, top:0, left:20, right:36 },
+            xAxis:{ type:'value', axisLabel:{ formatter:v=>nf.format(v), hideOverlap:true } }, // ★
+            yAxis:{ type:'category', data:names, inverse:true, axisLabel:{ overflow:'truncate', width:180, hideOverlap:true } }, // ★
             series:[{ type:'bar', data:cnt, barCategoryGap:'28%' }]
         });
     }
 
     /* ===== 초기 렌더 ===== */
     function hydrateFromServer(){
-        $('provinceSel').value = initialCond.provinceCd || '';
+        $id('provinceSel').value = initialCond.provinceCd || '';
         renderKpis(initial.totals, initialCond.provinceCd);
 
         renderLast12(initial.last12Months||[]);
@@ -332,7 +332,7 @@
         return res.json();
     }
     async function onProvinceChange(){
-        const cd = $('provinceSel').value || '';
+        const cd = $id('provinceSel').value || '';
         const r  = await fetchDashboard(cd);
         if (r?.result !== 1){ alert(r?.msg || '조회 실패'); return; }
         const d = r.data || {};
@@ -350,10 +350,9 @@
         chLast12.resize(); chYearly.resize(); chMonthly.resize();
         chSeasonal.resize(); chCause.resize(); chProv.resize();
     });
-    $('provinceSel').addEventListener('change', onProvinceChange);
+    $id('provinceSel').addEventListener('change', onProvinceChange);
     hydrateFromServer();
 </script>
-
 <script src="${pageContext.request.contextPath}/js/common/header.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/location.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/sidebar.js"></script>

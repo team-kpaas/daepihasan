@@ -55,11 +55,11 @@
         <!-- 상단: 날짜만 -->
         <div class="ff-controls">
             <div class="ff-control">
-                <label for="from">시작일</label>
+                <label for="from" class="ff-label">시작일</label>
                 <input id="from" type="date" />
             </div>
             <div class="ff-control">
-                <label for="to">종료일</label>
+                <label for="to" class="ff-label">종료일</label>
                 <input id="to" type="date" />
             </div>
         </div>
@@ -253,7 +253,7 @@
         chartMonthly.setOption({
             tooltip: { trigger: 'axis', valueFormatter: v => nf.format(v) },
             legend: { data: ['발생건수','인명피해','사고자','부상자', '재산피해('+ label +')'] },
-            grid: { left: 50, right: 50, top: 40, bottom: 40 },
+            grid: { left: 50, right: 50, top: 80, bottom: 20 },
             xAxis: { type: 'category', data: months },
             yAxis: [
                 { type: 'value', name: '건/명' },
@@ -290,7 +290,7 @@
         chartCauses.setOption({
             title: { text: '임야별 - ' + metricLabel },
             tooltip: { trigger:'axis', valueFormatter: v => nf.format(v) },
-            grid: { left: 120, right: 20, top: 30, bottom: 30 },
+            grid: { left: 70, right: 20, top: 30, bottom: 30 },
             xAxis: { type:'value' },
             yAxis: { type:'category', data: names, inverse:true },
             series: [{ type:'bar', data: vals }]
