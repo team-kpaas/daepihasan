@@ -55,6 +55,9 @@ main{
 
 
 }
+
+.main-content { flex: 1 1 auto; min-width: 0; }
+
 .swiper {
     width: 100%;
     max-width: 1200px;
