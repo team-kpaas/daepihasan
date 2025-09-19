@@ -273,6 +273,7 @@ public class UserInfoController {
                 .orElse(new UserInfoDTO());
 
         model.addAttribute("rDTO", rDTO); // model 객체에 rDTO를 담음
+        model.addAttribute("resultType", "id"); // 어떤 결과인지 표기
 
         log.info("{}.user/searchUserIdProc End!", this.getClass().getName());
 
@@ -308,9 +309,16 @@ public class UserInfoController {
         pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
         // 비밀번호 찾기 가능 여부 확인
-        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO)).orElseGet(UserInfoDTO::new);
-
+        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO))
+                .orElseGet(UserInfoDTO::new);
         model.addAttribute("rDTO", rDTO);
+
+        // 회원 존재 여부 확인
+        boolean found = !CmmUtil.nvl(rDTO.getUserId()).isEmpty();
+        if (!found) {
+            model.addAttribute("resultType", "pw"); // 비번 찾기 실패
+            return "user/searchUserResult";         // 결과 페이지로
+        }
 
         // 비밀번호 재생성시 NEW_PASSWORD 세션 존재해야 접속 가능하도록 설정
         session.setAttribute("NEW_PASSWORD", userId);

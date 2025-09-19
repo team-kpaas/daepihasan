@@ -11,6 +11,7 @@
 /* 모달 박스 */
 .modal-content {
     position: relative;
+    color: black;
     background: white;
     border-radius: 18px;
     width: 340px;

@@ -11,4 +11,9 @@ $(document).ready(function () {
     $("#btnLogin").on("click", function () {
         location.href = "/user/login";
     });
+
+    // 회원가입 버튼
+    $('#btnSignup').on('click', function(){
+        location.href = '/user/userRegForm';
+    });
 });
