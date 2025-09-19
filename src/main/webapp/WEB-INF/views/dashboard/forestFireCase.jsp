@@ -18,41 +18,35 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/weather.css">
 
     <style>
-        :root{
-            --card-h:420px;      /* 큰 차트 높이 */
-            --card-h-sm:360px;   /* 중간 차트 높이 */
-            --gap:16px;
-        }
+        :root{ --card-h:420px; --card-h-sm:360px; --gap:16px; }
         #ffcPage{ background:#f3f6ff; color:#111; }
         #ffcPage .wrap{ max-width:1280px; margin:0 auto; padding:24px 16px; }
         #ffcPage .muted{ color:#6b7280; font-size:12px; }
         #ffcPage .grid{ display:grid; grid-template-columns:repeat(12,1fr); gap:var(--gap); }
         #ffcPage .card{ background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,.06); padding:16px; }
         #ffcPage .section-title{ margin:24px 0 8px; font-weight:700; font-size:20px; }
-        /* 크기 프리셋 */
+
         #ffcPage .full{ grid-column:span 12; height:var(--card-h); }
         #ffcPage .half{ grid-column:span 6; height:var(--card-h); }
         #ffcPage .half-sm{ grid-column:span 6; height:var(--card-h-sm); }
-        /* KPI */
+
         #ffcPage .kpi-grid .kpi{ grid-column:span 3; }
         #ffcPage .kpi h3{ margin:0 0 6px; font-size:14px; color:#6b7280; }
         #ffcPage .kpi .val{ font-size:28px; font-weight:700; }
-        /* 드롭다운 */
+
         #ffcPage .controls{ display:flex; gap:12px; margin:0 0 12px; }
         #ffcPage select{ padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; }
 
-        /* (중요) flex 자식이 가로로 충분히 줄어들 수 있게 */
         .main-content{ min-width:0; }
 
-        /* 반응형 */
         @media (max-width: 992px){
             #ffcPage .half, #ffcPage .half-sm{ grid-column:span 12; height:var(--card-h-sm); }
-            #ffcPage .kpi-grid .kpi { grid-column:span 6; } /* 2열 */
+            #ffcPage .kpi-grid .kpi{ grid-column:span 6; }
         }
-        @media (max-width: 576px) {
-            #ffcPage .kpi-grid .kpi { grid-column:span 12; } /* 모바일 1열 */
-            #ffcPage .full, #ffcPage .half, #ffcPage .half-sm { grid-column:span 12; height:280px; }
-            #ffcPage .controls { flex-direction:column; align-items:flex-start; }
+        @media (max-width: 576px){
+            #ffcPage .kpi-grid .kpi{ grid-column:span 12; }
+            #ffcPage .full, #ffcPage .half, #ffcPage .half-sm{ grid-column:span 12; height:280px; }
+            #ffcPage .controls{ flex-direction:column; align-items:flex-start; }
         }
     </style>
 </head>
@@ -73,9 +67,7 @@
                         <select id="provinceSel">
                             <option value="">전국</option>
                             <c:forEach var="r" items="${regions}">
-                                <c:if test="${r.regionCD ne '00'}">
-                                    <option value="${r.regionCD}">${r.regionNm}</option>
-                                </c:if>
+                                <c:if test="${r.regionCD ne '00'}"><option value="${r.regionCD}">${r.regionNm}</option></c:if>
                             </c:forEach>
                         </select>
                     </div>
@@ -83,20 +75,10 @@
 
                 <!-- KPI -->
                 <div class="grid kpi-grid">
-                    <div class="card kpi">
-                        <h3>누적 발생건수</h3><div class="val" id="kpiTotalCnt">-</div>
-                    </div>
-                    <div class="card kpi">
-                        <h3>누적 피해면적</h3><div class="val" id="kpiTotalArea">-</div>
-                        <div class="muted">단위: ha</div>
-                    </div>
-                    <div class="card kpi">
-                        <h3>평균 진화시간</h3><div class="val" id="kpiAvgDur">-</div>
-                        <div class="muted">단위: 시간/분 표시</div>
-                    </div>
-                    <div class="card kpi">
-                        <h3>현재 필터</h3><div class="val" id="kpiFilterText">전국</div>
-                    </div>
+                    <div class="card kpi"><h3>누적 발생건수</h3><div class="val" id="kpiTotalCnt">-</div></div>
+                    <div class="card kpi"><h3>누적 피해면적</h3><div class="val" id="kpiTotalArea">-</div><div class="muted">단위: ha</div></div>
+                    <div class="card kpi"><h3>평균 진화시간</h3><div class="val" id="kpiAvgDur">-</div><div class="muted">단위: 시간/분 표시</div></div>
+                    <div class="card kpi"><h3>현재 필터</h3><div class="val" id="kpiFilterText">전국</div></div>
                 </div>
 
                 <!-- 최근 12개월 -->
@@ -111,14 +93,14 @@
                 <div class="section-title">월 통계</div>
                 <div id="chartMonthly" class="card half-sm"></div>
 
-                <!-- 계절/원인 나란히 -->
+                <!-- 계절/원인 -->
                 <div class="section-title">계절별 / 원인 TOP</div>
                 <div class="grid">
                     <div id="chartSeasonal" class="card half-sm"></div>
                     <div id="chartCause" class="card half-sm"></div>
                 </div>
 
-                <!-- 전국 지역별(전국 고정) -->
+                <!-- 지역별 -->
                 <div class="section-title">전 지역(시·도)별 발생건수 (전국 기준)</div>
                 <div id="chartProvince" class="card full"></div>
             </div>
@@ -127,7 +109,7 @@
 </div>
 
 <script>
-    /* ===== 서버 모델 하이드레이션 ===== */
+    /* ===== 서버 모델 ===== */
     const REGION_MAP = {
         <c:forEach var="r" items="${regions}" varStatus="s">
         "${r.regionCD}": "${r.regionNm}"${!s.last ? ',' : ''}
@@ -168,18 +150,33 @@
         ]
     };
 
-    /* ===== 유틸 ===== */
+    /* ===== 유틸 & 팔레트 ===== */
     const nf = new Intl.NumberFormat('ko-KR');
-    const $id  = (id)=>document.getElementById(id);   // ★ jQuery와 충돌 안 나게 이름 변경
-    function setText(id, v){ const el=$id(id); if(!el) return; el.textContent = (v==null||Number.isNaN(v))?'-':(typeof v==='number'?nf.format(v):v); }
-    function provinceNameOf(code){ return code? (REGION_MAP[code]||'전국') : '전국'; }
+    const $id = (id)=>document.getElementById(id);
 
-    // 분 → "X시간 Y분" 변환
-    function formatDuration(mins){
-        if (mins == null || isNaN(mins)) return '-';
-        const h = Math.floor(mins / 60);
-        const m = Math.round(mins % 60);
-        return h > 0 ? (h + '시간 ' + m + '분') : (m + '분');
+    const LINE_GREEN = '#7CCF5B';                 // 라인색 고정
+    const BLUE_GRADIENT = ['#D8E5FF','#7AA7FF','#2F64FF']; // 저→중→고
+
+    const SEASON_COLORS = { '봄':'#7CCF5B', '여름':'#2EC4B6', '가을':'#F4A261', '겨울':'#E76F51' };
+
+    function setText(id, v){ const el=$id(id); if(!el) return; el.textContent=(v==null||Number.isNaN(v))?'-':(typeof v==='number'?nf.format(v):v); }
+    function provinceNameOf(code){ return code? (REGION_MAP[code]||'전국') : '전국'; }
+    function formatDuration(mins){ if(mins==null||isNaN(mins)) return '-'; const h=Math.floor(mins/60), m=Math.round(mins%60); return h>0?(h+'시간 '+m+'분'):(m+'분'); }
+    const minMax = arr => ({ min: Math.min(...arr), max: Math.max(...arr) });
+
+    // ★ 파란계열 값→색상 함수(3스톱 보간)
+    function hexToRgb(h){ const x=parseInt(h.slice(1),16); return [x>>16 &255, x>>8 &255, x&255]; }
+    function rgbToHex(r,g,b){ return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join(''); }
+    function lerp(a,b,t){ return a+(b-a)*t; }
+    function lerpColor(c1,c2,t){
+        const [r1,g1,b1]=hexToRgb(c1), [r2,g2,b2]=hexToRgb(c2);
+        return rgbToHex(Math.round(lerp(r1,r2,t)), Math.round(lerp(g1,g2,t)), Math.round(lerp(b1,b2,t)));
+    }
+    function blueByValue(v, min, max){
+        if(!isFinite(v)||max<=min) return BLUE_GRADIENT[1];
+        const t=(v-min)/(max-min);            // 0~1
+        if(t<=0.5){ return lerpColor(BLUE_GRADIENT[0], BLUE_GRADIENT[1], t*2); }
+        return lerpColor(BLUE_GRADIENT[1], BLUE_GRADIENT[2], (t-0.5)*2);
     }
 
     /* ===== KPI ===== */
@@ -198,116 +195,132 @@
     const chCause    = echarts.init($id('chartCause'));
     const chProv     = echarts.init($id('chartProvince'));
 
-    /* ===== 공통 옵션 헬퍼 ===== */
-    const baseGrid = { left: 56, right: 50, top: 70, bottom: 0, containLabel: true };
+    /* ===== 공통 그리드 ===== */
+    const baseGrid = { left:56, right:50, top:70, bottom:0, containLabel:true };
 
     /* ===== 렌더러 ===== */
     function renderLast12(rows){
-        const xs   = rows.map(r=>r.key);
-        const cnt  = rows.map(r=>r.totalCnt||0);
-        const area = rows.map(r=>Math.round(((r.totalDamageArea||0)+Number.EPSILON)*100)/100);
-
+        const xs=rows.map(r=>r.key), cnt=rows.map(r=>r.totalCnt||0), area=rows.map(r=>+(r.totalDamageArea||0).toFixed(2));
+        const mm=minMax(cnt);
         chLast12.setOption({
             tooltip:{ trigger:'axis' },
             legend:{ top:6, data:['발생건수','피해면적(ha)'] },
             grid: baseGrid,
-            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-30, margin:12, hideOverlap:true } }, // ★
+            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-30, margin:12, hideOverlap:true } },
             yAxis:[
-                { type:'value', name:'건', axisLabel:{ margin:8, hideOverlap:true } },                 // ★
-                { type:'value', name:'ha', alignTicks:true, axisLabel:{ margin:8, hideOverlap:true } } // ★
+                { type:'value', name:'건', axisLabel:{ margin:8, hideOverlap:true } },
+                { type:'value', name:'ha', alignTicks:true, axisLabel:{ margin:8, hideOverlap:true } }
             ],
             series:[
-                { name:'발생건수', type:'bar', data:cnt, barMaxWidth:22 },
-                { name:'피해면적(ha)', type:'line', data:area, yAxisIndex:1, smooth:true, symbol:'circle', symbolSize:6 }
+                {
+                    name:'발생건수', type:'bar',
+                    data: cnt.map(v=>({ value:v, itemStyle:{ color: blueByValue(v, mm.min, mm.max) } })),
+                    barMaxWidth:22
+                },
+                {
+                    name:'피해면적(ha)', type:'line', data:area, yAxisIndex:1, smooth:true, symbol:'circle', symbolSize:6,
+                    lineStyle:{ color:LINE_GREEN }, itemStyle:{ color:LINE_GREEN }
+                }
             ]
         });
     }
 
     function renderYearly(rows){
-        const xs   = rows.map(r=>r.key);
-        const cnt  = rows.map(r=>r.totalCnt||0);
-        const area = rows.map(r=>Math.round(((r.totalDamageArea||0)+Number.EPSILON)*100)/100);
-
+        const xs=rows.map(r=>r.key), cnt=rows.map(r=>r.totalCnt||0), area=rows.map(r=>+(r.totalDamageArea||0).toFixed(2));
+        const mm=minMax(cnt);
         chYearly.setOption({
             tooltip:{ trigger:'axis' },
             legend:{ top:6, data:['발생건수','피해면적(ha)'] },
             grid: baseGrid,
-            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-20, margin:12, hideOverlap:true } }, // ★
+            xAxis:{ type:'category', data:xs, axisLabel:{ rotate:-20, margin:12, hideOverlap:true } },
             yAxis:[
-                { type:'value', name:'건', axisLabel:{ hideOverlap:true } },                            // ★
-                { type:'value', name:'ha', alignTicks:true, axisLabel:{ hideOverlap:true } }           // ★
+                { type:'value', name:'건', axisLabel:{ hideOverlap:true } },
+                { type:'value', name:'ha', alignTicks:true, axisLabel:{ hideOverlap:true } }
             ],
             series:[
-                { name:'발생건수', type:'bar', data:cnt, barMaxWidth:26 },
-                { name:'피해면적(ha)', type:'line', data:area, yAxisIndex:1, smooth:true, symbol:'circle', symbolSize:6 }
+                {
+                    name:'발생건수', type:'bar',
+                    data: cnt.map(v=>({ value:v, itemStyle:{ color: blueByValue(v, mm.min, mm.max) } })),
+                    barMaxWidth:26
+                },
+                {
+                    name:'피해면적(ha)', type:'line', data:area, yAxisIndex:1, smooth:true, symbol:'circle', symbolSize:6,
+                    lineStyle:{ color:LINE_GREEN }, itemStyle:{ color:LINE_GREEN }
+                }
             ]
         });
     }
 
     function renderMonthly(rows){
-        const xs = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-        const map = Object.fromEntries(rows.map(r=>[r.key, r.totalCnt||0]));
-        const cnt = xs.map(m=>map[m]||0);
-
+        const xs=['01','02','03','04','05','06','07','08','09','10','11','12'];
+        const map=Object.fromEntries(rows.map(r=>[r.key, r.totalCnt||0]));
+        const cnt=xs.map(m=>map[m]||0);
+        const mm=minMax(cnt);
         chMonthly.setOption({
             tooltip:{ trigger:'axis' },
-            grid: {...baseGrid, top:6},
-            xAxis:{ type:'category', data:xs, axisLabel:{ margin:10, hideOverlap:true } }, // ★
-            yAxis:{ type:'value', name:'건', axisLabel:{ hideOverlap:true } },              // ★
-            series:[{ type:'bar', data:cnt, barMaxWidth:26 }]
-        });
-    }
-
-    function renderSeasonal(rows){
-        const data = rows.map(r => ({
-            name: r.name,
-            value: Number(r.totalCnt) || 0
-        }));
-        chSeasonal.setOption({
-            title:{ text:'계절별 발생건수' },
-            tooltip:{ trigger:'item', formatter: p => p.name + "<br>" + nf.format(p.value) +"건 (" + p.percent + "%)"},
-            legend:{ top:30 },
-            grid: { ...baseGrid, left:24, right:24 },
+            grid:{ ...baseGrid, top:6 },
+            xAxis:{ type:'category', data:xs, axisLabel:{ margin:10, hideOverlap:true } },
+            yAxis:{ type:'value', name:'건', axisLabel:{ hideOverlap:true } },
             series:[{
-                type:'pie',
-                center:['50%','55%'],
-                radius:['45%','70%'],
-                minAngle:6,
-                label:{ formatter:'{b|{b}} {c}건 ({d}%)', rich:{ b:{fontWeight:600} } },
-                labelLine:{ length:10, length2:10 },
-                data,
-                avoidLabelOverlap: true // ★
+                type:'bar',
+                data: cnt.map(v=>({ value:v, itemStyle:{ color: blueByValue(v, mm.min, mm.max) } })),
+                barMaxWidth:26
             }]
         });
     }
 
-    function renderCause(rows){
-        const top = [...rows].sort((a,b)=>(b.totalCnt||0)-(a.totalCnt||0)).slice(0,12);
-        const names = top.map(r=>r.name);
-        const cnt   = top.map(r=>r.totalCnt||0);
+    function renderSeasonal(rows){
+        const data=rows.map(r=>({ name:r.name, value:Number(r.totalCnt)||0, itemStyle:{ color: SEASON_COLORS[r.name]||'#93A3BC' }}));
+        chSeasonal.setOption({
+            title:{ text:'계절별 발생건수' },
+            tooltip:{ trigger:'item', formatter:p=>p.name+"<br>"+nf.format(p.value)+"건 ("+p.percent+"%)"},
+            legend:{ top:30 },
+            grid:{ ...baseGrid, left:24, right:24 },
+            series:[{
+                type:'pie', center:['50%','55%'], radius:['45%','70%'], minAngle:6,
+                label:{ formatter:'{b|{b}} {c}건 ({d}%)', rich:{ b:{fontWeight:600} } },
+                labelLine:{ length:10, length2:10 }, data, avoidLabelOverlap:true
+            }]
+        });
+    }
 
+    // 바 색상을 값으로 직접 계산
+    function renderCause(rows){
+        const top=[...rows].sort((a,b)=>(b.totalCnt||0)-(a.totalCnt||0)).slice(0,12);
+        const names=top.map(r=>r.name);
+        const cnt  =top.map(r=>r.totalCnt||0);
+        const mm=minMax(cnt);
         chCause.setOption({
             title:{ text:'원인 TOP 12 (발생건수)' },
             tooltip:{ trigger:'axis' },
             grid:{ ...baseGrid, top:35, left:20, right:30 },
-            xAxis:{ type:'value', axisLabel:{ margin:8, formatter: v => nf.format(v), hideOverlap:true } }, // ★
-            yAxis:{
-                type:'category', data:names, inverse:true,
-                axisLabel:{ margin:10, overflow:'truncate', width:160, hideOverlap:true }                    // ★
-            },
-            series:[{ type:'bar', data:cnt, barCategoryGap:'28%' }]
+            xAxis:{ type:'value', axisLabel:{ margin:8, formatter:v=>nf.format(v), hideOverlap:true } },
+            yAxis:{ type:'category', data:names, inverse:true,
+                axisLabel:{ margin:10, overflow:'truncate', width:160, hideOverlap:true } },
+            series:[{
+                type:'bar',
+                data: cnt.map(v=>({ value:v, itemStyle:{ color: blueByValue(v, mm.min, mm.max) } })),
+                barCategoryGap:'28%'
+            }]
         });
     }
 
+    // 바 색상을 값으로 직접 계산
     function renderProvince(rows){
-        const names = rows.map(r=>r.name);
-        const cnt   = rows.map(r=>r.totalCnt||0);
+        const names=rows.map(r=>r.name);
+        const cnt  =rows.map(r=>r.totalCnt||0);
+        const mm=minMax(cnt);
         chProv.setOption({
             tooltip:{ trigger:'axis' },
             grid:{ ...baseGrid, top:0, left:20, right:36 },
-            xAxis:{ type:'value', axisLabel:{ formatter:v=>nf.format(v), hideOverlap:true } }, // ★
-            yAxis:{ type:'category', data:names, inverse:true, axisLabel:{ overflow:'truncate', width:180, hideOverlap:true } }, // ★
-            series:[{ type:'bar', data:cnt, barCategoryGap:'28%' }]
+            xAxis:{ type:'value', axisLabel:{ formatter:v=>nf.format(v), hideOverlap:true } },
+            yAxis:{ type:'category', data:names, inverse:true,
+                axisLabel:{ overflow:'truncate', width:180, hideOverlap:true } },
+            series:[{
+                type:'bar',
+                data: cnt.map(v=>({ value:v, itemStyle:{ color: blueByValue(v, mm.min, mm.max) } })),
+                barCategoryGap:'28%'
+            }]
         });
     }
 
@@ -324,35 +337,31 @@
         renderProvince(initial.byProvince||[]);
     }
 
-    /* ===== AJAX 대시보드 갱신 ===== */
+    /* ===== AJAX ===== */
     async function fetchDashboard(provinceCd){
-        const url = new URL('${pageContext.request.contextPath}/forestFireCase/dashboard', location.origin);
-        if (provinceCd) url.searchParams.set('regionCd', provinceCd);
-        const res = await fetch(url.toString());
-        return res.json();
+        const url=new URL('${pageContext.request.contextPath}/forestFireCase/dashboard', location.origin);
+        if(provinceCd) url.searchParams.set('regionCd', provinceCd);
+        const res=await fetch(url.toString()); return res.json();
     }
     async function onProvinceChange(){
-        const cd = $id('provinceSel').value || '';
-        const r  = await fetchDashboard(cd);
-        if (r?.result !== 1){ alert(r?.msg || '조회 실패'); return; }
-        const d = r.data || {};
+        const cd=$id('provinceSel').value||'';
+        const r=await fetchDashboard(cd);
+        if(r?.result!==1){ alert(r?.msg||'조회 실패'); return; }
+        const d=r.data||{};
         renderKpis(d.totals, cd);
         renderLast12(d.last12Months||[]);
         renderYearly(d.yearly||[]);
         renderMonthly(d.monthly||[]);
         renderSeasonal(d.seasonal||[]);
         renderCause(d.byCause||[]);
-        // 지역별은 전국 고정 (미갱신)
+        // 지역별은 전국 고정
     }
 
-    /* ===== 이벤트 & 시작 ===== */
-    window.addEventListener('resize', ()=>{
-        chLast12.resize(); chYearly.resize(); chMonthly.resize();
-        chSeasonal.resize(); chCause.resize(); chProv.resize();
-    });
+    window.addEventListener('resize', ()=>{ chLast12.resize(); chYearly.resize(); chMonthly.resize(); chSeasonal.resize(); chCause.resize(); chProv.resize(); });
     $id('provinceSel').addEventListener('change', onProvinceChange);
     hydrateFromServer();
 </script>
+
 <script src="${pageContext.request.contextPath}/js/common/header.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/location.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/sidebar.js"></script>
