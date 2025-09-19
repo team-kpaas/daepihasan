@@ -68,7 +68,7 @@ html, body {
     background-color: #2338A0;
 }
 .box-shadow{
-    box-shadow: 2px 2px 10px gray
+    box-shadow: 2px 2px 20px lightgrey;
 }
 .search-right {
     flex: 1;
@@ -84,15 +84,33 @@ html, body {
 }
 
 @media (max-width: 992px) {
-    .search-right {
-        display: none;
-    }
+    .search-right { display: none; }
+
     .search-left {
+        position: relative;
         flex: 1 0 100%;
-        padding: 2rem;
+        padding: 72px 16px 24px;
+        background-color: #fff;
     }
+
     .search-left .logo {
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        transform: none;
+        margin: 0;
+        justify-content: flex-start;
+        gap: 8px;
     }
+    .search-left .logo img { height: 28px; }
+    .logo-text {
+        font-size: 18px;
+        font-weight: 800;
+        color: #2338A0;
+        margin: 0;
+        line-height: 1;
+    }
+
+    /* 페이지 제목/탭이 있다면 가운데 정렬을 권장 */
+    .tab-container { margin-top: 8px; }
 }
