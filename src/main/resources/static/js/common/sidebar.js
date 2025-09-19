@@ -4,6 +4,7 @@ function toggleSidebar() {
     sidebar.classList.toggle('show');
 }
 
+
 // 하위 메뉴 토글 로직 (모바일/터치 우선)
 document.querySelectorAll('.submenu-toggle').forEach(function (anchor) {
     let tappedOnce = false;
