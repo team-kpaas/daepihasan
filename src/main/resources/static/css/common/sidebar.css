@@ -106,6 +106,10 @@
         overflow-y: auto;                   /* 내부 스크롤 */
         -webkit-overflow-scrolling: touch;  /* iOS 부드러운 스크롤 */
         padding-bottom: env(safe-area-inset-bottom, 0); /* iOS 하단 안전영역 */
+
+        transform: translate3d(-100%, 0, 0);
+        transition: transform 350ms ease-in-out;
+        will-change: transform;
     }
     .sidebar.show {
         transform: translateX(0);
