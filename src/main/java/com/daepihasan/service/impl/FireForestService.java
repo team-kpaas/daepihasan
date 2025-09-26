@@ -253,10 +253,10 @@ public class FireForestService implements IFireForestService {
         }
 
         // 2) 없으면 신규 코드 생성
-        String nextCd = codeMapper.selectNextSclsfCode();
+        CodeDTO nextCd = codeMapper.getNextSclsfCode();
 
         CodeDTO ins = CodeDTO.builder()
-                .codeCd(nextCd)
+                .codeCd(nextCd.getCodeCd())
                 .codeNm(sclsfNm)
                 .codeStat("Y")
 //                .regId("SYSTEM")

@@ -20,4 +20,8 @@ $(document).ready(function () {
         location.href = "/dashboard/forestFireCase";
     });
 
+    $("#forecast-move-button").on("click", function () {
+        location.href = "/fireForecast";
+    });
+
 })
