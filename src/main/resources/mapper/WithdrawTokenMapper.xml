@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="com.daepihasan.mapper.IWithdrawTokenMapper">
+    <insert id="insertToken" parameterType="WithdrawTokenDTO">
+        INSERT INTO WITHDRAW_TOKEN
+        (USER_ID, TOKEN_HASH, EXPIRES_AT, STATUS, REG_ID, REG_DT, CHG_ID, CHG_DT)
+        VALUES (#{userId}, #{tokenHash}, #{expiresAt}, 'PENDING', #{regId}, NOW(), #{regId}, NOW())
+    </insert>
+
+    <!-- 상태 정의
+     PENDING: 유효 / USED: 사용됨 / INVALID: 강제 무효 / EXPIRED: 시간 만료 -->
+    <update id="invalidateOldTokens" parameterType="WithdrawTokenDTO">
+        UPDATE WITHDRAW_TOKEN
+        SET STATUS='INVALID', CHG_ID=#{chgId}, CHG_DT=NOW()
+        WHERE USER_ID=#{userId}
+          AND STATUS='PENDING'
+    </update>
+
+    <select id="getTokenByHash" parameterType="WithdrawTokenDTO" resultType="WithdrawTokenDTO">
+        SELECT ID, USER_ID, TOKEN_HASH, EXPIRES_AT, STATUS,
+               REG_ID, REG_DT, CHG_ID, CHG_DT
+        FROM WITHDRAW_TOKEN
+        WHERE TOKEN_HASH=#{tokenHash}
+            LIMIT 1
+    </select>
+
+    <update id="markTokenUsed" parameterType="WithdrawTokenDTO">
+        UPDATE WITHDRAW_TOKEN
+        SET STATUS='USED', CHG_ID=#{chgId}, CHG_DT=NOW()
+        WHERE TOKEN_HASH=#{tokenHash}
+          AND STATUS='PENDING'
+    </update>
+
+    <update id="markTokenExpiredBatch" parameterType="WithdrawTokenDTO">
+        UPDATE WITHDRAW_TOKEN
+        SET STATUS='EXPIRED', CHG_ID=COALESCE(#{chgId}, 'SYSTEM'), CHG_DT=NOW()
+        WHERE STATUS='PENDING'
+          AND EXPIRES_AT &lt; NOW()
+    </update>
+
+</mapper>
