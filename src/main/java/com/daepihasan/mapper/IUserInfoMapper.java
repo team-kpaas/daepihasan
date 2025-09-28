@@ -27,4 +27,11 @@ public interface IUserInfoMapper {
 
     // 비밀번호 재설정
     int updatePassword(UserInfoDTO pDTO) throws Exception;
+
+    // 회원 탈퇴
+    int isAlreadyWithdrawn(UserInfoDTO pDTO) throws Exception;   // 1=탈퇴ID
+    int updateWithdrawUser(UserInfoDTO pDTO) throws Exception;   // 실제 탈퇴
+    int checkPassword(UserInfoDTO pDTO) throws Exception; // 비밀번호 일치 여부 (1=일치, 0=불일치)
+    UserInfoDTO getUserBasicById(UserInfoDTO pDTO) throws Exception;
+
 }
