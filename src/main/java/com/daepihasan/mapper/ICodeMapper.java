@@ -12,7 +12,7 @@ public interface ICodeMapper {
     CodeDTO getForestSclsfCodeNm(CodeDTO pDTO);
 
     /** 임야(001) 하위 6자리 코드 다음 값 채번 (001001, 001002 ...) */
-    String selectNextSclsfCode();
+    CodeDTO getNextSclsfCode();
 
     /** CODE(소분류) 신규 추가 */
     int insertSclsfCode(CodeDTO pDTO);

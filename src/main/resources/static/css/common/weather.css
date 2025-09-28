@@ -28,6 +28,24 @@
     text-align: center;
     margin-bottom: 10px;
 }
+/* 빈 상태일 때는 슬라이더를 블록으로 전환, 가로폭 100% */
+.weather-card-list.is-empty {
+    display: block;
+    width: 100%;
+}
+.weather-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 72px;        /* 높이 확보로 비율 안정 */
+    padding: 16px 12px;
+    margin: 0;
+    background-color: rgba(0,0,0,0.15);
+    border-radius: 12px;     /* 과도한 타원 느낌 방지 */
+    font-size: 13px;
+    text-align: center;
+}
 
 /* 슬라이드 버튼 */
 .weather-prev-btn,
