@@ -30,8 +30,8 @@
     </select>
 
     <!-- 임야 하위 다음 6자리 코드 생성 -->
-    <select id="selectNextSclsfCode" resultType="string">
-        SELECT CONCAT('001', LPAD(COALESCE(MAX(CAST(SUBSTRING(CODE_CD,4,3) AS UNSIGNED)), 0) + 1, 3, '0'))
+    <select id="getNextSclsfCode" resultType="CodeDTO">
+        SELECT CONCAT('001', LPAD(COALESCE(MAX(CAST(SUBSTRING(CODE_CD,4,3) AS UNSIGNED)), 0) + 1, 3, '0')) as codeCd
         FROM CODE
         WHERE P_CODE_CD = '001'
           AND CHAR_LENGTH(CODE_CD) = 6
