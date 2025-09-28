@@ -438,7 +438,7 @@ public class UserInfoController {
 
         log.info("{}.withdraw/execute End!", this.getClass().getName());
 
-        return "user/withdraw_result";
+        return "user/withdrawResult";
     }
 
     // 비밀번호 재확인
