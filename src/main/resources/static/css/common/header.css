@@ -15,6 +15,10 @@ header {
     box-shadow: 0 1px 10px rgba(0,0,0,.06);
 }
 
+body.home header .menu-toggle {
+    display: none !important;
+}
+
 .logo {
     display: flex;
     align-items: center;
@@ -57,6 +61,11 @@ header .btn-secondary {
     background-color: #fff;
     color: #000;
     border: 1px solid #ccc;
+}
+
+header .user-name {
+    color: #2338A0;
+    font-weight: 700;
 }
 
 /* 햄버거 버튼 */
