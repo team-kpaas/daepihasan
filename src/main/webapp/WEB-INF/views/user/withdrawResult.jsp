@@ -26,6 +26,7 @@
     </style>
 </head>
 <body>
+<%@ include file="../modal/modal.jsp" %>
 <%@ include file="../common/header.jsp" %>
 <div class="app-body d-flex">
     <%@ include file="../common/sidebar.jsp" %>

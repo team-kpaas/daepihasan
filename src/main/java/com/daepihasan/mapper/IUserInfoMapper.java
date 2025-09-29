@@ -34,4 +34,8 @@ public interface IUserInfoMapper {
     int checkPassword(UserInfoDTO pDTO) throws Exception; // 비밀번호 일치 여부 (1=일치, 0=불일치)
     UserInfoDTO getUserBasicById(UserInfoDTO pDTO) throws Exception;
     UserInfoDTO getUserByUserInfoId(UserInfoDTO pDTO) throws Exception;
+
+    int updateAddress(UserInfoDTO p) throws Exception;
+
+    UserInfoDTO getUserDetail(UserInfoDTO pDTO) throws Exception;
 }

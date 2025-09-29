@@ -71,6 +71,7 @@
         UPDATE USER_INFO
         SET USER_ID = #{newUserId},
             USER_NAME = '탈퇴회원',
+            WITHDRAW_YN = 'Y',
             CHG_ID = #{userId},
             CHG_DT = NOW()
         WHERE USER_ID = #{userId}
@@ -98,5 +99,21 @@
         SELECT USER_INFO_ID, USER_ID, USER_NAME, EMAIL
         FROM USER_INFO
         WHERE USER_INFO_ID = #{userInfoId}
+    </select>
+
+    <update id="updateAddress" parameterType="UserInfoDTO">
+        UPDATE USER_INFO
+        SET ADDR1 = #{addr1},
+            ADDR2 = #{addr2},
+            CHG_ID = #{userId},
+            CHG_DT = NOW()
+        WHERE USER_ID = #{userId}
+          AND WITHDRAW_YN = 'N'
+    </update>
+
+    <select id="getUserDetail" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT USER_ID, USER_NAME, EMAIL, ADDR1, ADDR2
+        FROM USER_INFO
+        WHERE USER_ID = #{userId}
     </select>
 </mapper>

@@ -30,4 +30,11 @@ public interface IUserInfoService {
     int requestWithdrawLink(UserInfoDTO pDTO) throws Exception;
 
     // 토큰 검증 및 탈퇴 실행
-    int executeWithdrawByToken(WithdrawTokenDTO pDTO) throws Exception;}
+    int executeWithdrawByToken(WithdrawTokenDTO pDTO) throws Exception;
+
+    int updateAddress(UserInfoDTO pDTO) throws Exception;
+
+    UserInfoDTO getUserDetail(UserInfoDTO pDTO) throws Exception;
+}
+
+
