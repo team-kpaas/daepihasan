@@ -190,138 +190,89 @@ public class UserInfoService implements IUserInfoService {
 
     @Override
     public int requestWithdrawLink(UserInfoDTO pDTO) throws Exception {
-        log.info("{}.requestWithdrawLink Start!", this.getClass().getName());
-
-        log.info("pDTO : {}", pDTO);
-
-        if (pDTO == null) {
-            log.info("{}.requestWithdrawLink End!", this.getClass().getName());
-
-            return 0;
-        }
         String userId = CmmUtil.nvl(pDTO.getUserId());
-        if (userId.isEmpty()) {
-            log.info("{}.requestWithdrawLink End!", this.getClass().getName());
+        if (userId.isEmpty()) return 0;
 
-            return 0;
-        }
+        UserInfoDTO base = Optional.ofNullable(userInfoMapper.getUserBasicById(pDTO))
+                .orElse(new UserInfoDTO());
+        if (base.getUserInfoId() == null) return 0;
 
-        UserInfoDTO chk = new UserInfoDTO();
-        chk.setUserId(userId);
-        if (userInfoMapper.isAlreadyWithdrawn(chk) == 1) {
-            log.info("{}.requestWithdrawLink End!", this.getClass().getName());
+        // 이미 탈퇴 여부
+        if (userInfoMapper.isAlreadyWithdrawn(pDTO) == 1) return 2;
 
-            return 2;
-        }
-
-        UserInfoDTO u = Optional.ofNullable(userInfoMapper.getUserBasicById(chk)).orElse(new UserInfoDTO());
-        if (CmmUtil.nvl(u.getEmail()).isEmpty()) {
-            log.info("{}.requestWithdrawLink End!", this.getClass().getName());
-
-            return 0;
-        }
-
-        // 이전 PENDING 토큰 무효화
+        // 기존 PENDING 무효화
         WithdrawTokenDTO inv = new WithdrawTokenDTO();
-        inv.setUserId(userId);
+        inv.setUserInfoId(base.getUserInfoId());
         inv.setChgId(userId);
         withdrawTokenMapper.invalidateOldTokens(inv);
 
-        // 새 토큰 생성
-        String plain = WithdrawTokenUtil.createToken(userId, withdrawTtl, withdrawSecret);
+        // 새 토큰 생성 (userInfoId 기반)
+        String plain = WithdrawTokenUtil.createToken(base.getUserInfoId(), withdrawTtl, withdrawSecret);
         String hash = EncryptUtil.encHashSHA256(plain);
-        LocalDateTime exp = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis() + withdrawTtl),
-                ZoneId.systemDefault());
 
         WithdrawTokenDTO t = new WithdrawTokenDTO();
-        t.setUserId(userId);
+        t.setUserInfoId(base.getUserInfoId());
         t.setTokenHash(hash);
-        t.setExpiresAt(exp.format(TOKEN_FMT));
+        t.setExpiresAt(LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(System.currentTimeMillis() + withdrawTtl),
+                ZoneId.systemDefault()).format(TOKEN_FMT));
         t.setRegId(userId);
         withdrawTokenMapper.insertToken(t);
 
         String link = withdrawBaseUrl + "/user/withdraw/execute?token=" + plain;
+
         MailDTO m = new MailDTO();
-        m.setToMail(EncryptUtil.decAES128CBC(u.getEmail()));
+        m.setToMail(EncryptUtil.decAES128CBC(base.getEmail()));
         m.setTitle("회원 탈퇴 확인 링크");
         m.setContents("""
-                아래 링크를 15분 이내 클릭하면 탈퇴가 완료됩니다.<br>
-                <a href="%s">탈퇴 진행하기</a><br><br>
-                요청하지 않았다면 무시하세요.
-                """.formatted(link));
+            아래 링크를 15분 이내 클릭하면 탈퇴가 완료됩니다.<br>
+            <a href="%s">탈퇴 진행하기</a><br><br>
+            요청하지 않았다면 무시하세요.
+            """.formatted(link));
         mailService.doSendMail(m);
-
-        log.info("{}.requestWithdrawLink End!", this.getClass().getName());
-
         return 1;
     }
 
+
     @Override
     public int executeWithdrawByToken(WithdrawTokenDTO pDTO) throws Exception {
-        log.info("{}.executeWithdrawByToken Start!", this.getClass().getName());
-
-        if (pDTO == null) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
-            return 3;
-        }
         String tokenPlain = CmmUtil.nvl(pDTO.getTokenPlain());
-        if (tokenPlain.isEmpty()) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
+        if (tokenPlain.isEmpty()) return 3;
 
-            return 3;
-        }
-
-        String userId = WithdrawTokenUtil.verifyAndGetUserId(tokenPlain, withdrawSecret);
-        if (userId == null) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
-            return 3;
-        }
+        Long userInfoId = WithdrawTokenUtil.verifyAndGetUserInfoId(tokenPlain, withdrawSecret);
+        if (userInfoId == null) return 3;
 
         String tokenHash = EncryptUtil.encHashSHA256(tokenPlain);
         WithdrawTokenDTO q = new WithdrawTokenDTO();
         q.setTokenHash(tokenHash);
         WithdrawTokenDTO db = withdrawTokenMapper.getTokenByHash(q);
-        if (db == null) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
+        if (db == null || !"PENDING".equals(CmmUtil.nvl(db.getStatus()))
+                || !userInfoId.equals(db.getUserInfoId())) return 3;
 
-            return 3;
-        }
-        if (!"PENDING".equals(CmmUtil.nvl(db.getStatus()))) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
-            return 3;
-        }
-        if (!userId.equals(CmmUtil.nvl(db.getUserId()))) {
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
-            return 3;
-        }
-
+        // 만료 체크
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime exp = LocalDateTime.parse(db.getExpiresAt(), TOKEN_FMT);
         if (now.isAfter(exp)) {
-            // 만료 → INVALID 처리
             WithdrawTokenDTO inv = new WithdrawTokenDTO();
-            inv.setUserId(userId);
+            inv.setUserInfoId(userInfoId);
             inv.setChgId("SYSTEM");
             withdrawTokenMapper.invalidateOldTokens(inv);
-
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
             return 3;
         }
 
-        UserInfoDTO c = new UserInfoDTO();
-        c.setUserId(userId);
-        if (userInfoMapper.isAlreadyWithdrawn(c) == 1) {
+        // 사용자 조회
+        UserInfoDTO uq = new UserInfoDTO();
+        uq.setUserInfoId(userInfoId);
+        UserInfoDTO user = Optional.ofNullable(userInfoMapper.getUserByUserInfoId(uq)).orElse(new UserInfoDTO());
+        String userId = CmmUtil.nvl(user.getUserId());
+        if (userId.isEmpty()) return 3;
 
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
+        // 이미 탈퇴?
+        UserInfoDTO chk = new UserInfoDTO();
+        chk.setUserId(userId);
+        if (userInfoMapper.isAlreadyWithdrawn(chk) == 1) return 2;
 
-            return 2;
-        }
-
+        // USER_ID 마스킹 변경
         String ts = DateUtil.getDateTime("yyyyMMddHHmmss");
         int rand = new SecureRandom().nextInt(9000) + 1000;
         String newUserId = "withdraw-" + ts + "-" + rand + "-" + userId;
@@ -336,14 +287,8 @@ public class UserInfoService implements IUserInfoService {
             used.setTokenHash(tokenHash);
             used.setChgId(userId);
             withdrawTokenMapper.markTokenUsed(used);
-
-            log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
             return 1;
         }
-
-        log.info("{}.executeWithdrawByToken End!", this.getClass().getName());
-
         return 0;
     }
 

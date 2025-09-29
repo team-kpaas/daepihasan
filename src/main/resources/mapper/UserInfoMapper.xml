@@ -79,7 +79,7 @@
 
     <!-- 비밀번호 확인-->
     <select id="checkPassword" parameterType="UserInfoDTO" resultType="int">
-        SELECT COUNT(USER_ID)
+        SELECT COUNT(USER_INFO_ID)
         FROM USER_INFO
         WHERE USER_ID = #{userId}
           AND PASSWORD = #{password}
@@ -88,9 +88,15 @@
 
     <!-- 비밀번호 없이 아이디로 기본 정보 -->
     <select id="getUserBasicById" parameterType="UserInfoDTO" resultType="UserInfoDTO">
-        SELECT USER_ID, USER_NAME, EMAIL
+        SELECT USER_INFO_ID, USER_ID, USER_NAME, EMAIL
         FROM USER_INFO
         WHERE USER_ID = #{userId}
           AND USER_ID NOT LIKE 'withdraw-%'
+    </select>
+
+    <select id="getUserByUserInfoId" parameterType="UserInfoDTO" resultType="UserInfoDTO">
+        SELECT USER_INFO_ID, USER_ID, USER_NAME, EMAIL
+        FROM USER_INFO
+        WHERE USER_INFO_ID = #{userInfoId}
     </select>
 </mapper>

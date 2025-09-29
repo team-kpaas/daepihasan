@@ -33,5 +33,5 @@ public interface IUserInfoMapper {
     int updateWithdrawUser(UserInfoDTO pDTO) throws Exception;   // 실제 탈퇴
     int checkPassword(UserInfoDTO pDTO) throws Exception; // 비밀번호 일치 여부 (1=일치, 0=불일치)
     UserInfoDTO getUserBasicById(UserInfoDTO pDTO) throws Exception;
-
+    UserInfoDTO getUserByUserInfoId(UserInfoDTO pDTO) throws Exception;
 }

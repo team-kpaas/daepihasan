@@ -7,7 +7,8 @@ import lombok.Setter;
 @Setter
 public class WithdrawTokenDTO {
     private Long id;
-    private String userId;
+    private Long userInfoId;    // FK -> USER_INFO.USER_INFO_ID
+    private String userId;      // 조회 편의(조인 후 세팅)
     private String tokenPlain;   // 클라이언트로부터 받은 원본 토큰 (DB 저장 X)
     private String tokenHash;    // SHA-256 해시 (DB 저장)
 
