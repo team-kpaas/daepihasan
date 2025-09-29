@@ -4,7 +4,6 @@ import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
 import com.daepihasan.service.IUserInfoService;
 import com.daepihasan.util.CmmUtil;
-import com.daepihasan.util.EncryptUtil;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/account")
 public class MyPageController {
 
     private final IUserInfoService userInfoService;

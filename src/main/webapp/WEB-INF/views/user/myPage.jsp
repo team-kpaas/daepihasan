@@ -273,7 +273,7 @@
         loadProfile();
 
         function loadProfile() {
-            $.get("/user/me")
+            $.get("/account/me")
                 .done(json => {
                     if (json.result === 1 && json.data) {
                         const u = json.data;
@@ -344,7 +344,7 @@
                 return;
             }
 
-            $.post("/user/me/address", {addr1, addr2})
+            $.post("/account/me/address", {addr1, addr2})
                 .done(json => {
                     if (json.result === 1) {
                         const disp = [addr1, addr2].filter(Boolean).join(' ');
@@ -449,7 +449,7 @@
             }
             if (!ok) return;
 
-            $.post("/user/me/password", {currentPw: cur, newPw: n1})
+            $.post("/account/me/password", {currentPw: cur, newPw: n1})
                 .done(json => {
                     if (json.result === 1) {
                         showModal(json.msg || "변경 완료");
