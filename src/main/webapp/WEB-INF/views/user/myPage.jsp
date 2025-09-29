@@ -328,9 +328,10 @@
         $("#btnFindAddr").on("click", () => {
             new daum.Postcode({
                 oncomplete: function (data) {
-                    const full = (data.zonecode ? `(${data.zonecode})` : "") + data.address;
+                    const full = "(" + data.zonecode + ")" + data.address;
                     $("#addr1").val(full);
                     $("#addr2").focus();
+
                 }
             }).open();
         });

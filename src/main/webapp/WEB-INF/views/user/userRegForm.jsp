@@ -18,7 +18,7 @@
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
-
+<%@ include file="../modal/modal.jsp" %>
 <div class="full-container">
     <div class="signup-left">
         <!-- 로고 -->
