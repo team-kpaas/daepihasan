@@ -16,7 +16,7 @@ $(document).ready(function () {
 
     // 마이페이지
     $("#btnMyPage").on("click", function () {
-        alert("미이페이지");
+        location.href = "/user/myPage";
     });
 
     // 로그아웃

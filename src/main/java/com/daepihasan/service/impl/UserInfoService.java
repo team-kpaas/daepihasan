@@ -293,6 +293,30 @@ public class UserInfoService implements IUserInfoService {
     }
 
     @Override
+    public int updateAddress(UserInfoDTO pDTO) throws Exception {
+        if (pDTO == null || CmmUtil.nvl(pDTO.getUserId()).isEmpty()) return 0;
+        return userInfoMapper.updateAddress(pDTO);
+    }
+
+    @Override
+    public UserInfoDTO getUserDetail(UserInfoDTO pDTO) throws Exception {
+        log.info("{}.getUserDetail Start!", this.getClass().getName());
+
+        UserInfoDTO rDTO = userInfoMapper.getUserDetail(pDTO);
+        rDTO.setEmail(EncryptUtil.decAES128CBC(rDTO.getEmail()));
+        log.info("userId={}, userName={}, email={}, addr1={}, addr2={}",
+                CmmUtil.nvl(rDTO.getUserId()),
+                CmmUtil.nvl(rDTO.getUserName()),
+                CmmUtil.nvl(rDTO.getEmail()),
+                CmmUtil.nvl(rDTO.getAddr1()),
+                CmmUtil.nvl(rDTO.getAddr2()));
+
+        log.info("{}.getUserDetail End!", this.getClass().getName());
+        return rDTO;
+    }
+
+
+    @Override
     public int confirmPassword(UserInfoDTO pDTO) throws Exception {
         log.info("{}.confirmPassword Start!", this.getClass().getName());
 

@@ -15,6 +15,8 @@ public class UserInfoDTO {
     private String email;
     private String addr1;
     private String addr2;
+    private String withdrawYn; // Y=탈퇴, N=정상
+
     private String regId;
     private String regDt;
     private String chgId;
