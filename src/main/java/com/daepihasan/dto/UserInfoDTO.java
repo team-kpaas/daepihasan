@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class UserInfoDTO {
+    private Long userInfoId;
     private String userId;
     private String userName;
     private String password;
