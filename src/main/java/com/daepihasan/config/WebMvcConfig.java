@@ -17,11 +17,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authInterceptor())
-                .addPathPatterns("/user/withdraw", "/user/withdraw/**")
+                .addPathPatterns("/user/withdraw", "/user/withdraw/**", "/user/myPage")
                 .excludePathPatterns(
                         "/user/login",
                         "/user/loginProc",
-                        "/user/userRegForm"
+                        "/user/join",
+                        "/user/joinProc",
+                        "/error",
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/favicon.ico"
                 );
     }
 }
