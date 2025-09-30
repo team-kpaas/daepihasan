@@ -1,7 +1,7 @@
 package com.daepihasan.service;
 
-import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
+import com.daepihasan.dto.WithdrawTokenDTO;
 
 public interface IUserInfoService {
     // 아이디 중복 체크
@@ -21,4 +21,20 @@ public interface IUserInfoService {
 
     // 비밀번호 재설정
     int newPasswordProc(UserInfoDTO pDTO) throws Exception;
+
+    // 회원 탈퇴
+    // 비밀번호 재확인
+    int confirmPassword(UserInfoDTO pDTO) throws Exception;
+
+    // 탈퇴 토큰 메일 발송
+    int requestWithdrawLink(UserInfoDTO pDTO) throws Exception;
+
+    // 토큰 검증 및 탈퇴 실행
+    int executeWithdrawByToken(WithdrawTokenDTO pDTO) throws Exception;
+
+    int updateAddress(UserInfoDTO pDTO) throws Exception;
+
+    UserInfoDTO getUserDetail(UserInfoDTO pDTO) throws Exception;
 }
+
+

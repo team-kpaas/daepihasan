@@ -21,6 +21,10 @@ html, body {
     padding: 3rem;
 }
 
+/* 공통적으로 페이지 본문 글자색을 어두운색으로 되돌림 */
+.login-left, .signup-left { color: #212529; }
+
+
 .logo {
     display: flex;
     align-items: center;
@@ -71,6 +75,7 @@ html, body {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+    box-shadow: 2px 2px 20px lightgrey;
 }
 .links {
     font-size: 12px; /* 글자 크기 */
@@ -80,17 +85,44 @@ html, body {
     font-size: 12px; /* 글자 크기 */
 }
 
-/* 모바일 반응형: 배너 숨김 */
+/* 교체: 모바일(≤992px) */
 @media (max-width: 992px) {
-    .login-right {
-        display: none;
-    }
+    .login-right { display: none; }
+
+    /* 로고 공간만큼 상단 패딩 확보 */
     .login-left {
+        position: relative;
         flex: 1 0 100%;
-        padding: 2rem;
+        padding: 72px 16px 24px; /* 상단 72px */
+        background-color: #fff;
     }
+
+    /* 로고: 좌상단 고정 */
     .login-left .logo {
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        transform: none;
+        margin: 0;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    .login-left .logo img { height: 28px; }
+    .login-left .logo .logo-text {
+        font-size: 18px;
+        font-weight: 800;
+        color: #2338A0;
+        margin: 0;
+        line-height: 1;
+    }
+
+    /* 제목 가운데 */
+    .login-left h2 {
+        text-align: center;
+        margin: 0 0 18px;
+        font-size: 24px;
+        font-weight: 900;
+        /*color: #2338A0;*/
+        letter-spacing: -0.02em;
     }
 }
