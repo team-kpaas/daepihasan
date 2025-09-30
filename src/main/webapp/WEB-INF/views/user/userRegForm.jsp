@@ -45,7 +45,7 @@
 
                 <div class="mb-3">
                     <label class="form-label">이메일</label>
-                    <div class="input-group mb-2">
+                    <div class="input-group mb-2 email-group">
                         <input type="text" id="emailId" class="form-control" placeholder="이메일을 입력하세요.">
                         <span class="input-group-text">@</span>
                         <select id="emailDomainSelect" class="form-select">
