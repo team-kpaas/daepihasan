@@ -28,24 +28,26 @@ public class FireFacilityController {
     // 지도 BBox 조회
     @GetMapping("/bbox")
     public List<FireFacilityItemDTO> bbox(FireFacilityBBoxDTO cond) {
+        // 기본 limit
+        if (cond.getLimit() == null || cond.getLimit() <= 0) cond.setLimit(10);
+
+        // center 없으면 bbox 중앙 사용
+        if (cond.getCenterLat() == null || cond.getCenterLon() == null) {
+            cond.setCenterLat((cond.getMinLat() + cond.getMaxLat()) / 2.0);
+            cond.setCenterLon((cond.getMinLon() + cond.getMaxLon()) / 2.0);
+        }
+
+        // 타입 화이트리스트(예: 1,2,4,6만 허용)
+        if (cond.getTypes() != null) {
+            cond.setTypes(
+                    cond.getTypes().stream()
+                            .filter(t -> t == 1 || t == 2 || t == 4 || t == 6)
+                            .distinct()
+                            .toList()
+            );
+            if (cond.getTypes().isEmpty()) cond.setTypes(null);
+        }
+
         return service.findFacilitiesInBBox(cond);
-    }
-
-    @PostMapping("/ingest-range")
-    public ResponseEntity<Map<String, Object>> ingestRange(
-            @RequestParam int from,
-            @RequestParam int to,
-            @RequestParam(defaultValue = "100") int size) {
-
-        int rows = service.ingestRange(from, to, size);
-        log.info("[INGEST-RANGE] done from={} to={} size={} rows={}", from, to, size, rows);
-
-        return ResponseEntity.ok(Map.of(
-                "from", from,
-                "to", to,
-                "pageSize", size,
-                "rows", rows,
-                "status", "ok"
-        ));
     }
 }

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.daepihasan.mapper.IFireFacilityMapper">
 
-    <!-- 단건 (업서트)    = (UPDATE와 INSERT를 합친거)-->
+    <!-- 단건 업서트 -->
     <insert id="upsertFireFacility" parameterType="com.daepihasan.dto.FireFacilityDTO">
         INSERT INTO FIRE_WATER_FACILITY (
             FACILITY_NO, NAME, FACILITY_TYPE_CD, MNG_INST_NM, MNG_INST_TEL,
@@ -53,21 +53,41 @@
         CHG_DT           = NOW()
     </insert>
 
-    <!-- BBox 조회 (미니멀 응답) -->
+    <!-- BBox 조회: 소화전만 + 거리순 -->
     <select id="findFacilitiesInBBox"
             parameterType="com.daepihasan.dto.FireFacilityBBoxDTO"
             resultType="com.daepihasan.dto.FireFacilityItemDTO">
-        SELECT
-            ID               AS id,
-            NAME             AS name,
-            FACILITY_TYPE_CD AS facilityTypeCd,
-            ST_Y(LOC)        AS lat,
-            ST_X(LOC)        AS lon
-        FROM FIRE_WATER_FACILITY
-        WHERE ST_Y(LOC) BETWEEN #{minLat} AND #{maxLat}
-          AND ST_X(LOC) BETWEEN #{minLon} AND #{maxLon}
-        ORDER BY CHG_DT DESC
-            LIMIT 2000
-    </select>
 
+        <!-- 중심점/리밋 보강 -->
+        <bind name="cLon" value="centerLon != null ? centerLon : clon"/>
+        <bind name="cLat" value="centerLat != null ? centerLat : clat"/>
+        <bind name="lim"  value="limit != null ? limit : 10"/>
+
+        <!-- WKT BBOX 폴리곤 생성 -->
+        <bind name="bboxWkt"
+              value="'POLYGON(('
+               + minLon + ' ' + minLat + ','
+               + minLon + ' ' + maxLat + ','
+               + maxLon + ' ' + maxLat + ','
+               + maxLon + ' ' + minLat + ','
+               + minLon + ' ' + minLat + '))'"/>
+
+        SELECT
+        ID               AS id,
+        NAME             AS name,
+        FACILITY_TYPE_CD AS facilityTypeCd,
+        ST_Y(LOC)        AS lat,
+        ST_X(LOC)        AS lon,
+        ST_Distance_Sphere(
+        LOC,
+        ST_PointFromText(CONCAT('POINT(', #{cLon}, ' ', #{cLat}, ')'), 4326)
+        ) AS dist_m
+        FROM FIRE_WATER_FACILITY
+        WHERE LOC IS NOT NULL
+        AND FACILITY_TYPE_CD = 1                             <!-- 소화전만 -->
+        AND MBRIntersects(LOC, ST_GeomFromText(#{bboxWkt}, 4326))
+        ORDER BY dist_m ASC, ID ASC
+        LIMIT #{lim}
+    </select>
 </mapper>
+

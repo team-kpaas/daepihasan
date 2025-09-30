@@ -54,7 +54,7 @@
             <ul id="searchSuggest" class="search-suggest" role="listbox" aria-label="검색 제안"></ul>
         </div>
     </div>
-    <button type="button">
+    <button type="button" id="btnRoute" class="route-btn">
         <i class="fa-solid fa-route"></i>
         <p>길찾기</p>
     </button>
@@ -83,15 +83,12 @@
 </div>
 
 <!-- 하단 필터/상태 -->
-<div class="bottom-bar" role="region" aria-label="필터 및 상태">
-    <div class="chips">
-        <button class="chip is-on" data-type="hydrant"   aria-pressed="true">소화전</button>
-        <button class="chip"       data-type="tower"     aria-pressed="false">급수탑</button>
-        <button class="chip"       data-type="ebox"      aria-pressed="false">비상소화장치</button>
-        <button class="chip"       data-type="reservoir" aria-pressed="false">저수조</button>
-    </div>
-    <span class="status" id="facStatus">화면 내 0개</span>
-</div>
+<%--<div class="bottom-bar" role="region" aria-label="필터 및 상태">--%>
+<%--    <div class="chips">--%>
+<%--        <button class="chip is-on" data-type="hydrant"   aria-pressed="true">소화전</button>--%>
+<%--    </div>--%>
+<%--    <span class="status" id="facStatus">화면 내 0개</span>--%>
+<%--</div>--%>
 
 <!-- (선택) 바텀시트 -->
 <div id="sheet" class="sheet" aria-hidden="true">
@@ -100,7 +97,7 @@
 </div>
 <script src="${pageContext.request.contextPath}/js/common/location.js"></script>
 <script src="${pageContext.request.contextPath}/js/common/weather.js"></script>
-<script type="module" src="${pageContext.request.contextPath}/js/map/app.js?v=20250912"></script>
+<script type="module" src="${pageContext.request.contextPath}/js/map/app.js?v=20250922"></script>
 
 </body>
 </html>
