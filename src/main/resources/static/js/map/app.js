@@ -22,7 +22,42 @@ let __shelterMarkers = [];
 let __selectedShelterIdx = -1;
 let __routeLine = null;
 const SHELTER_ICON_URL = joinCtx('/images/map/shelter.png');
+const TEMP_SHELTERS = [
+    {
+        id: 'TEMP-UJANG-1',
+        name: '우장산공원(동쪽광장)',
+        lat: 37.5519, lon: 126.8428,
+        addr: '서울 강서구 내발산동 749 일대'
+    },
+    {
+        id: 'TEMP-UJANG-2',
+        name: '내발산근린공원(운동장)',
+        lat: 37.5506, lon: 126.8460,
+        addr: '서울 강서구 내발산동 일대'
+    },
+    {
+        id: 'TEMP-UJANG-3',
+        name: '발산초등학교 운동장(야외)',
+        lat: 37.5492, lon: 126.8420,
+        addr: '서울 강서구 내발산동 일대'
+    },
+    {
+        id: 'TEMP-UJANG-4',
+        name: '우장산역 4번출구 광장',
+        lat: 37.548543, lon: 126.836303,
+        addr: '서울 강서구 화곡동 우장산역'
+    }
+];
 
+// 현 위치(또는 지도 중심) 기준 가까운 임시 대피소 N개 반환
+function getFallbackAround(lat, lng, maxDistM = 5000, maxN = 4) {
+    const list = TEMP_SHELTERS.map(s => {
+        const d = Math.round(haversine({ lat: s.lat, lon: s.lon }, { lat, lng }));
+        return { ...s, distM: d };
+    }).filter(s => s.distM <= maxDistM)
+        .sort((a, b) => a.distM - b.distM);
+    return list.slice(0, maxN);
+}
 // 대피소 탐색 키워드 세트(우선순위 순)
 const SHELTER_KEYWORDS = [
     '지진옥외대피소','지진옥외대피장소','지진대피소',
@@ -301,17 +336,21 @@ async function tmapSearchAround(lat, lng, { keyword = '지진옥외대피소' } 
 
 // 후보 1~4 정렬/슬라이스 (키워드 폴백 포함)
 async function findShelterCandidates(lat, lng, maxN = 4) {
-    for (const kw of SHELTER_KEYWORDS) {
-        const raw = await tmapSearchAround(lat, lng, { keyword: kw });
-        if (raw.length) {
-            raw.forEach(r => r.distM = Math.round(haversine({ lat: r.lat, lon: r.lon }, { lat, lng })));
-            raw.sort((a,b) => a.distM - b.distM);
-            return raw.slice(0, maxN);
+    try {
+        for (const kw of SHELTER_KEYWORDS) {
+            const raw = await tmapSearchAround(lat, lng, { keyword: kw });
+            if (raw.length) {
+                raw.forEach(r => r.distM = Math.round(haversine({ lat: r.lat, lon: r.lon }, { lat, lng })));
+                raw.sort((a, b) => a.distM - b.distM);
+                return raw.slice(0, maxN);
+            }
         }
+    } catch (e) {
+        console.warn('[shelter/find] search error, will fallback:', e);
     }
-    return [];
+    // 👉 폴백(임시 대피소)
+    return getFallbackAround(lat, lng, 5000, maxN);
 }
-
 // 보행자 경로
 async function drawRoutePedestrian(map, start, goal) {
     const appKey = getTmapAppKey();
@@ -501,4 +540,25 @@ function bindRouteButton(map) {
             showToast('대피소 탐색 중 오류가 발생했어요');
         }
     });
+}
+
+function drawFakeRoute(map, start, goal) {
+    try { __routeLine?.setMap(null); } catch (_) {}
+    const path = [
+        new Tmapv3.LatLng(start.lat, start.lng),
+        new Tmapv3.LatLng(goal.lat,  goal.lon)
+    ];
+    __routeLine = new Tmapv3.Polyline({
+        map,
+        path,
+        strokeColor: '#1D4ED8',
+        strokeWeight: 5,
+        strokeOpacity: 0.9,
+        lineCap: 'round'
+    });
+    try {
+        const sw = new Tmapv3.LatLng(Math.min(start.lat, goal.lat), Math.min(start.lng, goal.lon));
+        const ne = new Tmapv3.LatLng(Math.max(start.lat, goal.lat), Math.max(start.lng, goal.lon));
+        map.fitBounds(new Tmapv3.LatLngBounds(sw, ne));
+    } catch (_) {}
 }
