@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.INoticeLikeMapper">
+
+    <!-- 좋아요 추가(중복 무시) -->
+    <insert id="insertLike" parameterType="com.daepihasan.dto.NoticeLikeDTO">
+        INSERT IGNORE INTO NOTICE_LIKE (NOTICE_SEQ, USER_ID, REG_DT)
+    VALUES (#{noticeSeq}, #{userId}, NOW())
+    </insert>
+
+    <!-- 좋아요 해제 -->
+    <delete id="deleteLike" parameterType="com.daepihasan.dto.NoticeLikeDTO">
+        DELETE FROM NOTICE_LIKE
+        WHERE NOTICE_SEQ = #{noticeSeq}
+          AND USER_ID    = #{userId}
+    </delete>
+
+    <!-- 글 좋아요 수 -->
+    <select id="countLikeByNotice" parameterType="com.daepihasan.dto.NoticeLikeDTO"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM NOTICE_LIKE
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </select>
+
+    <!-- 사용자가 이미 좋아요 눌렀는지 -->
+    <select id="existsLikeByUser" parameterType="com.daepihasan.dto.NoticeLikeDTO"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM NOTICE_LIKE
+        WHERE NOTICE_SEQ = #{noticeSeq}
+          AND USER_ID    = #{userId}
+    </select>
+
+</mapper>
