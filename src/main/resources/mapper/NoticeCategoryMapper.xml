@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.INoticeCategoryMapper">
+
+    <resultMap id="CategoryMap" type="com.daepihasan.dto.NoticeCategoryDTO">
+        <id     property="id"         column="ID"/>
+        <result property="categoryNm" column="CATEGORY_NM"/>
+        <result property="prtOrd"     column="PRT_ORD"/>
+        <result property="regId"      column="REG_ID"/>
+        <result property="regDt"      column="REG_DT"/>
+        <result property="chgId"      column="CHG_ID"/>
+        <result property="chgDt"      column="CHG_DT"/>
+        <result property="status"     column="STATUS"/>
+    </resultMap>
+
+    <insert id="insertCategory" parameterType="com.daepihasan.dto.NoticeCategoryDTO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO NOTICE_CATEGORY
+            (CATEGORY_NM, PRT_ORD, REG_ID, STATUS)
+        VALUES
+            (#{categoryNm}, #{prtOrd}, #{regId}, COALESCE(#{status},1))
+    </insert>
+
+    <update id="updateCategory" parameterType="com.daepihasan.dto.NoticeCategoryDTO">
+        UPDATE NOTICE_CATEGORY
+        SET CATEGORY_NM = #{categoryNm},
+            PRT_ORD     = #{prtOrd},
+            CHG_ID      = #{chgId},
+            CHG_DT      = NOW(),
+            STATUS      = #{status}
+        WHERE ID = #{id}
+    </update>
+
+    <delete id="deleteCategory" parameterType="com.daepihasan.dto.NoticeCategoryDTO">
+        DELETE FROM NOTICE_CATEGORY WHERE ID = #{id}
+    </delete>
+
+    <select id="selectCategoryList" parameterType="com.daepihasan.dto.NoticeCategoryDTO"
+            resultMap="CategoryMap">
+        SELECT ID, CATEGORY_NM, PRT_ORD, REG_ID, REG_DT, CHG_ID, CHG_DT, STATUS
+        FROM NOTICE_CATEGORY
+        WHERE 1=1
+        <if test="status != null">
+            AND STATUS = #{status}
+        </if>
+        ORDER BY
+        CASE WHEN PRT_ORD IS NULL THEN 1 ELSE 0 END, PRT_ORD ASC, ID ASC
+    </select>
+
+</mapper>

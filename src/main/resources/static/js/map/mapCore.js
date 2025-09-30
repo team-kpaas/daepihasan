@@ -19,7 +19,7 @@ function ensurePointerEventGuards(){
     /* 필요한 요소만 다시 켬 */
     header .map-search-form, header .map-search-form *,
     .side-peek, .side-peek *,
-    .chips, .chips *,
+    .chips, .chips *, .route-btn,
     .fab-cluster, .fab-cluster *,       /* FAB 버튼 */
     .zoom-controls, .zoom-controls *,   /* + / – */
     .search-suggest, .search-suggest *  /* 검색 제안 */

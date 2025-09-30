@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.INoticeCommentMapper">
+
+  <sql id="Comment_Columns">
+    ID, NOTICE_SEQ, PARENT_ID, DEPTH, PATH,
+    USER_ID, CONTENTS,
+    REG_ID, REG_DT, CHG_ID, CHG_DT,
+    STATUS, IS_DELETED
+  </sql>
+
+  <resultMap id="CommentMap" type="com.daepihasan.dto.NoticeCommentDTO">
+    <id     property="id"         column="ID"/>
+    <result property="noticeSeq"  column="NOTICE_SEQ"/>
+    <result property="parentId"   column="PARENT_ID"/>
+    <result property="depth"      column="DEPTH"/>
+    <result property="path"       column="PATH"/>
+    <result property="userId"     column="USER_ID"/>
+    <result property="contents"   column="CONTENTS"/>
+    <result property="regId"      column="REG_ID"/>
+    <result property="regDt"      column="REG_DT"/>
+    <result property="chgId"      column="CHG_ID"/>
+    <result property="chgDt"      column="CHG_DT"/>
+    <result property="status"     column="STATUS"/>
+    <result property="isDeleted"  column="IS_DELETED"/>
+  </resultMap>
+
+  <!-- 등록 (트리거가 PATH/DEPTH 세팅) -->
+  <insert id="insertComment" parameterType="com.daepihasan.dto.NoticeCommentDTO"
+          useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO NOTICE_COMMENT
+    (
+      NOTICE_SEQ, PARENT_ID,
+      USER_ID, CONTENTS,
+      REG_ID, STATUS
+    )
+    VALUES
+    (
+      #{noticeSeq}, #{parentId},
+      #{userId}, #{contents},
+      #{regId}, COALESCE(#{status}, 1)
+    )
+  </insert>
+
+  <!-- 수정 -->
+  <update id="updateComment" parameterType="com.daepihasan.dto.NoticeCommentDTO">
+    UPDATE NOTICE_COMMENT
+       SET CONTENTS = #{contents},
+           CHG_ID   = #{chgId},
+           CHG_DT   = NOW()
+     WHERE ID = #{id}
+       AND IS_DELETED = 0
+  </update>
+
+  <!-- 소프트 삭제(표시 숨김) -->
+  <update id="softDeleteComment" parameterType="com.daepihasan.dto.NoticeCommentDTO">
+    UPDATE NOTICE_COMMENT
+       SET IS_DELETED = 1,
+           STATUS     = 9,
+           CHG_ID     = #{chgId},
+           CHG_DT     = NOW()
+     WHERE ID = #{id}
+  </update>
+
+  <!-- 게시글 댓글 트리: PATH 정렬 -->
+  <select id="selectCommentsByNotice" parameterType="com.daepihasan.dto.NoticeCommentSearchDTO"
+          resultMap="CommentMap">
+    SELECT <include refid="Comment_Columns"/>
+      FROM NOTICE_COMMENT
+     WHERE NOTICE_SEQ = #{noticeSeq}
+       AND IS_DELETED = 0
+    <if test="status != null"> AND STATUS = #{status} </if>
+    ORDER BY PATH ASC
+    <if test="size != null">
+      LIMIT
+      <if test="offset != null"> #{offset}, </if>
+      #{size}
+    </if>
+  </select>
+
+  <!-- 특정 부모의 자식 목록 -->
+  <select id="selectChildComments" parameterType="com.daepihasan.dto.NoticeCommentSearchDTO"
+          resultMap="CommentMap">
+    SELECT <include refid="Comment_Columns"/>
+      FROM NOTICE_COMMENT
+     WHERE PARENT_ID = #{parentId}
+       AND IS_DELETED = 0
+    ORDER BY ID ASC
+    <if test="size != null">
+      LIMIT
+      <if test="offset != null"> #{offset}, </if>
+      #{size}
+    </if>
+  </select>
+
+</mapper>
