@@ -1,12 +1,17 @@
+/* ===== 공통 레이아웃 ===== */
 html, body {
     height: 100%;
     margin: 0;
 }
+
 .full-container {
     display: flex;
-    height: 100%;
+    min-height: 100svh; /* 세로 안전 뷰포트 기준 */
+    height: auto;
     flex-direction: row;
 }
+
+/* ===== 왼쪽 영역 ===== */
 .result-left {
     position: relative;
     flex: 1;
@@ -16,19 +21,30 @@ html, body {
     justify-content: center;
     align-items: center;
     padding: 3rem;
+    color: #212529; /* style.css의 body {color:#fff} 덮어쓰기 */
 }
+
+/* 로고(데스크탑 기본) */
 .result-left .logo {
     position: absolute;
     top: 20px;
     left: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.result-left .logo img {
-    height: 50px;
+.result-left .logo img { height: 50px; }
+.result-left .logo .logo-text {
+    font-size: 20px;
+    color: #2338A0;
+    font-weight: 900;
+    margin: 0;
+    line-height: 1;
 }
-.tab-container {
-    width: 100%;
-    max-width: 400px;
-}
+
+/* 탭/메시지/버튼 */
+.tab-container { width: 100%; max-width: 400px; }
+
 .tab-btn {
     flex: 1;
     padding: 0.8rem;
@@ -49,31 +65,21 @@ html, body {
     color: #333;
 }
 
-/* spacing 확장 (Bootstrap 유틸리티 스타일 확장) */
-.mt-6 {
-    margin-top: 4rem !important; /* 64px (기존 5: 48px) */
-}
+/* spacing 확장 */
+.mt-6 { margin-top: 4rem !important; }
+.mb-6 { margin-bottom: 4rem !important; }
 
-.mb-6 {
-    margin-bottom: 4rem !important; /* 64px */
-}
-
-.text-highlight {
-    color: red;
-    font-weight: bold;
-}
+.text-highlight { color: red; font-weight: bold; }
 
 .btn-primary {
     height: 50px;
     border-radius: 8px;
     background-color: #2338A0;
+    box-shadow: 2px 2px 20px rgba(0,0,0,0.15);
 }
+.btn-container { max-width: 400px; width: 100%; }
 
-.btn-container {
-    max-width: 400px;
-    width: 100%;
-}
-
+/* ===== 오른쪽 배너 ===== */
 .result-right {
     flex: 1;
     background-color: #e6ca92;
@@ -86,16 +92,42 @@ html, body {
     height: 100%;
     object-fit: cover;
 }
+
+/* input-group 깨짐 방지(혹시 사용 시) */
+.input-group > .form-control { min-width: 0; }
+.input-group > .btn,
+.input-group > .input-group-text,
+.input-group > .form-select { flex: 0 0 auto; white-space: nowrap; }
+
+/* ===== 모바일(≤992px) ===== */
 @media (max-width: 992px) {
-    .result-right {
-        display: none;
-    }
+    .result-right { display: none; }
+
     .result-left {
+        position: relative;
         flex: 1 0 100%;
-        padding: 2rem;
+        padding: 72px 16px 24px; /* 상단 로고 공간 확보 */
+        background-color: #fff;
     }
+
+    /* 로고 좌상단 고정 + 크기 보정 */
     .result-left .logo {
-        left: 50%;
-        transform: translateX(-50%);
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        transform: none;
+        margin: 0;
+        gap: 8px;
+        z-index: 5;
     }
+    .result-left .logo img { height: 36px; }
+    .result-left .logo .logo-text {
+        font-size: 18px;
+        font-weight: 800;
+        color: #2338A0;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .result-message { text-align: center; }
 }

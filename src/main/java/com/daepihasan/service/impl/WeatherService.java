@@ -26,8 +26,11 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Service
 public class WeatherService implements IWeatherService {
 
-    @Value("${data.api.decodeKey}")
+    @Value("${data.api.decodeKey}")   // 1차(기존) API KEY
     private String apiKey;
+
+    @Value("${kma.api.decodeKey}")    // 2차(KMA) API KEY
+    private String kmaApiKey;
 
     private final IWeatherCacheMapper weatherCacheMapper; // 날씨 캐시 Mapper 가져오기
 
@@ -205,18 +208,28 @@ public class WeatherService implements IWeatherService {
         String baseDate =  pDTO.getBaseDate();
         String baseTime = pDTO.getBaseTime();
 
-        String apiParam = String.format(
-                        "?serviceKey=%s" +
-                        "&dataType=JSON" +
-                        "&numOfRows=60" +
-                        "&pageNo=1" +
-                        "&base_date=%s" +
-                        "&base_time=%s" +
-                        "&nx=%s&ny=%s",
-                URLEncoder.encode(apiKey, UTF_8), baseDate, baseTime, x, y);
-        log.info("apiParam: {}", apiParam);
+        // 공통 파라미터
+        String primaryParam = buildApiParam(apiKey, x, y, baseDate, baseTime);
+        String kmaParam     = buildApiParamForKma(kmaApiKey, x, y, baseDate, baseTime); // KMA가 authKey 등을 쓴다면 별도 함수
 
-        String json = NetworkUtil.get(IWeatherService.apiURL + apiParam);
+        String primaryUrl = apiURL + primaryParam;
+        String kmaUrl     = kmaApiURL + kmaParam;
+        String json = "";
+
+        try {
+            log.info("1차 API 요청: {}", primaryUrl);
+            json = NetworkUtil.get(primaryUrl);
+            if (!isValidResponse(json)) throw new IllegalStateException("1차 응답 비정상");
+            log.info("1차 API 성공");
+        } catch (Exception ex) {
+            log.warn("1차 API 실패({}) → KMA 요청 시도", ex.toString());
+            json = NetworkUtil.get(kmaApiURL);
+            if (!isValidResponse(json)) {
+                log.error("기상청 요청도 실패");
+                throw new IllegalStateException("모든 단기 날씨 api 요청 실패");
+            }
+            log.info("KMA API 성공");
+        }
 
         // 1. 기존 캐시 삭제
         WeatherCacheDTO deleteDTO = WeatherCacheDTO.builder()
@@ -251,4 +264,56 @@ public class WeatherService implements IWeatherService {
 
         return json;
     }
+
+    /** 공통 파라미터 생성 */
+    private String buildApiParamForKma(String key, Integer x, Integer y, String baseDate, String baseTime) {
+        return String.format(
+                "?authKey=%s" +
+                        "&dataType=JSON" +
+                        "&numOfRows=60" +
+                        "&pageNo=1" +
+                        "&base_date=%s" +
+                        "&base_time=%s" +
+                        "&nx=%s&ny=%s",
+                URLEncoder.encode(apiKey, UTF_8), baseDate, baseTime, x, y);
+    }
+
+    private String buildApiParam(String key, Integer x, Integer y, String baseDate, String baseTime) {
+        return String.format(
+                "?serviceKey=%s" +
+                        "&dataType=JSON" +
+                        "&numOfRows=60" +
+                        "&pageNo=1" +
+                        "&base_date=%s" +
+                        "&base_time=%s" +
+                        "&nx=%s&ny=%s",
+                URLEncoder.encode(apiKey, UTF_8), baseDate, baseTime, x, y);
+    }
+
+    private boolean isValidResponse(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> root = mapper.readValue(json, LinkedHashMap.class);
+
+            Map<String, Object> response = (Map<String, Object>) root.get("response");
+            if (response == null) return false;
+
+            Map<String, Object> header = (Map<String, Object>) response.get("header");
+            if (header != null) {
+                String code = String.valueOf(header.get("resultCode"));
+                // 정상코드: "00" 또는 "0000"
+                if (!"00".equals(code) && !"0000".equals(code)) return false;
+            }
+
+            Map<String, Object> body = (Map<String, Object>) response.get("body");
+            Map<String, Object> items = body == null ? null : (Map<String, Object>) body.get("items");
+            List<?> list = items == null ? null : (List<?>) items.get("item");
+            return list != null && !list.isEmpty();
+        } catch (Exception e) {
+            log.warn("응답 유효성 검사 실패: {}", e.toString());
+            return false;
+        }
+    }
+
+
 }

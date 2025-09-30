@@ -2,6 +2,8 @@ html, body {
     height: 100%;
     margin: 0;
 }
+
+/* 로고 */
 .logo {
     display: flex;
     align-items: center;
@@ -12,9 +14,18 @@ html, body {
     font-weight: 900;
     margin: 0;
 }
+
+/* 공통적으로 페이지 본문 글자색을 어두운색으로 되돌림 */
+.login-left, .signup-left { color: #212529; }
+
+/* 제목만 브랜드 색으로 */
+/*.login-left h2, .signup-left h2 { color: #2338A0; }*/
+
+/* 레이아웃 */
 .full-container {
     display: flex;
-    height: 100%;
+    min-height: 100svh; /* 모바일 안전 뷰포트 기준 */
+    height: auto;
     flex-direction: row;
 }
 .signup-left, .signup-right {
@@ -52,19 +63,6 @@ html, body {
     object-fit: cover;
 }
 
-/* 반응형 */
-@media (max-width: 992px) {
-    .signup-right { display: none; }
-    .signup-left {
-        flex: 1 0 100%;
-        padding: 2rem;
-    }
-    .signup-left .logo {
-        left: 50%;
-        transform: translateX(-50%);
-    }
-}
-
 /* 공통 스타일 */
 .form-control {
     height: 45px;
@@ -75,15 +73,83 @@ html, body {
     background-color: #2338A0;
 }
 
-.boxShadow{
+/* 회원가입 버튼 전용 */
+.boxShadow {
     height: 50px;
-    box-shadow: 2px 2px 2px 2px gray;
+    box-shadow: 2px 2px 20px rgba(0,0,0,0.15); /* 연한 그림자 */
 }
 
-
-/* 아이디, 이메일, 비밀번호 유효성*/
+/* 아이디, 이메일, 비밀번호 유효성 */
 .id-rule, .email-rule, .password-rule {
     font-size: 0.875rem;
     margin-top: 4px;
 }
 
+/* --- 모바일(≤992px)에서만 적용 --- */
+@media (max-width: 992px) {
+    /* 배너는 숨김 유지 */
+    .signup-right { display: none; }
+
+    /* 상단에 로고가 고정되니 여유 패딩 확보 */
+    .signup-left {
+        position: relative;
+        flex: 1 0 100%;
+        padding: 72px 16px 24px; /* ← 상단 72px로 로고 공간 만들기 */
+        background-color: #fff;
+    }
+
+    /* 로고: 좌상단 고정 */
+    .signup-left .logo {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        transform: none;
+        margin: 0;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    .signup-left .logo img { height: 28px; }
+    .signup-left .logo .logo-text {
+        font-size: 18px;
+        font-weight: 800;
+        color: #2338A0;
+        margin: 0;
+        line-height: 1;
+    }
+
+    /* 제목: 가운데 정렬 + 간격 다듬기 */
+    .signup-left h2 {
+        text-align: center;
+        margin: 0 0 18px;
+        font-size: 24px;
+        font-weight: 900;
+        /*color: #2338A0;*/
+        letter-spacing: -0.02em;
+    }
+}
+
+/* 추가로 input-group 깨짐 방지용 (이미 없다면 넣어주세요) */
+.input-group > .form-control { min-width: 0; }
+.input-group > .btn,
+.input-group > .input-group-text,
+.input-group > .form-select { flex: 0 0 auto; white-space: nowrap; }
+
+.email-group > .form-control,
+.email-group > .form-select {
+    flex: 1 1 0% !important;  /* 두 칸 1:1 */
+    width: 0;                 /* 내용 길이에 영향 안 받도록 */
+    min-width: 0;
+}
+
+/* @ 칸은 내용만큼만 */
+.email-group > .input-group-text {
+    flex: 0 0 auto;
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+/* 높이/패딩 매칭(브라우저별 정렬 차이 방지) */
+.email-group .form-select {
+    padding-top: .375rem;
+    padding-bottom: .375rem;
+}

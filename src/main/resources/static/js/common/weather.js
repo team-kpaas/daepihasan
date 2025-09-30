@@ -59,6 +59,8 @@ function getMaxStartMinusOne() {
 // 카드/슬라이더 치수 재계산
 function recalcMetrics() {
     const slider = document.getElementById("weatherSlider");
+    if (slider?.classList.contains("is-empty")) return; // 빈 상태는 계산 안 함
+
     const container = slider?.parentElement;
     const firstCard = slider?.querySelector(".weather-card-item");
     if (!slider || !container || !firstCard) return;
@@ -101,6 +103,32 @@ function applyTransformAndButtons() {
     if (nextBtn) nextBtn.style.visibility = currentIndex >= maxStart ? "hidden" : "visible";
 }
 
+function setEmptyMode(on) {
+    const slider = document.getElementById("weatherSlider");
+    const container = document.querySelector(".weather-cards-container");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    if (!slider || !container) return;
+
+    if (on) {
+        container.classList.add("is-empty");
+        slider.classList.add("is-empty");
+        slider.style.transform = "none"; // 이동 제거
+        container.style.maxWidth = "100%"; // 카드 3장 제한 해제
+        if (prevBtn) prevBtn.style.visibility = "hidden";
+        if (nextBtn) nextBtn.style.visibility = "hidden";
+    } else {
+        container.classList.remove("is-empty");
+        slider.classList.remove("is-empty");
+        slider.style.transform = ""; // 기본값
+        container.style.maxWidth = ""; // 다시 계산에 맡김
+        if (prevBtn) prevBtn.style.visibility = "";
+        if (nextBtn) nextBtn.style.visibility = "";
+    }
+}
+
+
 // 날씨 카드 렌더링
 function renderWeather(data) {
     const slider = document.getElementById("weatherSlider");
@@ -109,25 +137,39 @@ function renderWeather(data) {
     slider.innerHTML = "";
     currentIndex = 0;
 
+    // 빈 상태
+    if (!Array.isArray(data) || data.length === 0) {
+        setEmptyMode(true);
+        slider.innerHTML = `
+      <div class="weather-empty">
+        현재 날씨 정보를 제공할 수 없습니다.
+      </div>`;
+        // 빈 상태는 카드 계산 불필요
+        return;
+    }
+
+    // 정상 상태
+    setEmptyMode(false);
     data.forEach(item => {
         const card = document.createElement("div");
         card.className = "weather-card-item";
         card.innerHTML = `
-            <div>${item.time} 시</div>
-            <div class="weather-icon-temp">
-                <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}" />
-                <span class="temp-text">${item.temp}°</span>
-            </div>
-            <div class="weather-text">습도: ${item.reh}%</div>
-            <div class="weather-text">${item.windInfo}</div>
-            <div class="weather-text">강수: ${item.rn1 || "강수없음"}</div>
-        `;
+      <div>${item.time} 시</div>
+      <div class="weather-icon-temp">
+        <img src="${item.icon}" alt="날씨 아이콘" title="${item.desc}" />
+        <span class="temp-text">${item.temp}°</span>
+      </div>
+      <div class="weather-text">습도: ${item.reh}%</div>
+      <div class="weather-text">${item.windInfo}</div>
+      <div class="weather-text">강수: ${item.rn1 || "강수없음"}</div>
+    `;
         slider.appendChild(card);
     });
 
     recalcMetrics();
     setupObserversOnce();
 }
+
 
 // 이전/다음 버튼 이벤트
 document.getElementById("prevBtn")?.addEventListener("click", () => {

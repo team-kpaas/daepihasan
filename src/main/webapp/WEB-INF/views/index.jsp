@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/style.css">
 
 </head>
-<body>
+<body class="home">
 <%@ include file="common/header.jsp" %>
 <main>
     <!-- Swiper -->

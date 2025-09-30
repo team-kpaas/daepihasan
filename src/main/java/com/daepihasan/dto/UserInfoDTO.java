@@ -8,12 +8,15 @@ import lombok.Setter;
 @Setter
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class UserInfoDTO {
+    private Long userInfoId;
     private String userId;
     private String userName;
     private String password;
     private String email;
     private String addr1;
     private String addr2;
+    private String withdrawYn; // Y=탈퇴, N=정상
+
     private String regId;
     private String regDt;
     private String chgId;
@@ -26,4 +29,7 @@ public class UserInfoDTO {
 
     // 이메일 중복체크를 위한 인증번호
     private int authNumber;
+
+    // 탈퇴 처리용 ID
+    private String newUserId;
 }

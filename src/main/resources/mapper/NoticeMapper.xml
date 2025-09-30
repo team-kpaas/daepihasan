@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.daepihasan.mapper.INoticeMapper">
+
+    <!-- RESULT MAP -->
+    <resultMap id="NoticeMap" type="com.daepihasan.dto.NoticeDTO">
+        <id     property="noticeSeq"  column="NOTICE_SEQ"/>
+        <result property="userId"     column="USER_ID"/>
+        <result property="categoryId" column="CATEGORY_ID"/>
+        <result property="title"      column="TITLE"/>
+        <result property="contents"   column="CONTENTS"/>
+        <result property="readCnt"    column="READ_CNT"/>
+        <result property="commentCnt" column="COMMENT_CNT"/>
+        <result property="regId"      column="REG_ID"/>   <!-- VARCHAR -->
+        <result property="regDt"      column="REG_DT"/>
+        <result property="chgId"      column="CHG_ID"/>   <!-- VARCHAR -->
+        <result property="chgDt"      column="CHG_DT"/>
+        <result property="status"     column="STATUS"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        NOTICE_SEQ, USER_ID, CATEGORY_ID, TITLE, CONTENTS, READ_CNT, COMMENT_CNT,
+        REG_ID, REG_DT, CHG_ID, CHG_DT, STATUS
+    </sql>
+
+    <!-- INSERT -->
+    <insert id="insertNotice" parameterType="com.daepihasan.dto.NoticeDTO"
+            useGeneratedKeys="true" keyProperty="noticeSeq">
+        INSERT INTO NOTICE
+        (USER_ID, CATEGORY_ID, TITLE, CONTENTS, READ_CNT, COMMENT_CNT, REG_ID, REG_DT, STATUS)
+        VALUES
+            (#{userId}, #{categoryId}, #{title}, #{contents}, 0, 0, #{regId}, NOW(), #{status})
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updateNotice" parameterType="com.daepihasan.dto.NoticeDTO">
+        UPDATE NOTICE
+        <set>
+            <if test="title      != null">TITLE       = #{title},</if>
+            <if test="contents   != null">CONTENTS    = #{contents},</if>
+            <if test="categoryId != null">CATEGORY_ID = #{categoryId},</if>
+            <if test="status     != null">STATUS      = #{status},</if>
+            CHG_ID = #{chgId},
+            CHG_DT = NOW()
+        </set>
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </update>
+
+    <!-- SOFT DELETE -->
+    <update id="softDeleteNotice" parameterType="com.daepihasan.dto.NoticeDTO">
+        UPDATE NOTICE
+        SET STATUS = 9,
+            CHG_ID = #{chgId},
+            CHG_DT = NOW()
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </update>
+
+    <!-- DETAIL -->
+    <select id="selectNoticeDetail" parameterType="com.daepihasan.dto.NoticeDTO"
+            resultMap="NoticeMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM NOTICE
+        WHERE NOTICE_SEQ = #{noticeSeq}
+        LIMIT 1
+    </select>
+
+    <!-- LIST -->
+    <select id="selectNoticeList" parameterType="com.daepihasan.dto.NoticeSearchDTO"
+            resultMap="NoticeMap">
+
+        <!-- page/size → offset -->
+        <bind name="offsetVal" value="(page != null and size != null) ? ((page - 1) * size) : 0"/>
+
+        SELECT <include refid="BaseColumns"/>
+        FROM NOTICE
+        <where>
+            <if test="status != null">
+                STATUS = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND CATEGORY_ID = #{categoryId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                TITLE    LIKE CONCAT('%', #{keyword}, '%')
+                OR CONTENTS LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        <choose>
+            <when test="orderBy == 'recent'">   ORDER BY NOTICE_SEQ DESC </when>
+            <when test="orderBy == 'read'">     ORDER BY READ_CNT DESC, NOTICE_SEQ DESC </when>
+            <when test="orderBy == 'comment'">  ORDER BY COMMENT_CNT DESC, NOTICE_SEQ DESC </when>
+            <otherwise>                         ORDER BY NOTICE_SEQ DESC </otherwise>
+        </choose>
+        <if test="size != null">
+            LIMIT #{size}
+            <if test="page != null"> OFFSET #{offsetVal}</if>
+        </if>
+    </select>
+
+    <!-- LIST COUNT -->
+    <select id="countNoticeList" parameterType="com.daepihasan.dto.NoticeSearchDTO"
+            resultType="int">
+        SELECT COUNT(1)
+        FROM NOTICE
+        <where>
+            <if test="status != null">
+                STATUS = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND CATEGORY_ID = #{categoryId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                TITLE    LIKE CONCAT('%', #{keyword}, '%')
+                OR CONTENTS LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+    </select>
+
+    <!-- READ COUNT +1 -->
+    <update id="increaseReadCnt" parameterType="com.daepihasan.dto.NoticeDTO">
+        UPDATE NOTICE
+        SET READ_CNT = READ_CNT + 1
+        WHERE NOTICE_SEQ = #{noticeSeq}
+    </update>
+
+</mapper>

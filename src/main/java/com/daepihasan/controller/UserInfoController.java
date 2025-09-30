@@ -2,6 +2,7 @@ package com.daepihasan.controller;
 
 import com.daepihasan.dto.MsgDTO;
 import com.daepihasan.dto.UserInfoDTO;
+import com.daepihasan.dto.WithdrawTokenDTO;
 import com.daepihasan.service.IUserInfoService;
 import com.daepihasan.util.CmmUtil;
 import com.daepihasan.util.EncryptUtil;
@@ -12,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -273,6 +271,7 @@ public class UserInfoController {
                 .orElse(new UserInfoDTO());
 
         model.addAttribute("rDTO", rDTO); // model 객체에 rDTO를 담음
+        model.addAttribute("resultType", "id"); // 어떤 결과인지 표기
 
         log.info("{}.user/searchUserIdProc End!", this.getClass().getName());
 
@@ -308,9 +307,16 @@ public class UserInfoController {
         pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
         // 비밀번호 찾기 가능 여부 확인
-        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO)).orElseGet(UserInfoDTO::new);
-
+        UserInfoDTO rDTO = Optional.ofNullable(userInfoService.searchUserIdOrPasswordProc(pDTO))
+                .orElseGet(UserInfoDTO::new);
         model.addAttribute("rDTO", rDTO);
+
+        // 회원 존재 여부 확인
+        boolean found = !CmmUtil.nvl(rDTO.getUserId()).isEmpty();
+        if (!found) {
+            model.addAttribute("resultType", "pw"); // 비번 찾기 실패
+            return "user/searchUserResult";         // 결과 페이지로
+        }
 
         // 비밀번호 재생성시 NEW_PASSWORD 세션 존재해야 접속 가능하도록 설정
         session.setAttribute("NEW_PASSWORD", userId);
@@ -390,4 +396,156 @@ public class UserInfoController {
         // 로그아웃 후 메인 페이지로 리다이렉트
         return "redirect:/";
     }
+
+    /**
+     * 회원 탈퇴 처리
+     * - token 파라미터로 탈퇴 요청 토큰 받음
+     * - 토큰이 유효한 경우에만 탈퇴 처리
+     */
+    @GetMapping("withdraw/execute")
+    public String withdrawExecute(HttpServletRequest request,
+                                  HttpSession session,
+                                  ModelMap model) throws Exception {
+        log.info("{}.withdraw/execute Start!", this.getClass().getName());
+
+        String token = CmmUtil.nvl(request.getParameter("token"));
+        log.info("token: {}", token);
+
+        WithdrawTokenDTO t = new WithdrawTokenDTO();
+        t.setTokenPlain(token);
+
+        int r = userInfoService.executeWithdrawByToken(t);
+
+        switch (r) {
+            case 1 -> {
+                session.invalidate();
+                model.addAttribute("status", "success");
+                model.addAttribute("msg", "탈퇴가 완료되었습니다.");
+            }
+            case 2 -> {
+                model.addAttribute("status", "already");
+                model.addAttribute("msg", "이미 탈퇴 처리된 계정입니다.");
+            }
+            case 3 -> {
+                model.addAttribute("status", "invalid");
+                model.addAttribute("msg", "토큰이 유효하지 않거나 만료되었습니다.");
+            }
+            default -> {
+                model.addAttribute("status", "fail");
+                model.addAttribute("msg", "탈퇴할 수 없습니다.");
+            }
+        }
+
+        log.info("{}.withdraw/execute End!", this.getClass().getName());
+
+        return "user/withdrawResult";
+    }
+
+    // 비밀번호 재확인
+    @ResponseBody
+    @PostMapping("withdraw/confirm-password")
+    public MsgDTO confirmWithdrawPassword(HttpSession session, UserInfoDTO pDTO) throws Exception {
+        log.info("{}.withdraw/confirm-password Start!", this.getClass().getName());
+
+        MsgDTO dto = new MsgDTO();
+
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+        if (userId.isEmpty()) {
+            dto.setResult(0);
+            dto.setMsg("로그인이 필요합니다.");
+            return dto;
+        }
+
+        String rawPw = CmmUtil.nvl(pDTO.getPassword());
+        if (rawPw.isEmpty()) {
+            dto.setResult(0);
+            dto.setMsg("비밀번호를 입력하세요.");
+            return dto;
+        }
+
+        // 해시 후 DTO 재구성
+        UserInfoDTO q = new UserInfoDTO();
+        q.setUserId(userId);
+        q.setPassword(EncryptUtil.encHashSHA256(rawPw));
+
+        int r = userInfoService.confirmPassword(q);
+        if (r == 1) {
+            session.setAttribute("WITHDRAW_PW_OK", "Y");
+            session.setAttribute("WITHDRAW_PW_TIME", System.currentTimeMillis());
+            dto.setResult(1);
+            dto.setMsg("비밀번호 확인 완료");
+        } else if (r == 5) {
+            dto.setResult(5);
+            dto.setMsg("비밀번호가 일치하지 않습니다.");
+        } else {
+            dto.setResult(0);
+            dto.setMsg("처리 실패");
+        }
+
+        log.info("{}.withdraw/confirm-password End!", this.getClass().getName());
+
+        return dto;
+    }
+
+
+    // 탈퇴 메일 요청
+    @ResponseBody
+    @PostMapping("withdraw/request")
+    public MsgDTO withdrawRequest(HttpSession session) throws Exception {
+        log.info("{}.withdraw/request Start!", this.getClass().getName());
+
+        MsgDTO dto = new MsgDTO();
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+        if (userId.isEmpty()) {
+            dto.setResult(0);
+            dto.setMsg("로그인이 필요합니다.");
+            return dto;
+        }
+        String pwOk = CmmUtil.nvl((String) session.getAttribute("WITHDRAW_PW_OK"));
+        long ts = Optional.ofNullable((Long) session.getAttribute("WITHDRAW_PW_TIME")).orElse(0L);
+        if (!"Y".equals(pwOk)) {
+            dto.setResult(9);
+            dto.setMsg("비밀번호 재확인이 필요합니다.");
+            return dto;
+        }
+        if (System.currentTimeMillis() - ts > 5 * 60_000) {
+            session.removeAttribute("WITHDRAW_PW_OK");
+            session.removeAttribute("WITHDRAW_PW_TIME");
+            dto.setResult(8);
+            dto.setMsg("비밀번호 재확인 시간이 만료되었습니다.");
+            return dto;
+        }
+
+        UserInfoDTO p = new UserInfoDTO();
+        p.setUserId(userId);
+        int r = userInfoService.requestWithdrawLink(p);
+
+        switch (r) {
+            case 1 -> { dto.setResult(1); dto.setMsg("탈퇴 확인 메일을 발송했습니다."); }
+            case 2 -> { dto.setResult(2); dto.setMsg("이미 탈퇴된 계정입니다."); }
+            default -> { dto.setResult(0); dto.setMsg("메일 발송 실패"); }
+        }
+
+        log.info("{}.withdraw/request End!", this.getClass().getName());
+
+        return dto;
+    }
+
+    // 탈퇴 페이지 (임시)
+    @GetMapping("withdraw")
+    public String withdrawPage(HttpSession session) {
+        log.info("{}.withdraw Start!", this.getClass().getName());
+
+        String userId = CmmUtil.nvl((String) session.getAttribute("SS_USER_ID"));
+
+        if (userId.isEmpty()) {
+            log.info("{}.withdraw End!", this.getClass().getName());
+            return "redirect:/user/login";
+        }
+
+        log.info("{}.withdraw End!", this.getClass().getName());
+        return "user/withdraw";
+    }
+
+
 }
