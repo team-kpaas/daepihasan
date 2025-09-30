@@ -133,3 +133,23 @@ html, body {
 .input-group > .btn,
 .input-group > .input-group-text,
 .input-group > .form-select { flex: 0 0 auto; white-space: nowrap; }
+
+.email-group > .form-control,
+.email-group > .form-select {
+    flex: 1 1 0% !important;  /* 두 칸 1:1 */
+    width: 0;                 /* 내용 길이에 영향 안 받도록 */
+    min-width: 0;
+}
+
+/* @ 칸은 내용만큼만 */
+.email-group > .input-group-text {
+    flex: 0 0 auto;
+    padding-left: .75rem;
+    padding-right: .75rem;
+}
+
+/* 높이/패딩 매칭(브라우저별 정렬 차이 방지) */
+.email-group .form-select {
+    padding-top: .375rem;
+    padding-bottom: .375rem;
+}
