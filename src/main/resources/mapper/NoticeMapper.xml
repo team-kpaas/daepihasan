@@ -14,6 +14,7 @@
         <result property="contents"   column="CONTENTS"/>
         <result property="readCnt"    column="READ_CNT"/>
         <result property="commentCnt" column="COMMENT_CNT"/>
+        <result property="likeCnt"    column="LIKE_CNT"/>
         <result property="regId"      column="REG_ID"/>   <!-- VARCHAR -->
         <result property="regDt"      column="REG_DT"/>
         <result property="chgId"      column="CHG_ID"/>   <!-- VARCHAR -->
@@ -24,6 +25,11 @@
     <sql id="BaseColumns">
         NOTICE_SEQ, USER_ID, CATEGORY_ID, TITLE, CONTENTS, READ_CNT, COMMENT_CNT,
         REG_ID, REG_DT, CHG_ID, CHG_DT, STATUS
+    </sql>
+
+    <sql id="BaseColumnsWithoutComment">
+        n.NOTICE_SEQ, n.USER_ID, n.CATEGORY_ID, n.TITLE, n.CONTENTS, n.READ_CNT,
+    n.REG_ID, n.REG_DT, n.CHG_ID, n.CHG_DT, n.STATUS
     </sql>
 
     <!-- INSERT -->
@@ -61,12 +67,28 @@
     <!-- DETAIL -->
     <select id="selectNoticeDetail" parameterType="com.daepihasan.dto.NoticeDTO"
             resultMap="NoticeMap">
-        SELECT <include refid="BaseColumns"/>
-        FROM NOTICE
-        WHERE NOTICE_SEQ = #{noticeSeq}
-        LIMIT 1
+        SELECT
+            n.NOTICE_SEQ, n.USER_ID, n.CATEGORY_ID, n.TITLE, n.CONTENTS, n.READ_CNT,
+            n.REG_ID, n.REG_DT, n.CHG_ID, n.CHG_DT, n.STATUS,
+            COALESCE(c.cnt, 0) AS COMMENT_CNT,         -- ✅ 댓글 수
+            COALESCE(l.cnt, 0) AS LIKE_CNT             -- ✅ 좋아요 수
+        FROM NOTICE n
+                 LEFT JOIN (
+            SELECT NOTICE_SEQ, COUNT(1) AS cnt
+            FROM NOTICE_COMMENT
+            WHERE (STATUS IS NULL OR STATUS != 9)      -- 스키마에 맞게: 없으면 WHERE 제거
+            GROUP BY NOTICE_SEQ
+        ) c ON c.NOTICE_SEQ = n.NOTICE_SEQ
+                 LEFT JOIN (
+            SELECT NOTICE_SEQ, COUNT(1) AS cnt
+            FROM NOTICE_LIKE                                -- 플래그 없으니 WHERE 없음
+            GROUP BY NOTICE_SEQ
+        ) l ON l.NOTICE_SEQ = n.NOTICE_SEQ
+        WHERE n.NOTICE_SEQ = #{noticeSeq}
+            LIMIT 1
     </select>
 
+    <!-- LIST -->
     <!-- LIST -->
     <select id="selectNoticeList" parameterType="com.daepihasan.dto.NoticeSearchDTO"
             resultMap="NoticeMap">
@@ -74,57 +96,86 @@
         <!-- page/size → offset -->
         <bind name="offsetVal" value="(page != null and size != null) ? ((page - 1) * size) : 0"/>
 
-        SELECT <include refid="BaseColumns"/>
-        FROM NOTICE
+        SELECT
+        <include refid="BaseColumnsWithoutComment"/>,
+        COALESCE(c.cnt, 0) AS COMMENT_CNT,       <!-- 댓글 -->
+        COALESCE(l.cnt, 0) AS LIKE_CNT           <!-- ✅ 좋아요 -->
+        FROM NOTICE n
+        LEFT JOIN (
+        SELECT NOTICE_SEQ, COUNT(1) AS cnt
+        FROM NOTICE_COMMENT
+        WHERE (STATUS IS NULL OR STATUS != 9)    <!-- XML에서는 != 또는 &lt;&gt; -->
+        GROUP BY NOTICE_SEQ
+        ) c ON c.NOTICE_SEQ = n.NOTICE_SEQ
+        LEFT JOIN (
+        SELECT NOTICE_SEQ, COUNT(1) AS cnt
+        FROM NOTICE_LIKE                         <!-- ✅ 플래그 없으니 WHERE 없음 -->
+        GROUP BY NOTICE_SEQ
+        ) l ON l.NOTICE_SEQ = n.NOTICE_SEQ
+
         <where>
-            <if test="status != null">
-                STATUS = #{status}
+            <choose>
+                <when test="status != null">
+                    n.STATUS = #{status}
+                </when>
+                <otherwise>
+                    (n.STATUS IS NULL OR n.STATUS != 9)
+                </otherwise>
+            </choose>
+            <if test="categoryId != null and categoryId != ''">
+                AND n.CATEGORY_ID = #{categoryId}
             </if>
-            <if test="categoryId != null">
-                AND CATEGORY_ID = #{categoryId}
-            </if>
-            <if test="keyword != null and keyword != ''">
-                AND (
-                TITLE    LIKE CONCAT('%', #{keyword}, '%')
-                OR CONTENTS LIKE CONCAT('%', #{keyword}, '%')
-                )
+            <if test="keyword != null and keyword.trim() != ''">
+                AND (n.TITLE LIKE CONCAT('%', #{keyword}, '%')
+                OR n.CONTENTS LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
+
+        <!-- 정렬 -->
         <choose>
-            <when test="orderBy == 'recent'">   ORDER BY NOTICE_SEQ DESC </when>
-            <when test="orderBy == 'read'">     ORDER BY READ_CNT DESC, NOTICE_SEQ DESC </when>
-            <when test="orderBy == 'comment'">  ORDER BY COMMENT_CNT DESC, NOTICE_SEQ DESC </when>
-            <otherwise>                         ORDER BY NOTICE_SEQ DESC </otherwise>
+            <when test="orderBy == 'read'">     ORDER BY n.READ_CNT DESC, n.NOTICE_SEQ DESC </when>
+            <when test="orderBy == 'comment'">  ORDER BY COALESCE(c.cnt,0) DESC, n.NOTICE_SEQ DESC </when>
+            <when test="orderBy == 'like'">     ORDER BY COALESCE(l.cnt,0) DESC, n.NOTICE_SEQ DESC </when> <!-- 옵션 -->
+            <when test="orderBy == 'old'">      ORDER BY n.NOTICE_SEQ ASC </when>
+            <otherwise>                         ORDER BY n.NOTICE_SEQ DESC </otherwise>
         </choose>
+
+        <!-- 페이징 -->
         <if test="size != null">
             LIMIT #{size}
             <if test="page != null"> OFFSET #{offsetVal}</if>
         </if>
     </select>
 
+
+
     <!-- LIST COUNT -->
     <select id="countNoticeList" parameterType="com.daepihasan.dto.NoticeSearchDTO"
             resultType="int">
         SELECT COUNT(1)
-        FROM NOTICE
+        FROM NOTICE n
         <where>
-            <if test="status != null">
-                STATUS = #{status}
-            </if>
+            <choose>
+                <when test="status != null">
+                    n.STATUS = #{status}
+                </when>
+                <otherwise>
+                    (n.STATUS IS NULL OR n.STATUS &lt;&gt; 9)
+                </otherwise>
+            </choose>
+
             <if test="categoryId != null">
-                AND CATEGORY_ID = #{categoryId}
+                AND n.CATEGORY_ID = #{categoryId}
             </if>
             <if test="keyword != null and keyword != ''">
-                AND (
-                TITLE    LIKE CONCAT('%', #{keyword}, '%')
-                OR CONTENTS LIKE CONCAT('%', #{keyword}, '%')
-                )
+                AND (n.TITLE LIKE CONCAT('%', #{keyword}, '%')
+                OR n.CONTENTS LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
     </select>
 
     <!-- READ COUNT +1 -->
-    <update id="increaseReadCnt" parameterType="com.daepihasan.dto.NoticeDTO">
+    <update id="increaseReadCount" parameterType="com.daepihasan.dto.NoticeDTO">
         UPDATE NOTICE
         SET READ_CNT = READ_CNT + 1
         WHERE NOTICE_SEQ = #{noticeSeq}
