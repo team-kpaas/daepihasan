@@ -102,7 +102,7 @@ public class    UserInfoController {
             String password = CmmUtil.nvl(request.getParameter("password")); // 비밀번호
             String email = CmmUtil.nvl(request.getParameter("email")); // 이메일
             String addr1 = CmmUtil.nvl(request.getParameter("addr1")); // 주소
-            String addr2 = CmmUtil.nvl(request.getParameter("addr1")); // 상세주소
+            String addr2 = CmmUtil.nvl(request.getParameter("addr2")); // 상세주소
 
             log.info("userId : " + userId);
             log.info("userName : " + userName);

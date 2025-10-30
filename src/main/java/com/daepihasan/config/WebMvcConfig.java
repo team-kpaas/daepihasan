@@ -24,10 +24,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/user/join",
                         "/user/joinProc",
                         "/error",
+                        "/error/**",
                         "/css/**",
                         "/js/**",
                         "/images/**",
-                        "/favicon.ico"
+                        "/favicon.ico",
+                        "/actuator/**"
                 );
     }
 }
