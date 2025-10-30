@@ -23,5 +23,8 @@ $(document).ready(function () {
     $("#forecast-move-button").on("click", function () {
         location.href = "/fireForecast";
     });
+    $("#board-move-button").on("click", function () {
+        location.href = "/notice/list";
+    });
 
 })
