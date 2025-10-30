@@ -25,6 +25,15 @@
         <div class="swiper-wrapper">
             <div class="swiper-slide">
                 <div class="card">
+                    <div class="icon puple-gradation">📝</div>
+                    <h1>제보 하기</h1>
+                    <p>산불 발생 상황을 빠르게 공유해</p>
+                    <p>모두의 안전을 지켜주세요</p>
+                    <button class="puple-gradation js-move-button" data-href="${pageContext.request.contextPath}/notice">시작하기</button>
+                </div>
+            </div>
+            <div class="swiper-slide">
+                <div class="card">
                     <div class="icon blue-gradation">🗺️</div>
                     <h1>지도 탐색</h1>
                     <p>가장 가까운 대피소와 안전한</p>
@@ -34,18 +43,9 @@
             </div>
             <div class="swiper-slide">
                 <div class="card">
-                    <div class="icon puple-gradation">📝</div>
-                    <h1>제보 하기</h1>
-                    <p>산불 발생 상황을 빠르게 공유해</p>
-                    <p>모두의 안전을 지켜주세요</p>
-                    <button class="puple-gradation" id="board-move-button">시작하기</button>
-                </div>
-            </div>
-            <div class="swiper-slide">
-                <div class="card">
                     <div class="icon green-gradation">📊</div>
                     <h1>산불 통계</h1>
-                    <p>실시간 통계와 과거 데이터를 통해</p>
+                    <p>산불 통계 데이터를 통해</p>
                     <p>산불 현황을 한눈에 확인하세요</p>
                     <button class="green-gradation" id="stat-move-button">시작하기</button>
                 </div>

@@ -21,7 +21,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link <%= path.startsWith("/report") ? "active" : "" %>" href="/report">
+                <a class="nav-link <%= path.startsWith("/notice") ? "active" : "" %>" href="/notice">
                     <i class="fa-solid fa-bullhorn"></i> 제보 게시판
                 </a>
             </li>
