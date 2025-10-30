@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kpaas-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    cert-manager.io/cluster-issuer: "letsencrypt-production"     # ✅ 인증서 발급용
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"       # ✅ HTTP → HTTPS 리다이렉트
+spec:
+  ingressClassName: nginx
+  tls:                                                           # ✅ TLS 섹션 추가
+    - hosts:
+        - www.daepihasan.kr
+        - daepihasan.kr
+      secretName: daepihasan-tls                                 # 발급된 인증서 저장될 Secret
+  rules:
+    - host: www.daepihasan.kr
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-prj-svc
+                port:
+                  number: 8080

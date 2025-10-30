@@ -28,7 +28,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/css/**",
                         "/js/**",
                         "/images/**",
-                        "/favicon.ico"
+                        "/favicon.ico",
+                        "/actuator/**"
                 );
     }
 }

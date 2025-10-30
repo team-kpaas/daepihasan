@@ -219,11 +219,12 @@ public class WeatherService implements IWeatherService {
         try {
             log.info("1차 API 요청: {}", primaryUrl);
             json = NetworkUtil.get(primaryUrl);
+            log.info("api : {}", json);
             if (!isValidResponse(json)) throw new IllegalStateException("1차 응답 비정상");
             log.info("1차 API 성공");
         } catch (Exception ex) {
             log.warn("1차 API 실패({}) → KMA 요청 시도", ex.toString());
-            json = NetworkUtil.get(kmaApiURL);
+            json = NetworkUtil.get(kmaUrl);
             if (!isValidResponse(json)) {
                 log.error("기상청 요청도 실패");
                 throw new IllegalStateException("모든 단기 날씨 api 요청 실패");
