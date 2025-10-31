@@ -29,7 +29,7 @@
                     <h1>제보 하기</h1>
                     <p>산불 발생 상황을 빠르게 공유해</p>
                     <p>모두의 안전을 지켜주세요</p>
-                    <button class="puple-gradation js-move-button" data-href="${pageContext.request.contextPath}/notice">시작하기</button>
+                    <button class="puple-gradation" id="board-move-button" onclick = "location.href = '/notice/list'">시작하기</button>
                 </div>
             </div>
             <div class="swiper-slide">
