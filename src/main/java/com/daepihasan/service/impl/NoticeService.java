@@ -56,6 +56,6 @@ public class NoticeService implements INoticeService {
     @Transactional
     @Override
     public int increaseReadCount(NoticeDTO pDTO) {
-        return noticeMapper.increaseReadCnt(pDTO);
+        return noticeMapper.increaseReadCount(pDTO);
     }
 }

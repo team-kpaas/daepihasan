@@ -6,12 +6,14 @@ import com.daepihasan.service.INoticeCategoryService;
 import com.daepihasan.service.INoticeCommentService;
 import com.daepihasan.service.INoticeLikeService;
 import com.daepihasan.service.INoticeService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.HashMap;
@@ -59,10 +61,10 @@ public class NoticeController {
 
     /** 상세 */
     @GetMapping("/{id}")
-    public String detail(@PathVariable("id") Integer id, Model model, Principal principal) throws Exception {
+    public String detail(@PathVariable("id") Integer id, Model model, HttpSession session) throws Exception {
         NoticeDTO item = noticeService.getNoticeDetail(NoticeDTO.builder().noticeSeq(id).build());
-
-        String uid = currentUserId(principal);           // 👈 String
+        bumpReadCountOncePerSession(id, session);
+        String uid = (String) session.getAttribute("SS_USER_ID");           // 👈 String
         NoticeLikeDTO likeQ = NoticeLikeDTO.builder()
                 .noticeSeq(id)
                 .userId(uid)                             // 👈 String 그대로
@@ -87,8 +89,8 @@ public class NoticeController {
 
     /** 작성 처리 */
     @PostMapping("/write")
-    public String create(@ModelAttribute NoticeDTO pDTO, Principal principal) throws Exception {
-        final String uid = currentUserId(principal);
+    public String create(@ModelAttribute NoticeDTO pDTO, HttpSession session) throws Exception {
+        final String uid = (String) session.getAttribute("SS_USER_ID");
         log.info("[NOTICE][CREATE] uid={}, payload(title={}, categoryId={})",
                 uid, pDTO.getTitle(), pDTO.getCategoryId());
 
@@ -108,15 +110,15 @@ public class NoticeController {
         model.addAttribute("item",
                 noticeService.getNoticeDetail(NoticeDTO.builder().noticeSeq(id).build()));
         model.addAttribute("categoryList", categoryService.getCategoryList(new NoticeCategoryDTO()));
-        return "notice/edit";
+        return "notice/update";
     }
 
     /** 수정 처리 */
     @PostMapping("/{id}/edit")
     public String update(@PathVariable("id") Integer id,
                          @ModelAttribute NoticeDTO pDTO,
-                         Principal principal) throws Exception {
-        final String uid = currentUserId(principal);
+                         HttpSession session) throws Exception {
+        final String uid = (String) session.getAttribute("SS_USER_ID");
         pDTO.setNoticeSeq(id);
         pDTO.setChgId(uid);
 
@@ -130,10 +132,17 @@ public class NoticeController {
 
     /** 삭제(소프트) */
     @PostMapping("/{id}/delete")
-    public String delete(@PathVariable("id") Integer id) throws Exception {
-        log.info("[NOTICE][DELETE] id={}", id);
-        int r = noticeService.softDeleteNotice(NoticeDTO.builder().noticeSeq(id).build());
-        log.debug("[NOTICE][DELETE] result={}", r);
+    public String delete(@PathVariable Integer id,
+                         HttpSession session,
+                         RedirectAttributes ra) throws Exception {
+        String userId = (String) session.getAttribute("SS_USER_ID"); // or SecurityContext
+        int r = noticeService.softDeleteNotice(
+                NoticeDTO.builder()
+                        .noticeSeq(id)
+                        .chgId(userId) // ← 추가
+                        .build()
+        );
+        ra.addFlashAttribute("msg", r > 0 ? "삭제되었습니다." : "삭제할 수 없습니다.");
         return "redirect:/notice/list";
     }
 
@@ -142,8 +151,8 @@ public class NoticeController {
     // 좋아요
     @PostMapping(value = "/{id}/like", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<?> like(@PathVariable("id") Integer id, Principal principal) throws Exception {
-        String userId = currentUserId(principal);        // 👈 String
+    public ResponseEntity<?> like(@PathVariable("id") Integer id, HttpSession session) throws Exception {
+        String userId = (String) session.getAttribute("SS_USER_ID");        // 👈 String
         NoticeLikeDTO p = NoticeLikeDTO.builder()
                 .noticeSeq(id)
                 .userId(userId)                          // 👈 String 그대로
@@ -158,8 +167,8 @@ public class NoticeController {
     // 좋아요 취소
     @DeleteMapping(value = "/{id}/like", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<?> unlike(@PathVariable("id") Integer id, Principal principal) throws Exception {
-        String userId = currentUserId(principal);        // 👈 String
+    public ResponseEntity<?> unlike(@PathVariable("id") Integer id, HttpSession session) throws Exception {
+        String userId = (String) session.getAttribute("SS_USER_ID");        // 👈 String
         NoticeLikeDTO p = NoticeLikeDTO.builder()
                 .noticeSeq(id)
                 .userId(userId)                          // 👈 String 그대로
@@ -182,8 +191,8 @@ public class NoticeController {
     // 내가 좋아요 했는지
     @GetMapping(value = "/{id}/likes/me", produces = "application/json")
     @ResponseBody
-    public ResponseEntity<?> likedMe(@PathVariable("id") Integer id, Principal principal) throws Exception {
-        String userId = currentUserId(principal);        // 👈 String
+    public ResponseEntity<?> likedMe(@PathVariable("id") Integer id, HttpSession session) throws Exception {
+        String userId = (String) session.getAttribute("SS_USER_ID");        // 👈 String
         boolean liked = likeService.hasUserLiked(
                 NoticeLikeDTO.builder().noticeSeq(id).userId(userId).build()
         );
@@ -211,8 +220,8 @@ public class NoticeController {
     @ResponseBody
     public ResponseEntity<?> addComment(@PathVariable("id") Integer id,
                                         @RequestBody NoticeCommentDTO pDTO,
-                                        Principal principal) throws Exception {
-        final String uid = currentUserId(principal);
+                                        HttpSession session) throws Exception {
+        final String uid = (String) session.getAttribute("SS_USER_ID");
         pDTO.setNoticeSeq(id);
         pDTO.setUserId(uid);
 
@@ -229,8 +238,8 @@ public class NoticeController {
     public ResponseEntity<?> updateComment(@PathVariable("id") Integer id,
                                            @PathVariable("commentId") Integer commentId,
                                            @RequestBody NoticeCommentDTO pDTO,
-                                           Principal principal) throws Exception {
-        final String uid = currentUserId(principal);
+                                           HttpSession session) throws Exception {
+        final String uid = (String) session.getAttribute("SS_USER_ID");
         pDTO.setNoticeSeq(id);
         pDTO.setId(commentId);
         pDTO.setUserId(uid);
@@ -247,8 +256,8 @@ public class NoticeController {
     @ResponseBody
     public ResponseEntity<?> deleteComment(@PathVariable("id") Integer id,
                                            @PathVariable("commentId") Integer commentId,
-                                           Principal principal) throws Exception {
-        final String uid = currentUserId(principal);
+                                           HttpSession session) throws Exception {
+        final String uid = (String) session.getAttribute("SS_USER_ID");
         NoticeCommentDTO pDTO = NoticeCommentDTO.builder()
                 .noticeSeq(id).id(commentId).userId(uid).build();
 
@@ -259,8 +268,13 @@ public class NoticeController {
         return ResponseEntity.ok(Map.of("ok", r > 0));
     }
 
-    /* ---------------------- 유틸 ---------------------- */
-    private String currentUserId(Principal principal) {
-        return (principal != null) ? principal.getName() : "guest"; // 👈 String 유지
+    private void bumpReadCountOncePerSession(Integer noticeId, HttpSession session) throws Exception {
+        final String KEY = "VIEWED_NOTICE_" + noticeId;
+        Object seen = session.getAttribute(KEY);
+        if (seen == null) {
+            noticeService.increaseReadCount(NoticeDTO.builder().noticeSeq(noticeId).build());
+            session.setAttribute(KEY, Boolean.TRUE);
+        }
     }
+
 }

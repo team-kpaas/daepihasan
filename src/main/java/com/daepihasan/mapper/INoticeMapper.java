@@ -32,5 +32,5 @@ public interface INoticeMapper {
     /**
      * 조회수 +1: pDTO.noticeSeq 세팅
      */
-    int increaseReadCnt(NoticeDTO pDTO);
+    int increaseReadCount(NoticeDTO pDTO);
 }

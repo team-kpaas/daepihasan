@@ -4,24 +4,26 @@ var swiper = new Swiper(".mySwiper", {
     loop:true,
     initialSlide:0,
     navigation: {
-    nextEl: ".swiper-button-next",
-    prevEl: ".swiper-button-prev",
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
     },
     observer: true,
     observeParents: true,
 });
+
+
 $(document).ready(function () {
 
-    $("#map-move-button").on("click", function () {
+    $(document).on("click", "#map-move-button", function () {
         location.href = "/view/map";
     });
 
-    $("#stat-move-button").on("click", function () {
+    $(document).on("click", "#stat-move-button", function () {
         location.href = "/dashboard/forestFireCase";
     });
 
-    $("#forecast-move-button").on("click", function () {
-        location.href = "/fireForecast";
+    $(document).on("click", "#forecast-move-button", function () {
+        location.href = "/forecast";
     });
 
-})
+});

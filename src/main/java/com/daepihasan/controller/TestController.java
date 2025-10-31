@@ -17,7 +17,7 @@ public class TestController {
 
         SpamDTO dto = new SpamDTO();
 //        dto.setText("완전 감동이에요 다시 봐도 좋네요"); // 긍정부정(label: pos)
-        dto.setText("무료쿠폰 지금 수령하세요 => http://"); // 스팸(label: spam)
+        dto.setText("무료쿠폰 지금 수령하세요 => http://ex.am.pl"); // 스팸(label: spam)
 
         return testService.test(dto);
     }
